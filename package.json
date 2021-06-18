@@ -9,7 +9,8 @@
     "url": "https://github.com/PlaystationPT/discord-bot/issues"
   },
   "scripts": {
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "start": "node index.js"
   },
   "dependencies": {
     "discord.js": "^12.5.3",
