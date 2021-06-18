@@ -1,0 +1,21 @@
+{
+  "name": "playstationpt.discord-bot",
+  "description": "The official Playsation Portugal - discord bot, created and maintained by core members of its community.",
+  "version": "0.0.1",
+  "private": true,
+  "repository": "https://github.com/PlaystationPT/discord-bot.git",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PlaystationPT/discord-bot/issues"
+  },
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "discord.js": "^12.5.3",
+    "dotenv": "^10.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.28.0"
+  }
+}
