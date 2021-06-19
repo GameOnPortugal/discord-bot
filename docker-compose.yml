@@ -3,7 +3,21 @@ services:
   bot:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./docker/app/Dockerfile
+    links:
+      - db
     container_name: bot
+    volumes:
+      - ./:/app:rw
     env_file:
       - .env
+
+  db:
+    # In production, you may want to use a managed database service
+    build:
+      context: ./docker/db
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./docker/db/data:/var/lib/mysql/data:rw
+    ports:
+      - "3306:3306"
