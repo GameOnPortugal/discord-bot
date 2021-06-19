@@ -3,7 +3,23 @@ services:
   bot:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./docker/app/Dockerfile
+    links:
+      - db
     container_name: bot
+    volumes:
+      - ./:/app:rw
     env_file:
       - .env
+
+  db:
+    image: mysql:5.6
+    environment:
+      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_DATABASE: 'bot'
+      MYSQL_USER: 'app'
+      MYSQL_PASSWORD: 'pw'
+    volumes:
+      - ./docker/db/data:/var/lib/mysql/data:rw
+    ports:
+      - "3306:3306"
