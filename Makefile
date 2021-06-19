@@ -15,3 +15,11 @@ run-detached:
 .PHONY: stop
 stop:
 	docker-compose down
+
+.PHONY: eslint
+eslint:
+	eslint .
+
+.PHONY: eslint-fix
+eslint-fix:
+	eslint . --fix

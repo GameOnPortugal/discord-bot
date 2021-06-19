@@ -8,6 +8,17 @@ Localmente basta preencher o ficheiro .env com os dados necessários
 
 Construir os containers através do comando `make run`
 
+## ESlint
+
+Estamos a usar o ESLint para manter algumas regras de estrutura comum a todos os programadores
+bem como verificar rapidamente por algum problema potencial.
+
+Para validar estas regras pode usar o comando `make eslint`
+
+Para corrigir automaticamente alguns destes problemas, como regras de apresentação podem
+correr o comando `make eslint-fix`
+
+
 ## Base de dados
 
 Estamos a usar `sequelize` para gerir a base de dados. 
