@@ -1,14 +1,14 @@
 const DotEnv = require('dotenv');
 DotEnv.config();
 
-const recursive = require("recursive-readdir");
+const recursive = require('recursive-readdir');
 const Discord = require('discord.js');
 const { prefix } = require('./config/config.json');
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
 
-recursive('./src/commands', function (err, commandFiles) {
+recursive('./src/commands', function(err, commandFiles) {
 	for (const file of commandFiles) {
 		const command = require(process.cwd() + '/' + file);
 		// set a new item in the Collection
