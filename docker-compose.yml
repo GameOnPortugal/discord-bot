@@ -13,10 +13,12 @@ services:
       - .env
 
   db:
-    # In production, you may want to use a managed database service
-    build:
-      context: ./docker/db
-      dockerfile: ./Dockerfile
+    image: mysql:5.6
+    environment:
+      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_DATABASE: 'bot'
+      MYSQL_USER: 'app'
+      MYSQL_PASSWORD: 'pw'
     volumes:
       - ./docker/db/data:/var/lib/mysql/data:rw
     ports:
