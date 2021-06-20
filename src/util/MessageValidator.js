@@ -18,7 +18,7 @@ const MessageValidator = {
 		if (undefined === restrictions) {
 			restrictions = await SpecialChannel.findAll({ where: { channelId: channelId } });
 
-			// Save memory cache that channel doesn't have restrictions
+			// Save restrictions to memory so we don't over spam DB
 			await keyV.set('channel.' + channelId, restrictions);
 		}
 
