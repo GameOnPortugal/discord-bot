@@ -3,7 +3,7 @@ DotEnv.config();
 
 const recursive = require('recursive-readdir');
 const Discord = require('discord.js');
-const { prefix } = require('./config/config.json');
+const PrefixUtil = require('./util/prefixUtil');
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
@@ -17,15 +17,47 @@ recursive('./src/commands', function(err, commandFiles) {
 	}
 });
 
+/**
+ * BOT has connected to the GUILD server and is ready!
+ */
 client.once('ready', () => {
 	console.log('Ready!');
 });
 
-client.on('message', message => {
-	if (!message.content.startsWith(prefix) || message.author.bot) return;
+/**
+ * BOT is handling messages on the GUILD
+ */
+client.on('message', async message => {
+	const prefix = await PrefixUtil.getPrefix();
 
-	const args = message.content.slice(prefix.length).trim().split(/ +/);
+	if (
+		// If prefix was not used AND/NOR bot was not mentioned
+		(!message.content.startsWith(prefix) && !message.mentions.has(client.user))
+		// Author is a bot
+		|| message.author.bot
+	) return;
+
+	let args = message.content;
+	if (message.content.startsWith(prefix)) {
+		// remove the prefix from command and split arguments by spaces
+		args = args.slice(prefix.length).trim().split(/ +/);
+	}
+	else {
+		// split arguments by spaces
+		args = args.trim().split(/ +/);
+		// remove the bot name (e.g.: @PSPT-bot)
+		args.shift();
+
+		if (args.length === 0) {
+			console.log('No commands sent');
+			return;
+		}
+	}
+
+	// Grab the command which is the second argument in the message
 	const command = args.shift().toLowerCase();
+
+	console.log('Command "' + command + '"', ' Arguments: ' + args);
 
 	if (!client.commands.has(command)) return;
 

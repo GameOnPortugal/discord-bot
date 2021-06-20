@@ -13,8 +13,10 @@
     "start": "node src/index.js"
   },
   "dependencies": {
+    "@keyv/redis": "^2.1.2",
     "discord.js": "^12.5.3",
     "dotenv": "^10.0.0",
+    "keyv": "^4.0.3",
     "mariadb": "^2.5.3",
     "recursive-readdir": "^2.2.2",
     "sequelize": "^6.6.2"
