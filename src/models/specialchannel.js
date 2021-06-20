@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
 
   SpecialChannel.init(
       {
-        channelId: DataTypes.INTEGER,
+        channelId: DataTypes.STRING,
         specialType: DataTypes.STRING,
         data: DataTypes.TEXT
       },
