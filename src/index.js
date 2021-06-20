@@ -42,7 +42,13 @@ client.on('message', async message => {
 		// validate message
 		const isValid = await MessageValidator.validate(message);
 		if (!isValid) {
-			await message.channel.send('Message is invalid!');
+			await message.author.send(
+				'Your message was invalid and was automatically deleted.\n'+
+				'**If you think this was a mistake, please tell staff about it!**\n'+
+				'I\'m sending it over to you as you might want to add save a copy or post it in another channel.\n' +
+				'Your message was:\n\n'
+			);
+			await message.author.send(message.content);
 
 			await message.delete();
 		}
