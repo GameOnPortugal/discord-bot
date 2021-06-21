@@ -17,13 +17,12 @@
     "discord.js": "^12.5.3",
     "dotenv": "^10.0.0",
     "keyv": "^4.0.3",
-    "mariadb": "^2.5.3",
+    "mysql2": "^2.2.5",
     "recursive-readdir": "^2.2.2",
     "sequelize": "^6.6.2"
   },
   "devDependencies": {
     "eslint": "^7.28.0",
-    "mysql2": "^2.2.5",
     "sequelize-cli": "^6.2.0"
   }
 }
