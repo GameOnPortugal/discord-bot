@@ -4,6 +4,7 @@ DotEnv.config();
 const recursive = require('recursive-readdir');
 const Discord = require('discord.js');
 const PrefixUtil = require('./util/prefixUtil');
+const MessageValidator = require('./util/MessageValidator');
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
@@ -30,12 +31,30 @@ client.once('ready', () => {
 client.on('message', async message => {
 	const prefix = await PrefixUtil.getPrefix();
 
-	if (
-		// If prefix was not used AND/NOR bot was not mentioned
-		(!message.content.startsWith(prefix) && !message.mentions.has(client.user))
-		// Author is a bot
-		|| message.author.bot
-	) return;
+	if (message.author.bot) {
+		// Ignore bots
+		return;
+	}
+
+	// If prefix was not used AND/NOR bot was not mentioned
+	if (!message.content.startsWith(prefix) && !message.mentions.has(client.user)) {
+		// message isn't a command
+		// validate message
+		const isValid = await MessageValidator.validate(message);
+		if (!isValid) {
+			await message.author.send(
+				'Your message was invalid and was automatically deleted.\n' +
+				'**If you think this was a mistake, please tell staff about it!**\n' +
+				'I\'m sending it over to you as you might want to add save a copy or post it in another channel.\n' +
+				'Your message was:\n\n',
+			);
+			await message.author.send(message.content);
+
+			await message.delete();
+		}
+
+		return;
+	}
 
 	let args = message.content;
 	if (message.content.startsWith(prefix)) {

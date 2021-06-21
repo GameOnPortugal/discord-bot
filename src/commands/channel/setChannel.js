@@ -2,8 +2,12 @@ const models = require('./../../models');
 const SpecialChannel = models.SpecialChannel;
 const allowedSpecialTypes = ['regex'];
 
+const MessageValidatorUtil = require('./../../util/MessageValidator');
+
 /**
  * Show help information regarding command
+ *
+ * @param message
  */
 function showHelp(message) {
 	message.channel.send(
@@ -17,6 +21,15 @@ function showHelp(message) {
         'Use `!setchannel delete all` to delete all channel restrictions\n' +
         'Use `!setchannel help` to grab this help message\n',
 	);
+}
+
+/**
+ * Remove cache for the channel
+ *
+ * @param message
+ */
+async function removeMessageValidatorCache(message) {
+	await MessageValidatorUtil.cleanCache(message.channel.id);
 }
 
 module.exports = {
@@ -36,11 +49,14 @@ module.exports = {
 				return;
 			}
 			case 'delete': {
-				if (!args.length === 1) {
+				if (args.length < 2) {
 					message.channel.send('Missing restriction id. You can remove all by mentioning "all" in your delete command');
 
 					return;
 				}
+
+				await removeMessageValidatorCache(message);
+
 				if (args[1] === 'all') {
 					await SpecialChannel.destroy({ where: { channelId: message.channel.id } });
 					message.channel.send('All restrictions have been removed');
@@ -90,6 +106,8 @@ module.exports = {
 				);
 
 				message.channel.send('Special channel settings have been created!');
+
+				await removeMessageValidatorCache(message);
 
 				return;
 			}
