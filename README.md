@@ -32,6 +32,10 @@ Estamos a usar para desenvolvimento o sequelize-ci e uns bons exemplos podem ser
 
 `npx sequelize-cli db:migrate:undo`
 
+Em produção podemos rodar as migracoes atribuindo o parametero --url por exemplo:
+
+`npx sequelize-cli db:migrate --url 'mysql://user:pass@db/db?reconnect=true'`
+
 ### Criar um novo modelo
 
 `npx sequelize-cli model:generate --name User --attributes firstName:string,lastName:string,email:string`
