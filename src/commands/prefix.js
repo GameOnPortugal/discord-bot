@@ -2,6 +2,7 @@ const PrefixUtil = require('../util/prefixUtil');
 
 module.exports = {
 	name: 'prefix',
+	guildOnly: false,
 	description: 'Define prefix for bot',
 	async execute(message, args) {
 		if (args.length === 0) {

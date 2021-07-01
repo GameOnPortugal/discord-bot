@@ -5,25 +5,6 @@ const allowedSpecialTypes = ['regex'];
 const MessageValidatorUtil = require('./../../util/MessageValidator');
 
 /**
- * Show help information regarding command
- *
- * @param message
- */
-function showHelp(message) {
-	message.channel.send(
-		'Configure channel to have some set of rules or conditions for messages to be allowed.\n' +
-        'Command has the following structure: `!setchannel <type|info|delete|help> [optional_arguments]`\n\n' +
-        'Examples:\n' +
-        'Use `!setchannel regex ^/.+/$` for all messages to be accepted\n' +
-        'Use `!setchannel regex ^/.?+game+.*/$` to enforce "game" keyword in the message\n' +
-        'Use `!setchannel info` to grab current channel restrictions\n' +
-        'Use `!setchannel delete <id>` to delete a channel restriction\n' +
-        'Use `!setchannel delete all` to delete all channel restrictions\n' +
-        'Use `!setchannel help` to grab this help message\n',
-	);
-}
-
-/**
  * Remove cache for the channel
  *
  * @param message
@@ -35,16 +16,21 @@ async function removeMessageValidatorCache(message) {
 module.exports = {
 	name: 'setchannel',
 	description: 'Configure channel with restrictions',
+	guildOnly: true,
+	args: true,
+	usage: 'Configure channel to have some set of rules or conditions for messages to be allowed.\n' +
+		'Command has the following structure: `!setchannel <type|info|delete|help> [optional_arguments]`\n\n' +
+		'Examples:\n' +
+		'Use `!setchannel regex ^/.+/$` for all messages to be accepted\n' +
+		'Use `!setchannel regex ^/.?+game+.*/$` to enforce "game" keyword in the message\n' +
+		'Use `!setchannel info` to grab current channel restrictions\n' +
+		'Use `!setchannel delete <id>` to delete a channel restriction\n' +
+		'Use `!setchannel delete all` to delete all channel restrictions\n' +
+		'Use `!setchannel help` to grab this help message\n',
 	async execute(message, args) {
-		if (!args.length) {
-			showHelp(message);
-
-			return;
-		}
-
 		switch (args[0]) {
 			case 'help': {
-				showHelp(message);
+				message.channel.send(this.usage);
 
 				return;
 			}
