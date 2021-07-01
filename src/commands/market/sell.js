@@ -24,17 +24,18 @@ const questions = {
 	},
 	description: {
 		question: 'Queres descrever o anuncio? Responde com "não" se não quiseres adicionar uma descrição ao anúncio.',
-	}
+	},
 };
 
 module.exports = {
 	name: 'sell',
 	guildOnly: true,
 	description: 'Sell an item in the marketplace',
-	async execute(message, client) {
-		message.delete(); // Delete the message prevent spam.
+	async execute(message) {
+		// Delete the message prevent spam.
+		message.delete();
 
-		let data = {};
+		const data = {};
 		let embeddedMessage = null;
 
 		await message.author
@@ -48,7 +49,7 @@ module.exports = {
 					await dmchannel.send(questions[questionName].question);
 
 					await dmchannel
-						.awaitMessages(m => m.author.id === message.author.id && m.content, {max: 1, time: 30000, errors: ['time']})
+						.awaitMessages(m => m.author.id === message.author.id && m.content, { max: 1, time: 30000, errors: ['time'] })
 						.then(async collected => {
 							hasAnswered = true;
 							console.log(questionName + ' = ' + collected.last().content);
@@ -60,7 +61,7 @@ module.exports = {
 							console.log('Times up... finishing');
 
 							await dmchannel.send('Acabou o tempo... o anúncio não será criado.');
-						})
+						});
 
 					console.log('One question done moving to other...');
 
@@ -99,7 +100,7 @@ module.exports = {
 
 				let createItem = false;
 				await dmchannel
-					.awaitMessages(m => m.author.id === message.author.id, {max: 1, time: 30000, errors: ['time']})
+					.awaitMessages(m => m.author.id === message.author.id, { max: 1, time: 30000, errors: ['time'] })
 					.then(async collected => {
 						const answer = collected.last().content.toLowerCase().trim();
 						if (answer === 'sim' || answer === 's') {
@@ -108,7 +109,7 @@ module.exports = {
 					})
 					.catch(async () => {
 						await dmchannel.send('Time up.. no ad will be created.');
-					})
+					});
 
 				if (createItem) {
 					console.log('Ad approved. Creating the item on the db and sending it to the channel!');
@@ -124,7 +125,8 @@ module.exports = {
 
 							message.channel.send('Error while creating the item.');
 						});
-				} else {
+				}
+				else {
 					console.log('Ad disapproved. Nothing to see here.');
 				}
 			});
