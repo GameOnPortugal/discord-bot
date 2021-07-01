@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 
 const models = require('./../../models');
-const MarketItem = models.MarketItem;
+const Ad = models.Ad;
 
 const questions = {
 	name: {
@@ -114,7 +114,7 @@ module.exports = {
 				if (createItem) {
 					console.log('Ad approved. Creating the item on the db and sending it to the channel!');
 
-					MarketItem
+					Ad
 						.create(data)
 						.then(async () => {
 							await message.channel.send(embeddedMessage);
