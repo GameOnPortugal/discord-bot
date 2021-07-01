@@ -2,65 +2,65 @@ const PrefixUtil = require('./../util/prefixUtil');
 const MessageValidator = require('./../util/MessageValidator');
 
 module.exports = {
-    name: 'message',
-    async execute(message, client) {
-        const prefix = await PrefixUtil.getPrefix();
+	name: 'message',
+	async execute(message, client) {
+		const prefix = await PrefixUtil.getPrefix();
 
-        if (message.author.bot) {
-            // Ignore bots
-            return;
-        }
+		if (message.author.bot) {
+			// Ignore bots
+			return;
+		}
 
-        // If prefix was not used AND/NOR bot was not mentioned
-        if (!message.content.startsWith(prefix) && !message.mentions.has(client.user)) {
-            // message isn't a command
-            // validate message
-            const isValid = await MessageValidator.validate(message);
-            if (!isValid) {
-                await message.author.send(
-                    'Your message was invalid and was automatically deleted.\n' +
+		// If prefix was not used AND/NOR bot was not mentioned
+		if (!message.content.startsWith(prefix) && !message.mentions.has(client.user)) {
+			// message isn't a command
+			// validate message
+			const isValid = await MessageValidator.validate(message);
+			if (!isValid) {
+				await message.author.send(
+					'Your message was invalid and was automatically deleted.\n' +
                     '**If you think this was a mistake, please tell staff about it!**\n' +
                     'I\'m sending it over to you as you might want to add save a copy or post it in another channel.\n' +
                     'Your message was:\n\n',
-                );
-                await message.author.send(message.content);
+				);
+				await message.author.send(message.content);
 
-                await message.delete();
-            }
+				await message.delete();
+			}
 
-            return;
-        }
+			return;
+		}
 
-        let args = message.content;
-        if (message.content.startsWith(prefix)) {
-            // remove the prefix from command and split arguments by spaces
-            args = args.slice(prefix.length).trim().split(/ +/);
-        }
-        else {
-            // split arguments by spaces
-            args = args.trim().split(/ +/);
-            // remove the bot name (e.g.: @PSPT-bot)
-            args.shift();
+		let args = message.content;
+		if (message.content.startsWith(prefix)) {
+			// remove the prefix from command and split arguments by spaces
+			args = args.slice(prefix.length).trim().split(/ +/);
+		}
+		else {
+			// split arguments by spaces
+			args = args.trim().split(/ +/);
+			// remove the bot name (e.g.: @PSPT-bot)
+			args.shift();
 
-            if (args.length === 0) {
-                console.log('No commands sent');
-                return;
-            }
-        }
+			if (args.length === 0) {
+				console.log('No commands sent');
+				return;
+			}
+		}
 
-        // Grab the command which is the second argument in the message
-        const command = args.shift().toLowerCase();
+		// Grab the command which is the second argument in the message
+		const command = args.shift().toLowerCase();
 
-        console.log('Command "' + command + '"', ' Arguments: ' + args);
+		console.log('Command "' + command + '"', ' Arguments: ' + args);
 
-        if (!client.commands.has(command)) return;
+		if (!client.commands.has(command)) return;
 
-        try {
-            client.commands.get(command).execute(message, args);
-        }
-        catch (error) {
-            console.error(error);
-            message.reply('there was an error trying to execute that command!');
-        }
-    },
+		try {
+			client.commands.get(command).execute(message, args);
+		}
+		catch (error) {
+			console.error(error);
+			message.reply('there was an error trying to execute that command!');
+		}
+	},
 };
