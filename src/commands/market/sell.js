@@ -35,7 +35,7 @@ module.exports = {
 		// Delete the message prevent spam.
 		message.delete();
 
-		const data = {};
+		const data = { adType: 'sell' };
 		let embeddedMessage = null;
 
 		await message.author

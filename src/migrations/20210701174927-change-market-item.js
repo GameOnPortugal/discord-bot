@@ -8,6 +8,7 @@ module.exports = {
 		await queryInterface.addColumn('MarketItems', 'dispatch', { type: Sequelize.STRING });
 		await queryInterface.addColumn('MarketItems', 'warranty', { type: Sequelize.STRING });
 		await queryInterface.addColumn('MarketItems', 'description', { type: Sequelize.TEXT });
+		await queryInterface.addColumn('MarketItems', 'adType', { type: Sequelize.TEXT });
 	},
 
 	down: async (queryInterface) => {
@@ -17,5 +18,6 @@ module.exports = {
 		await queryInterface.removeColumn('MarketItems', 'dispatch');
 		await queryInterface.removeColumn('MarketItems', 'warranty');
 		await queryInterface.removeColumn('MarketItems', 'description');
+		await queryInterface.removeColumn('MarketItems', 'adType');
 	},
 };
