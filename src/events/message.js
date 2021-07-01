@@ -49,14 +49,22 @@ module.exports = {
 		}
 
 		// Grab the command which is the second argument in the message
-		const command = args.shift().toLowerCase();
+		const commandName = args.shift().toLowerCase();
 
-		console.log('Command "' + command + '"', ' Arguments: ' + args);
+		console.log('Command "' + commandName + '"', ' Arguments: ' + args);
 
-		if (!client.commands.has(command)) return;
+		if (!client.commands.has(commandName)) return;
 
 		try {
-			client.commands.get(command).execute(message, args);
+			const command = client.commands.get(commandName);
+			if (command.guildOnly && message.channel.type === 'dm') {
+				return message.reply('I can\'t execute that command inside DMs!');
+			}
+			if (command.args && !args.length) {
+				return message.channel.send(command.usage);
+			}
+
+			command.execute(message, args);
 		}
 		catch (error) {
 			console.error(error);

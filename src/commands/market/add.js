@@ -3,6 +3,7 @@ const MarketItem = models.MarketItem;
 
 module.exports = {
 	name: 'add',
+	guildOnly: true,
 	description: 'Add a new market item',
 	execute(message) {
 		MarketItem
