@@ -3,8 +3,7 @@ DotEnv.config();
 
 const recursive = require('recursive-readdir');
 const Discord = require('discord.js');
-const PrefixUtil = require('./util/prefixUtil');
-const MessageValidator = require('./util/MessageValidator');
+const fs = require('fs');
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
@@ -18,75 +17,14 @@ recursive('./src/commands', function(err, commandFiles) {
 	}
 });
 
-/**
- * BOT has connected to the GUILD server and is ready!
- */
-client.once('ready', () => {
-	console.log('Ready!');
-});
-
-/**
- * BOT is handling messages on the GUILD
- */
-client.on('message', async message => {
-	const prefix = await PrefixUtil.getPrefix();
-
-	if (message.author.bot) {
-		// Ignore bots
-		return;
+const eventFiles = fs.readdirSync('./src/events').filter(file => file.endsWith('.js'));
+for (const file of eventFiles) {
+	const event = require(`./events/${file}`);
+	if (event.once) {
+		client.once(event.name, (...args) => event.execute(...args, client));
+	} else {
+		client.on(event.name, (...args) => event.execute(...args, client));
 	}
-
-	// If prefix was not used AND/NOR bot was not mentioned
-	if (!message.content.startsWith(prefix) && !message.mentions.has(client.user)) {
-		// message isn't a command
-		// validate message
-		const isValid = await MessageValidator.validate(message);
-		if (!isValid) {
-			await message.author.send(
-				'Your message was invalid and was automatically deleted.\n' +
-				'**If you think this was a mistake, please tell staff about it!**\n' +
-				'I\'m sending it over to you as you might want to add save a copy or post it in another channel.\n' +
-				'Your message was:\n\n',
-			);
-			await message.author.send(message.content);
-
-			await message.delete();
-		}
-
-		return;
-	}
-
-	let args = message.content;
-	if (message.content.startsWith(prefix)) {
-		// remove the prefix from command and split arguments by spaces
-		args = args.slice(prefix.length).trim().split(/ +/);
-	}
-	else {
-		// split arguments by spaces
-		args = args.trim().split(/ +/);
-		// remove the bot name (e.g.: @PSPT-bot)
-		args.shift();
-
-		if (args.length === 0) {
-			console.log('No commands sent');
-			return;
-		}
-	}
-
-	// Grab the command which is the second argument in the message
-	const command = args.shift().toLowerCase();
-
-	console.log('Command "' + command + '"', ' Arguments: ' + args);
-
-	if (!client.commands.has(command)) return;
-
-	try {
-		client.commands.get(command).execute(message, args);
-	}
-	catch (error) {
-		console.error(error);
-		message.reply('there was an error trying to execute that command!');
-	}
-});
+}
 
 client.login(process.env.BOT_TOKEN);
