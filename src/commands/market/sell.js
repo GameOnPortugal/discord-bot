@@ -86,6 +86,7 @@ module.exports = {
 					.setAuthor(message.author.username, message.author.avatarURL())
 					.addField('Estado', data.state)
 					.addField('Preço', data.price)
+					.addField('Zona', data.zone)
 					.addField('Envio', data.dispatch)
 					.addField('Garantia', data.warranty)
 					.addField('Contacto', '<@' + message.author.id + '>')
