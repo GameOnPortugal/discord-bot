@@ -13,6 +13,14 @@ module.exports = {
 				primaryKey: true,
 				type: Sequelize.INTEGER,
 			},
+			message_id: {
+				allowNull: false,
+				type: Sequelize.STRING,
+			},
+			author_id: {
+				allowNull: false,
+				type: Sequelize.STRING,
+			},
 			name: {
 				allowNull: false,
 				type: Sequelize.STRING,
@@ -53,10 +61,33 @@ module.exports = {
 				allowNull: false,
 				type: Sequelize.DATE,
 			},
+		}, {
+			charset: 'utf8mb4',
+			collate: 'utf8mb4_unicode_ci',
 		});
 	},
 
-	down: async (queryInterface) => {
+	down: async (queryInterface, Sequelize) => {
 		await queryInterface.dropTable('Ads');
+
+		await queryInterface.createTable('MarketItems', {
+			id: {
+				allowNull: false,
+				autoIncrement: true,
+				primaryKey: true,
+				type: Sequelize.INTEGER,
+			},
+			name: {
+				type: Sequelize.STRING,
+			},
+			createdAt: {
+				allowNull: false,
+				type: Sequelize.DATE,
+			},
+			updatedAt: {
+				allowNull: false,
+				type: Sequelize.DATE,
+			},
+		});
 	},
 };

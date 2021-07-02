@@ -8,6 +8,8 @@ module.exports = (sequelize, DataTypes) => {
 
 	Ad.init({
 		name: DataTypes.STRING,
+		author_id: DataTypes.STRING,
+		message_id: DataTypes.STRING,
 		state: DataTypes.STRING,
 		price: DataTypes.STRING,
 		zone: DataTypes.STRING,
@@ -17,6 +19,8 @@ module.exports = (sequelize, DataTypes) => {
 		adType: DataTypes.STRING,
 	}, {
 		sequelize,
+		charset: 'utf8mb4',
+		collate: 'utf8mb4_unicode_ci',
 		modelName: 'Ad',
 	});
 

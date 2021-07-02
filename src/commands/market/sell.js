@@ -32,11 +32,12 @@ module.exports = {
 	guildOnly: true,
 	description: 'Sell an item in the marketplace',
 	async execute(message) {
+		const data = { adType: 'sell', author_id: message.author.id };
+		console.log('Message author ' + message.author.id);
+		let embeddedMessage = null;
+
 		// Delete the message prevent spam.
 		message.delete();
-
-		const data = { adType: 'sell' };
-		let embeddedMessage = null;
 
 		await message.author
 			.createDM()
@@ -114,10 +115,11 @@ module.exports = {
 				if (createItem) {
 					console.log('Ad approved. Creating the item on the db and sending it to the channel!');
 
+					await message.channel.send(embeddedMessage).then(async m => { data['message_id'] = m.id; });
+
 					Ad
 						.create(data)
 						.then(async () => {
-							await message.channel.send(embeddedMessage);
 							await dmchannel.send('O teu anúncio foi criado com sucesso. Obrigado!');
 						})
 						.catch(error => {
