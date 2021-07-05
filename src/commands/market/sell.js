@@ -78,7 +78,7 @@ module.exports = {
 
 				console.log('Collector ended. Data:', data);
 
-				sellMessage = `:moneybag: **VENDO**`
+				sellMessage = ':moneybag: **VENDO**'
 					+ `\n:arrow_right: **${data.name}**`
 					+ `\n:bust_in_silhouette: <@${message.author.id}>`
 					+ `\n${data.description ? data.description : ''}`
