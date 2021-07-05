@@ -78,15 +78,15 @@ module.exports = {
 
 				console.log('Collector ended. Data:', data);
 
-				sellMessage = `:moneybag: **VENDO**
-:arrow_right: **${data.name}**
-:bust_in_silhouette: <@${message.author.id}>
-${data.description ? data.description : ''}
-**Estado:** ${data.state}
-**Preço:** ${data.price}
-**Zona:** ${data.zone}
-**Envio:** ${data.dispatch}
-**Garantia:** ${data.warranty}`;
+				sellMessage = `:moneybag: **VENDO**`
+					+ `\n:arrow_right: **${data.name}**`
+					+ `\n:bust_in_silhouette: <@${message.author.id}>`
+					+ `\n${data.description ? data.description : ''}`
+					+ `\n**Estado:** ${data.state}`
+					+ `\n**Preço:** ${data.price}`
+					+ `\n**Zona:** ${data.zone}`
+					+ `\n**Envio:** ${data.dispatch}`
+					+ `\n**Garantia:** ${data.warranty}`;
 
 				await dmchannel.send(sellMessage);
 				await dmchannel.send('Aqui está um preview do teu anúncio. Queres colocá-lo no canal? [sim/não]');
