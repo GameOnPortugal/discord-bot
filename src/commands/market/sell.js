@@ -1,5 +1,3 @@
-const Discord = require('discord.js');
-
 const models = require('./../../models');
 const Ad = models.Ad;
 
@@ -23,7 +21,7 @@ const questions = {
 		question: 'O artigo ainda está em garantia? Se sim indique também a data fim. (e.g.: "Sim, termina a 10/2021")',
 	},
 	description: {
-		question: 'Queres descrever o anuncio? Responde com "não" se não quiseres adicionar uma descrição ao anúncio.',
+		question: 'Queres descrever o anúncio? Responde com "não" se não quiseres adicionar uma descrição ao anúncio.',
 	},
 };
 
@@ -34,7 +32,7 @@ module.exports = {
 	async execute(message) {
 		const data = { adType: 'sell', author_id: message.author.id };
 		console.log('Message author ' + message.author.id);
-		let embeddedMessage = null;
+		let sellMessage = null;
 
 		// Delete the message prevent spam.
 		message.delete();
@@ -42,7 +40,7 @@ module.exports = {
 		await message.author
 			.createDM()
 			.then(async dmchannel => {
-				await dmchannel.send('Vamos criar o anúncio. Apenas tens 30seg entre perguntas para responder. No final o post será criado por ti.');
+				await dmchannel.send('Vamos criar o anúncio. Apenas tens 30 seg. entre perguntas para responder. No final, o post será criado por ti.');
 
 				let hasAnswered = false;
 
@@ -80,25 +78,18 @@ module.exports = {
 
 				console.log('Collector ended. Data:', data);
 
-				embeddedMessage = new Discord.MessageEmbed()
-					.setColor('#0099ff')
-					.setTitle(data.name)
-					.setAuthor(message.author.username, message.author.avatarURL())
-					.addField('Estado', data.state)
-					.addField('Preço', data.price)
-					.addField('Zona', data.zone)
-					.addField('Envio', data.dispatch)
-					.addField('Garantia', data.warranty)
-					.addField('Contacto', '<@' + message.author.id + '>')
-					.setTimestamp()
-				;
+				sellMessage = ':moneybag: **VENDO**'
+					+ `\n:arrow_right: **${data.name}**`
+					+ `\n:dollar: **Preço:** ${data.price}`
+					+ `\n:bust_in_silhouette: <@${message.author.id}>`
+					+ `\n\n**Zona:** ${data.zone}`
+					+ `\n**Estado:** ${data.state}`
+					+ `\n**Envio:** ${data.dispatch}`
+					+ `\n**Garantia:** ${data.warranty}`
+					+ (data.description ? `\n\n${data.description}` : '');
 
-				if (data.description) {
-					embeddedMessage.setDescription(data.description);
-				}
-
-				await dmchannel.send(embeddedMessage);
-				await dmchannel.send('Aqui está um preview do teu anúncio. Queres coloca-lo no canal? [sim/nao]');
+				await dmchannel.send(sellMessage);
+				await dmchannel.send('Aqui está um preview do teu anúncio. Queres colocá-lo no canal? [sim/não]');
 
 				let createItem = false;
 				await dmchannel
@@ -116,7 +107,7 @@ module.exports = {
 				if (createItem) {
 					console.log('Ad approved. Creating the item on the db and sending it to the channel!');
 
-					await message.channel.send(embeddedMessage).then(async m => { data['message_id'] = m.id; });
+					await message.channel.send(sellMessage).then(async m => { data['message_id'] = m.id; });
 
 					Ad
 						.create(data)
