@@ -80,13 +80,13 @@ module.exports = {
 
 				sellMessage = ':moneybag: **VENDO**'
 					+ `\n:arrow_right: **${data.name}**`
+					+ `\n:dollar: **Preço:** ${data.price}`
 					+ `\n:bust_in_silhouette: <@${message.author.id}>`
-					+ `\n${data.description ? data.description : ''}`
+					+ `\n\n**Zona:** ${data.zone}`
 					+ `\n**Estado:** ${data.state}`
-					+ `\n**Preço:** ${data.price}`
-					+ `\n**Zona:** ${data.zone}`
 					+ `\n**Envio:** ${data.dispatch}`
-					+ `\n**Garantia:** ${data.warranty}`;
+					+ `\n**Garantia:** ${data.warranty}`
+					+ (data.description ? `\n\n${data.description}` : '');
 
 				await dmchannel.send(sellMessage);
 				await dmchannel.send('Aqui está um preview do teu anúncio. Queres colocá-lo no canal? [sim/não]');
