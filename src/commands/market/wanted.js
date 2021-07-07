@@ -27,6 +27,7 @@ const questions = {
 
 module.exports = {
 	name: 'wanted',
+	aliases: ['want', 'procuro'],
 	guildOnly: true,
 	description: 'Place a wanted ad for an item in the marketplace',
 	async execute(message) {

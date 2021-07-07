@@ -53,10 +53,12 @@ module.exports = {
 
 		console.log('Command "' + commandName + '"', ' Arguments: ' + args);
 
-		if (!client.commands.has(commandName)) return;
+		const command = client.commands.get(commandName)
+		|| client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+
+		if (!command) return;
 
 		try {
-			const command = client.commands.get(commandName);
 			if (command.guildOnly && message.channel.type === 'dm') {
 				return message.reply('I can\'t execute that command inside DMs!');
 			}
