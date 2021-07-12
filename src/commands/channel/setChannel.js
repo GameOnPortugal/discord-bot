@@ -1,6 +1,12 @@
 const models = require('./../../models');
+const PermissionUtil = require('./permissionsUtil');
+
 const SpecialChannel = models.SpecialChannel;
-const allowedSpecialTypes = ['regex'];
+
+const allowedSpecialTypes = [
+	'regex',
+	'only_commands',
+];
 
 const MessageValidatorUtil = require('./../../util/MessageValidator');
 
@@ -23,11 +29,23 @@ module.exports = {
 		'Examples:\n' +
 		'Use `!setchannel regex ^/.+/$` for all messages to be accepted\n' +
 		'Use `!setchannel regex ^/.?+game+.*/$` to enforce "game" keyword in the message\n' +
+		'Use `!setchannel only_commands <command>[,command]` only allow commands (don\'t use prefix!)\n' +
+		'Use `!setchannel only_commands sell,want` only allow sell and want commands\n' +
 		'Use `!setchannel info` to grab current channel restrictions\n' +
 		'Use `!setchannel delete <id>` to delete a channel restriction\n' +
 		'Use `!setchannel delete all` to delete all channel restrictions\n' +
 		'Use `!setchannel help` to grab this help message\n',
 	async execute(message, args) {
+		// Command only for admins and moderators
+		if (
+			!(await PermissionUtil.isAdmin(message.member))
+			&& !(await PermissionUtil.isModerator(message.member))
+		) {
+			console.log('Member '+message.author.username+' is trying to use a command not for him!');
+
+			return;
+		}
+
 		switch (args[0]) {
 			case 'help': {
 				message.channel.send(this.usage);
