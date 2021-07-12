@@ -19,7 +19,7 @@ module.exports = {
 				'A tua mensagem foi considerada invalida conforme as regras do canal'
 				+ '\nVerifica as condições no tópico do canal ou nas mensagens afixadas'
 				+ '\nSe achas que isto é um erro por favor envia mensagem privada para o ModMail'
-				+ '\n\nEsta foi a tua mensagem:'
+				+ '\n\nEsta foi a tua mensagem:',
 			);
 			await message.author.send(message.content);
 			await message.delete();

@@ -41,7 +41,7 @@ module.exports = {
 			!(await PermissionUtil.isAdmin(message.member))
 			&& !(await PermissionUtil.isModerator(message.member))
 		) {
-			console.log('Member '+message.author.username+' is trying to use a command not for him!');
+			console.log('Member ' + message.author.username + ' is trying to use a command not for him!');
 
 			return;
 		}

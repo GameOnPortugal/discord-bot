@@ -43,7 +43,7 @@ const MessageValidator = {
 			await PermissionUtil.isAdmin(message.member)
 			|| await PermissionUtil.isModerator(message.member)
 		) {
-			console.log('Member '+message.author.username+' is an admin/moderator. Allowing message..');
+			console.log('Member ' + message.author.username + ' is an admin/moderator. Allowing message..');
 
 			// Bypass all restrictions to admins and moderators
 			return true;
