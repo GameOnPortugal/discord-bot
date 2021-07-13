@@ -1,5 +1,5 @@
 const models = require('./../../models');
-const PermissionUtil = require('./permissionsUtil');
+const PermissionUtil = require('./../../util/permissionsUtil');
 
 const SpecialChannel = models.SpecialChannel;
 
