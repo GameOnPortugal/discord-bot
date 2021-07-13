@@ -60,3 +60,9 @@ module.exports = {
   }
 };
 ```
+
+### Rodar tests
+
+Para testar esta biblioteca usamos o JEST, basta escrever no terminal:
+
+`make tests`

@@ -10,12 +10,16 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "test": "jest"
   },
   "dependencies": {
     "@keyv/redis": "^2.1.2",
     "discord.js": "^12.5.3",
     "dotenv": "^10.0.0",
+    "eslint-plugin-jest": "^24.3.6",
+    "jquery": "^3.6.0",
+    "jsdom": "^16.6.0",
     "keyv": "^4.0.3",
     "mysql2": "^2.2.5",
     "recursive-readdir": "^2.2.2",
@@ -23,6 +27,7 @@
   },
   "devDependencies": {
     "eslint": "^7.28.0",
+    "jest": "^27.0.6",
     "sequelize-cli": "^6.2.0"
   }
 }
