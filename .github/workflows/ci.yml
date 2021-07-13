@@ -37,6 +37,5 @@ jobs:
       - name: Run Jest
         run: |
           cp .env.dist .env
-          echo $DATABASE_DSN
           npm run test
 
