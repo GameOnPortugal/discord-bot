@@ -10,5 +10,5 @@ test('Throw error on invalid urls', () => {
 	}).toThrow(Error);
 	expect(() => {
 		TrophyProfileManager.getPsnProfileByUrl('https://psnprofiles.com/');
-	}).toThrow('Profile url is invalid. Expected url: https://psnprofiles.com/game/PROFILE');
+	}).toThrow('Profile url is invalid. Expected url: https://psnprofiles.com/trophies/game/PROFILE');
 });
