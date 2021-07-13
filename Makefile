@@ -20,6 +20,10 @@ stop:
 eslint:
 	eslint .
 
+.PHONY: tests
+test:
+	npm run test
+
 .PHONY: eslint-fix
 eslint-fix:
 	eslint . --fix

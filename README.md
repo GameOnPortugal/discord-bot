@@ -60,3 +60,9 @@ module.exports = {
   }
 };
 ```
+
+### Rodar tests
+
+Estamos a usar o JEST para alguns testes a libraria. Para rodar os testes localmente basta:
+
+`make tests`
