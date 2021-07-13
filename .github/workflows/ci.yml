@@ -31,16 +31,12 @@ jobs:
         with:
           node-version: 14
 
-      - name: Dotenv Action
-        uses: falti/dotenv-action@v0.2.5
-        with:
-          path: .env.dist
-
       - name: Install dependencies
         run: npm ci
 
       - name: Run Jest
         run: |
+          cp .env.dist .env
           echo $DATABASE_DSN
           npm run test
 
