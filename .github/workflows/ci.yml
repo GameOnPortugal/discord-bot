@@ -30,8 +30,8 @@ jobs:
         with:
           node-version: 14
 
-      - name: Load DotEnv file
-        uses: actions/dotenv-action
+      - name: Dotenv Action
+        uses: falti/dotenv-action@v0.2.5
         with:
           path: .env.dist
 
