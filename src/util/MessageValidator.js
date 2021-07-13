@@ -1,6 +1,8 @@
 const models = require('./../models');
 const SpecialChannel = models.SpecialChannel;
 
+const PermissionUtil = require('./permissionsUtil');
+
 const KeyV = require('keyv');
 const keyV = new KeyV();
 
@@ -34,6 +36,16 @@ const MessageValidator = {
 	validate: async function(message) {
 		const restrictions = await this.findRestrictions(message.channel.id);
 		if (!restrictions) {
+			return true;
+		}
+
+		if (
+			await PermissionUtil.isAdmin(message.member)
+			|| await PermissionUtil.isModerator(message.member)
+		) {
+			console.log('Member ' + message.author.username + ' is an admin/moderator. Allowing message..');
+
+			// Bypass all restrictions to admins and moderators
 			return true;
 		}
 

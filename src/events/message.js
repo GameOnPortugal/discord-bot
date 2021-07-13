@@ -11,22 +11,18 @@ module.exports = {
 			return;
 		}
 
-		// If prefix was not used AND/NOR bot was not mentioned
-		if (!message.content.startsWith(prefix) && !message.mentions.has(client.user)) {
-			// message isn't a command
-			// validate message
-			const isValid = await MessageValidator.validate(message);
-			if (!isValid) {
-				await message.author.send(
-					'Your message was invalid and was automatically deleted.\n' +
-                    '**If you think this was a mistake, please tell staff about it!**\n' +
-                    'I\'m sending it over to you as you might want to add save a copy or post it in another channel.\n' +
-                    'Your message was:\n\n',
-				);
-				await message.author.send(message.content);
-
-				await message.delete();
-			}
+		// message isn't a command
+		// validate message
+		const isValid = await MessageValidator.validate(message);
+		if (!isValid) {
+			await message.author.send(
+				'A tua mensagem foi considerada invalida conforme as regras do canal'
+				+ '\nVerifica as condições no tópico do canal ou nas mensagens afixadas'
+				+ '\nSe achas que isto é um erro por favor envia mensagem privada para o ModMail'
+				+ '\n\nEsta foi a tua mensagem:',
+			);
+			await message.author.send(message.content);
+			await message.delete();
 
 			return;
 		}
