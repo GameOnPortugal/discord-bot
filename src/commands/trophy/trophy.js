@@ -10,7 +10,15 @@ const TrophiesManager = require('./../../service/trophy/trophyManager');
  * @returns {int}
  */
 async function getPointsFromUrl(trophyUrl) {
-	const trophyRarityPercentage = await PsnCrawlService.getPlatTrophyPercentage(trophyUrl);
+	let trophyRarityPercentage = null;
+
+	try {
+		trophyRarityPercentage = await PsnCrawlService.getPlatTrophyPercentage(trophyUrl);
+	}
+	catch (exception) {
+		console.log('Problem crawling percentage.');
+	}
+
 	if (trophyRarityPercentage === null) {
 		return 0;
 	}
@@ -116,6 +124,6 @@ module.exports = {
 
 		await TrophiesManager.create(trophyProfile, trophyUrl, points);
 
-		await message.author.send('Parabéns, troféu reclamado com successo!! Acabaste de receber ' + points + ' XP. Boa caça trophy hunter!');
+		await message.channel.send('Parabéns <@' + message.author.id + '>! Acabaste de receber ' + points + ' BP (Bounty Points).');
 	},
 };

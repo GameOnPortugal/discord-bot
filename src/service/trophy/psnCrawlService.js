@@ -13,13 +13,20 @@ module.exports = {
 		return await JSDOM.fromURL(trophyUrl).then(dom => {
 			const $ = require('jquery')(dom.window);
 
-			const $trophyTableBody = $('#content > div.row > div.col-xs > div.box.no-top-border > table > tbody');
+			const $trophyTableBody = $('#content > div.row > div.col-xs > div.box.no-top-border:first > table:last > tbody');
 			if (!$trophyTableBody.length) {
 				throw new Error('Couldn\'t find trophy table body!');
 			}
 
 			// Has it been completed?
-			const $platTrophyRow = $trophyTableBody.find('tr:first');
+			let $platTrophyRow = $trophyTableBody.find('tr:first');
+
+			// HACK: some trophy pages in psn profiles have blank rows in the first position...
+			// jump to the second one if that's the case
+			if ($platTrophyRow.html() === '') {
+				$platTrophyRow = $trophyTableBody.find('tr:eq(1)');
+			}
+
 			if (!$platTrophyRow.hasClass('completed')) {
 				console.log('User hasn\'t earned the plat trophy yet!');
 
@@ -27,9 +34,13 @@ module.exports = {
 			}
 
 			// Plat percentage e.g.: 52.03%
-			const psnPlatPercentage = $platTrophyRow.find('td.hover-hide span.typo-top').html();
-			if (psnPlatPercentage.trim().length) {
-				return parseFloat(psnPlatPercentage);
+			const $psnPlatPercentage = $platTrophyRow.find('td.hover-hide span.typo-top');
+			if (!$psnPlatPercentage.length) {
+				throw new Error('Couldn\'t find trophy table percentage!');
+			}
+
+			if ($psnPlatPercentage.html().trim().length) {
+				return parseFloat($psnPlatPercentage.html().trim());
 			}
 
 			return null;
