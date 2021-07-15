@@ -10,7 +10,7 @@ module.exports = {
 	usage: 'Claim a trophy'
         + '\nExamples:'
         + '\n'
-        + '\nUse `!trophy https://psnprofiles/game/username',
+        + '\nUse `|trophy https://psnprofiles/game/username',
 	async execute(message, args) {
 		const trophyUrl = args[0];
 		let psnProfileUsername = null;
