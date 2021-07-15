@@ -1,5 +1,8 @@
 const models = require('./../../models');
+const sequelize = models.sequelize;
+const { QueryTypes } = require('sequelize');
 const TrophyProfile = models.TrophyProfile;
+const Trophies = models.Trophies;
 
 module.exports = {
 	/**
@@ -50,4 +53,89 @@ module.exports = {
 			},
 		);
 	},
+
+	/**
+	 * Monthly ranks
+	 *
+	 * @param {int} limit
+	 *
+	 * @returns {Trophies[]}
+	 */
+	getTopMonthlyHunters: async function (limit)
+	{
+		return await sequelize.query(
+			' SELECT ' +
+			'	tp.userId,' +
+			'	tp.psnProfile,' +
+			'	SUM(t.points) points,' +
+			'	COUNT(t.id) num_trophies' +
+			' FROM ' +
+			' 	'+TrophyProfile.tableName+' tp ' +
+			' 	INNER JOIN '+Trophies.tableName+' t ON t.trophyProfile = tp.id ' +
+			' WHERE ' +
+			'	t.completionDate BETWEEN DATE_ADD(DATE_ADD(LAST_DAY(NOW()), INTERVAL 1 DAY), INTERVAL - 1 MONTH) AND LAST_DAY(NOW()) ' +
+			' GROUP BY tp.id ' +
+			' ORDER BY points DESC' +
+			' LIMIT '+limit,
+			{
+				type: QueryTypes.SELECT
+			}
+		);
+	},
+
+	/**
+	 * Since creation ranks
+	 *
+	 * @param {int} limit
+	 *
+	 * @returns {Trophies[]}
+	 */
+	getTopSinceCreationHunters: async function (limit)
+	{
+		return await sequelize.query(
+			' SELECT ' +
+			'	tp.userId,' +
+			'	tp.psnProfile,' +
+			'	SUM(t.points) points,' +
+			'	COUNT(t.id) num_trophies' +
+			' FROM ' +
+			' 	'+TrophyProfile.tableName+' tp ' +
+			' 	INNER JOIN '+Trophies.tableName+' t ON t.trophyProfile = tp.id ' +
+			' WHERE ' +
+			'	t.completionDate > "2021-03-01" ' +
+			' GROUP BY tp.id ' +
+			' ORDER BY points DESC' +
+			' LIMIT '+limit,
+			{
+				type: QueryTypes.SELECT
+			}
+		);
+	},
+
+	/**
+	 * Lifetime ranks
+	 *
+	 * @param {int} limit
+	 *
+	 * @returns {Trophies[]}
+	 */
+	getTopLifetimeHunters: async function (limit)
+	{
+		return await sequelize.query(
+			' SELECT ' +
+			'	tp.userId,' +
+			'	tp.psnProfile,' +
+			'	SUM(t.points) points,' +
+			'	COUNT(t.id) num_trophies' +
+			' FROM ' +
+			' 	'+TrophyProfile.tableName+' tp ' +
+			' 	INNER JOIN '+Trophies.tableName+' t ON t.trophyProfile = tp.id ' +
+			' GROUP BY tp.id ' +
+			' ORDER BY points DESC' +
+			' LIMIT '+limit,
+			{
+				type: QueryTypes.SELECT
+			}
+		);
+	}
 };
