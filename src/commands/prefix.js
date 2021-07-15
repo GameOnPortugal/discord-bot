@@ -5,6 +5,20 @@ module.exports = {
 	guildOnly: false,
 	description: 'Define prefix for bot',
 	async execute(message, args) {
+		let botMention = message.content.trim().split(' ')[0];
+		if (botMention.startsWith('<@') && botMention.endsWith('>')) {
+			botMention = botMention.slice(2, -1);
+
+			if (botMention.startsWith('!')) {
+				botMention = botMention.slice(1);
+			}
+		}
+
+		if (botMention !== message.client.user.id) {
+			console.log('This bot is not the target!');
+			return;
+		}
+
 		if (args.length === 0) {
 			const prefix = await PrefixUtil.getPrefix();
 
