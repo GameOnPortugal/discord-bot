@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
 		trophyProfile: DataTypes.INTEGER,
 		url: DataTypes.TEXT,
 		points: DataTypes.INTEGER,
+		completionDate: DataTypes.DATE,
 		createdAt: DataTypes.DATE,
 		updatedAt: DataTypes.DATE,
 	}, {
