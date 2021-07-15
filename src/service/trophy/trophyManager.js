@@ -64,7 +64,7 @@ module.exports = {
 				trophyProfile: trophyProfile.id,
 				url: url,
 				points: transformPercentageIntoPoints(trophyData.percentage),
-				completionDate: trophyData.completionDate.format('YYYY-MM-DD')
+				completionDate: trophyData.completionDate.format('YYYY-MM-DD'),
 			},
 		);
 	},

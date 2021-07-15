@@ -50,7 +50,7 @@ module.exports = {
 			return;
 		}
 
-		const trophy = await TrophiesManager.findByUsernameAndUrl(trophyProfile, trophyUrl);
+		let trophy = await TrophiesManager.findByUsernameAndUrl(trophyProfile, trophyUrl);
 		if (trophy) {
 			await message.author.send(
 				'Este trofeu já foi reclamado em ' + trophy.createdAt
@@ -70,11 +70,12 @@ module.exports = {
 			const reactionEmoji = await message.guild.emojis.cache.find(emoji => emoji.name === 'plat');
 			await message.react(reactionEmoji);
 
-			const trophy = await TrophiesManager.create(trophyProfile, trophyUrl, trophyData);
+			trophy = await TrophiesManager.create(trophyProfile, trophyUrl, trophyData);
 
 			await message.channel.send('Parabéns <@' + message.author.id + '>! Acabaste de receber ' + trophy.points + ' TP (Trophy Points).');
-		} catch (exception) {
-			console.log('Problem creating trophy. Error: '+exception.message);
+		}
+		catch (exception) {
+			console.log('Problem creating trophy. Error: ' + exception.message);
 
 			await message.author.send(
 				'O bot encontrou o seguinte problema: ' + exception.message

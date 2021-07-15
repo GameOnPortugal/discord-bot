@@ -6,33 +6,35 @@ const models = require('./../src/models');
 const Trophies = models.Trophies;
 
 async function FixTrophies() {
-    const trophies = await Trophies.findAll({where: {completionDate: null}});
+	const trophies = await Trophies.findAll({ where: { completionDate: null } });
 
-    console.log('Found '+trophies.length+' trophies to fix...');
+	console.log('Found ' + trophies.length + ' trophies to fix...');
 
-    for (const trophy of trophies) {
-        console.log('Fixing trophy '+trophy.id+' - URL: '+trophy.url+'...');
+	for (const trophy of trophies) {
+		console.log('Fixing trophy ' + trophy.id + ' - URL: ' + trophy.url + '...');
 
-        const trophyData = await PsnCrawlService.getPlatTrophyData(trophy.url);
-        const completionDateFormatted = trophyData.completionDate.format('YYYY-MM-DD');
+		const trophyData = await PsnCrawlService.getPlatTrophyData(trophy.url);
+		const completionDateFormatted = trophyData.completionDate.format('YYYY-MM-DD');
 
-        console.log(
-            'Trophy Data:'
+		console.log(
+			'Trophy Data:'
             + '\nPercentage:' + trophyData.percentage
-            + '\nCompletion Date:' + completionDateFormatted
-        );
+            + '\nCompletion Date:' + completionDateFormatted,
+		);
 
-        await Trophies.update(
-            {
-                completionDate: trophyData.completionDate.format('YYYY-MM-DD')
-            },
-            {
-                where: {id: trophy.id}
-            }
-        );
+		await Trophies.update(
+			{
+				completionDate: trophyData.completionDate.format('YYYY-MM-DD'),
+			},
+			{
+				where: { id: trophy.id },
+			},
+		);
 
-        console.log('Updated...');
-    }
+		console.log('Updated...');
+	}
 }
 
-FixTrophies().then(r => {console.log('Finished!')});
+FixTrophies().then(() => {
+	console.log('Finished!');
+});

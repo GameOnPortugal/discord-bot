@@ -1,6 +1,6 @@
-const dayjs = require('dayjs')
-const customParseFormat = require('dayjs/plugin/customParseFormat')
-dayjs.extend(customParseFormat)
+const dayjs = require('dayjs');
+const customParseFormat = require('dayjs/plugin/customParseFormat');
+dayjs.extend(customParseFormat);
 
 const jsdom = require('jsdom');
 const { JSDOM } = jsdom;
@@ -60,12 +60,12 @@ module.exports = {
 
 			const completionDate = dayjs($completionDate.text().trim(), psnProfileDateFormat);
 			if (!completionDate.isValid()) {
-				throw new Error('Completion date "'+$completionDate.text().trim()+'" is invalid!')
+				throw new Error('Completion date "' + $completionDate.text().trim() + '" is invalid!');
 			}
 
 			return {
 				percentage: platPercentage,
-				completionDate: completionDate
+				completionDate: completionDate,
 			};
 		});
 	},
