@@ -61,8 +61,7 @@ module.exports = {
 	 *
 	 * @returns {Trophies[]}
 	 */
-	getTopMonthlyHunters: async function (limit)
-	{
+	getTopMonthlyHunters: async function(limit) {
 		return await sequelize.query(
 			' SELECT ' +
 			'	tp.userId,' +
@@ -70,16 +69,16 @@ module.exports = {
 			'	SUM(t.points) points,' +
 			'	COUNT(t.id) num_trophies' +
 			' FROM ' +
-			' 	'+TrophyProfile.tableName+' tp ' +
-			' 	INNER JOIN '+Trophies.tableName+' t ON t.trophyProfile = tp.id ' +
+			' 	' + TrophyProfile.tableName + ' tp ' +
+			' 	INNER JOIN ' + Trophies.tableName + ' t ON t.trophyProfile = tp.id ' +
 			' WHERE ' +
 			'	t.completionDate BETWEEN DATE_ADD(DATE_ADD(LAST_DAY(NOW()), INTERVAL 1 DAY), INTERVAL - 1 MONTH) AND LAST_DAY(NOW()) ' +
 			' GROUP BY tp.id ' +
 			' ORDER BY points DESC' +
-			' LIMIT '+limit,
+			' LIMIT ' + limit,
 			{
-				type: QueryTypes.SELECT
-			}
+				type: QueryTypes.SELECT,
+			},
 		);
 	},
 
@@ -90,8 +89,7 @@ module.exports = {
 	 *
 	 * @returns {Trophies[]}
 	 */
-	getTopSinceCreationHunters: async function (limit)
-	{
+	getTopSinceCreationHunters: async function(limit) {
 		return await sequelize.query(
 			' SELECT ' +
 			'	tp.userId,' +
@@ -99,16 +97,16 @@ module.exports = {
 			'	SUM(t.points) points,' +
 			'	COUNT(t.id) num_trophies' +
 			' FROM ' +
-			' 	'+TrophyProfile.tableName+' tp ' +
-			' 	INNER JOIN '+Trophies.tableName+' t ON t.trophyProfile = tp.id ' +
+			' 	' + TrophyProfile.tableName + ' tp ' +
+			' 	INNER JOIN ' + Trophies.tableName + ' t ON t.trophyProfile = tp.id ' +
 			' WHERE ' +
 			'	t.completionDate > "2021-03-01" ' +
 			' GROUP BY tp.id ' +
 			' ORDER BY points DESC' +
-			' LIMIT '+limit,
+			' LIMIT ' + limit,
 			{
-				type: QueryTypes.SELECT
-			}
+				type: QueryTypes.SELECT,
+			},
 		);
 	},
 
@@ -119,8 +117,7 @@ module.exports = {
 	 *
 	 * @returns {Trophies[]}
 	 */
-	getTopLifetimeHunters: async function (limit)
-	{
+	getTopLifetimeHunters: async function(limit) {
 		return await sequelize.query(
 			' SELECT ' +
 			'	tp.userId,' +
@@ -128,14 +125,14 @@ module.exports = {
 			'	SUM(t.points) points,' +
 			'	COUNT(t.id) num_trophies' +
 			' FROM ' +
-			' 	'+TrophyProfile.tableName+' tp ' +
-			' 	INNER JOIN '+Trophies.tableName+' t ON t.trophyProfile = tp.id ' +
+			' 	' + TrophyProfile.tableName + ' tp ' +
+			' 	INNER JOIN ' + Trophies.tableName + ' t ON t.trophyProfile = tp.id ' +
 			' GROUP BY tp.id ' +
 			' ORDER BY points DESC' +
-			' LIMIT '+limit,
+			' LIMIT ' + limit,
 			{
-				type: QueryTypes.SELECT
-			}
+				type: QueryTypes.SELECT,
+			},
 		);
-	}
+	},
 };

@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 const TrophyProfileManager = require('./../../service/trophy/trophyProfileManager');
 const PsnCrawlService = require('./../../service/trophy/psnCrawlService');
 const TrophiesManager = require('./../../service/trophy/trophyManager');
-const emojiEnum = require('./../../enum/discord/emojiEnum')
+const emojiEnum = require('./../../enum/discord/emojiEnum');
 
 module.exports = {
 	name: 'trophy',
@@ -16,23 +16,26 @@ module.exports = {
         + '\nUse `|trophy https://psnprofiles/game/username',
 	async execute(message, args) {
 		switch (args[0]) {
-			case 'rank':
-				const type = args.hasOwnProperty(1) ? args[1] : 'monthly';
+			case 'rank': {
+				const type = Object.prototype.hasOwnProperty.call(args, 1) ? args[1] : 'monthly';
 				let ranks = null;
 				switch (type) {
-					case 'monthly':
+					case 'monthly': {
 						ranks = await TrophyProfileManager.getTopMonthlyHunters(5);
 						break;
-					case 'creation':
+					}
+					case 'creation': {
 						ranks = await TrophyProfileManager.getTopSinceCreationHunters(5);
 						break;
-					case 'lifetime':
+					}
+					case 'lifetime': {
 						ranks = await TrophyProfileManager.getTopLifetimeHunters(5);
 						break;
+					}
 				}
 
-				if (null === ranks) {
-					message.channel.send('Rank do tipo "'+type+'" não reconhecido. Usa monthly, creation ou lifetime');
+				if (ranks === null) {
+					message.channel.send('Rank do tipo "' + type + '" não reconhecido. Usa monthly, creation ou lifetime');
 				}
 
 				let rankMessage = '';
@@ -41,26 +44,27 @@ module.exports = {
 					1: emojiEnum.TROPHY_PLAT,
 					2: emojiEnum.TROPHY_GOLD,
 					3: emojiEnum.TROPHY_SILVER,
-				}
+				};
 				for (const rank of ranks) {
-					let emoji = positionEmoji.hasOwnProperty(position) ? positionEmoji[position] : emojiEnum.TROPHY_BRONZE;
+					let emoji = Object.prototype.hasOwnProperty.call(positionEmoji, position) ? positionEmoji[position] : emojiEnum.TROPHY_BRONZE;
 					emoji = await message.client.emojis.cache.get(emoji);
 
-					rankMessage += '`'+position+'.` <:'+emoji.name+':'+emoji.id+'> <@'+rank.userId+'> com '+rank.points+' TP\n';
+					rankMessage += '`' + position + '.` <:' + emoji.name + ':' + emoji.id + '> <@' + rank.userId + '> com ' + rank.points + ' TP\n';
 					position++;
 				}
 
 				rankMessage = new Discord.MessageEmbed()
 					.setColor('#0099ff')
-					.setTitle('Top '+type)
+					.setTitle('Top ' + type)
 					.setDescription(rankMessage)
 					.setThumbnail('https://seeklogo.com/images/P/playstation-logo-A5B6E4856C-seeklogo.com.png')
 					.setTimestamp()
-					.setFooter('|trophy rank '+type, 'https://seeklogo.com/images/P/playstation-logo-A5B6E4856C-seeklogo.com.png');
+					.setFooter('|trophy rank ' + type, 'https://seeklogo.com/images/P/playstation-logo-A5B6E4856C-seeklogo.com.png');
 
 				message.channel.send(rankMessage);
 
 				return;
+			}
 		}
 
 		const trophyUrl = args[0];
