@@ -2,48 +2,6 @@ const TrophyProfileManager = require('./../../service/trophy/trophyProfileManage
 const PsnCrawlService = require('./../../service/trophy/psnCrawlService');
 const TrophiesManager = require('./../../service/trophy/trophyManager');
 
-/**
- * Based on the trophy rarity gives the right amount of points
- *
- * @param {string} trophyUrl
- *
- * @returns {int}
- */
-async function getPointsFromUrl(trophyUrl) {
-	let trophyRarityPercentage = null;
-
-	try {
-		trophyRarityPercentage = await PsnCrawlService.getPlatTrophyPercentage(trophyUrl);
-	}
-	catch (exception) {
-		console.log('Problem crawling percentage.');
-	}
-
-	if (trophyRarityPercentage === null) {
-		return 0;
-	}
-	if (trophyRarityPercentage > 30.01) {
-		return 50;
-	}
-	if (trophyRarityPercentage > 15.01) {
-		return 100;
-	}
-	if (trophyRarityPercentage > 8.01) {
-		return 250;
-	}
-	if (trophyRarityPercentage > 5.01) {
-		return 500;
-	}
-	if (trophyRarityPercentage > 2.01) {
-		return 800;
-	}
-	if (trophyRarityPercentage > 0.6) {
-		return 1250;
-	}
-
-	return 2000;
-}
-
 module.exports = {
 	name: 'trophy',
 	description: 'Claim a trophy',
@@ -105,25 +63,28 @@ module.exports = {
 			return;
 		}
 
-		const points = await getPointsFromUrl(trophyUrl);
-		if (points === 0) {
+		try {
+			const trophyData = await PsnCrawlService.getPlatTrophyData(trophyUrl);
+
+			// Signal that trophy has been handled by bot
+			const reactionEmoji = await message.guild.emojis.cache.find(emoji => emoji.name === 'plat');
+			await message.react(reactionEmoji);
+
+			const trophy = await TrophiesManager.create(trophyProfile, trophyUrl, trophyData);
+
+			await message.channel.send('Parabéns <@' + message.author.id + '>! Acabaste de receber ' + trophy.points + ' TP (Trophy Points).');
+		} catch (exception) {
+			console.log('Problem creating trophy. Error: '+exception.message);
+
 			await message.author.send(
-				'Deve ter havido um problema interno e não iria ser dado nenhum pontos pelo trofeu.'
-                + '\nA tua mensagem foi eliminada uma vez que não foi aceite.'
-                + '\nVolta a tentar, se isto for um erro por favor entra em contacto com o STAFF através do ModMail.',
+				'O bot encontrou o seguinte problema: ' + exception.message
+				+ '\nA tua mensagem foi eliminada uma vez que não foi aceite.'
+				+ '\nSe isto for um erro do bot por favor entra em contacto com o STAFF através do ModMail.',
 			);
 
 			await message.delete();
 
 			return;
 		}
-
-		// Signal that trophy has been handled by bot
-		const reactionEmoji = await message.guild.emojis.cache.find(emoji => emoji.name === 'plat');
-		await message.react(reactionEmoji);
-
-		await TrophiesManager.create(trophyProfile, trophyUrl, points);
-
-		await message.channel.send('Parabéns <@' + message.author.id + '>! Acabaste de receber ' + points + ' BP (Bounty Points).');
 	},
 };
