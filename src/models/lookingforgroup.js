@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
 		game: DataTypes.STRING,
 		description: DataTypes.STRING,
 		players: DataTypes.INTEGER,
-		playAt: DataTypes.DATE,
+		playAt: DataTypes.STRING,
 		message_id: DataTypes.STRING,
 		author_id: DataTypes.STRING,
 	}, {
