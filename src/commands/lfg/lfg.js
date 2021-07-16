@@ -26,7 +26,8 @@ module.exports = {
 	guildOnly: true,
 	args: true,
 	description: 'Find a group of players for a gaming session',
-	usage: '|lfg create',
+	usage: 'Inicia um pedido de procura de grupo!\n' +
+		'`|lfg create`',
 	async execute(message, args) {
 		switch (args[0]) {
 			case 'create': {
