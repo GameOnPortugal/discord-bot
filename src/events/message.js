@@ -27,22 +27,13 @@ module.exports = {
 			return;
 		}
 
-		let args = message.content;
-		if (message.content.startsWith(prefix)) {
-			// remove the prefix from command and split arguments by spaces
-			args = args.slice(prefix.length).trim().split(/ +/);
+		if (!message.content.startsWith(prefix)) {
+			// Command prefix not used, no command?
+			return;
 		}
-		else {
-			// split arguments by spaces
-			args = args.trim().split(/ +/);
-			// remove the bot name (e.g.: @PSPT-bot)
-			args.shift();
 
-			if (args.length === 0) {
-				console.log('No commands sent');
-				return;
-			}
-		}
+		// remove the prefix from command and split arguments by spaces
+		const args = message.content.slice(prefix.length).trim().split(/ +/);
 
 		// Grab the command which is the second argument in the message
 		const commandName = args.shift().toLowerCase();
