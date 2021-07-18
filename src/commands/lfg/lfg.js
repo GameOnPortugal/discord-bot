@@ -7,7 +7,7 @@ const questions = {
 		validator: /^.*$/,
 	},
 	description: {
-		question: 'Adiciona uma descrição ao teu anúncio!',
+		question: 'Adiciona uma descrição ao teu pedido!',
 		validator: /^.*$/,
 	},
 	players: {
@@ -87,8 +87,7 @@ module.exports = {
 							.addField('Autor', `<@${data.author_id}>`, true)
 							.addField('Jogadores', `1/${data.players}`, true)
 							.addField('Hora Prevista', data.playAt, true)
-						// TODO: add react listeners and uncomment line bellow
-						// .addField('\u200B', 'Reage com :thumbsup: para te juntares!')
+							.addField('\u200B', 'Reage com :thumbsup: para te juntares!')
 							.setThumbnail('https://i.ibb.co/LzHsvdn/Transparent-2.png')
 							.setTimestamp()
 							.setFooter('|lfg create', 'https://i.ibb.co/LzHsvdn/Transparent-2.png');
@@ -112,15 +111,32 @@ module.exports = {
 						if (createItem) {
 							console.log('Lfg approved. Creating the item on the db and sending it to the channel!');
 
+							if (!await LfgManager.create(data)) {
+								await dmchannel.send('Ocorreu um erro ao criar o pedido, tenta de novo dentro de momentos');
+								return;
+							}
+
 							await message.channel.send(lfgMessage).then(async m => {
 								data['message_id'] = m.id;
-							});
+								// insert reactions
+								await m.react('👍');
+								await m.react('❌');
 
-							await LfgManager.create(
-								data,
-								async () => await dmchannel.send('O teu pedido foi criado com sucesso. Obrigado!'),
-								async () => await dmchannel.send('Ocorreu um erro ao criar o pedido, tenta de novo dentro de momentos'),
-							);
+								// wait for reactions
+								const filter = (reaction) => {
+									return ['👍', '❌'].includes(reaction.emoji.name);
+								};
+
+								// collects reactions over 1 hour
+								const collector = m.createReactionCollector(filter, { time: 60000 * 60 });
+
+								collector.on('collect', async (reaction, user) => {
+									await handleReact(m, user, reaction.emoji.name);
+									updateEmbed(m, data);
+								});
+
+								await dmchannel.send('O teu pedido foi criado com sucesso. Obrigado!');
+							});
 						}
 						else {
 							console.log('LFG cancelled. Nothing to see here.');
@@ -131,3 +147,56 @@ module.exports = {
 		}
 	},
 };
+
+async function handleReact(message, user, emoji) {
+	console.log('React from:', user, 'with emoji:', emoji);
+
+	const userReactions = message.reactions.cache.filter(reaction => reaction.users.cache.has(user.id));
+	try {
+		console.log('Reactions:', userReactions.values());
+		for (const reaction of userReactions.values()) {
+			if (reaction.emoji.name === emoji) continue;
+			await reaction.users.remove(user.id);
+		}
+	}
+	catch (error) {
+		console.error('Failed to remove reactions.');
+	}
+}
+
+function updateEmbed(original, data) {
+	const players = [];
+
+	original.reactions.resolve('👍').users.fetch()
+		.then(userList => {
+			console.log('UserList for Like:', userList);
+			userList.forEach((user) => {
+				if (!user.bot && user.id !== data.author_id) {
+					players.push(`<@${user.id}>`);
+				}
+			});
+			console.log('New party:', players);
+
+			const editedLfgMessage = new Discord.MessageEmbed()
+				.setColor('#0099ff')
+				.setTitle('Procura de Grupo')
+				.setDescription(data.description)
+				.addField('Jogo', data.game, false)
+				.addField('Autor', `<@${data.author_id}>`, true)
+				.addField('Jogadores', `${1 + players.length}/${data.players}`, true)
+				.addField('Hora Prevista', data.playAt, true);
+
+			if (players.length !== 0) {
+				editedLfgMessage.addField('Aceite', players.join(' '));
+			}
+
+			editedLfgMessage
+				.addField('\u200B', 'Reage com :thumbsup: para te juntares!')
+				.setThumbnail('https://i.ibb.co/LzHsvdn/Transparent-2.png')
+				.setTimestamp()
+				.setFooter('|lfg create', 'https://i.ibb.co/LzHsvdn/Transparent-2.png');
+
+			original.edit(editedLfgMessage);
+			console.log('Edited embed');
+		});
+}
