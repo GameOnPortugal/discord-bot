@@ -1,6 +1,5 @@
 const Discord = require('discord.js');
-const models = require('./../../models');
-const Lfg = models.LookingForGroup;
+const LfgManager = require('./../../service/lfg/lfgManager');
 
 const questions = {
 	game: {
@@ -27,7 +26,7 @@ module.exports = {
 	args: true,
 	description: 'Find a group of players for a gaming session',
 	usage: 'Inicia um pedido de procura de grupo!\n' +
-		'`|lfg create`',
+    '`|lfg create`',
 	async execute(message, args) {
 		switch (args[0]) {
 			case 'create': {
@@ -46,7 +45,11 @@ module.exports = {
 								await dmchannel.send(questions[questionName].question);
 
 								await dmchannel
-									.awaitMessages(m => m.author.id === message.author.id && m.content, { max: 1, time: 30000, errors: ['time'] })
+									.awaitMessages(m => m.author.id === message.author.id && m.content, {
+										max: 1,
+										time: 30000,
+										errors: ['time'],
+									})
 									.then(async collected => {
 										hasAnswered = true;
 
@@ -84,8 +87,8 @@ module.exports = {
 							.addField('Autor', `<@${data.author_id}>`, true)
 							.addField('Jogadores', `1/${data.players}`, true)
 							.addField('Hora Prevista', data.playAt, true)
-							// TODO: add react listeners and uncomment line bellow
-							// .addField('\u200B', 'Reage com :thumbsup: para te juntares!')
+						// TODO: add react listeners and uncomment line bellow
+						// .addField('\u200B', 'Reage com :thumbsup: para te juntares!')
 							.setThumbnail('https://i.ibb.co/LzHsvdn/Transparent-2.png')
 							.setTimestamp()
 							.setFooter('|lfg create', 'https://i.ibb.co/LzHsvdn/Transparent-2.png');
@@ -109,17 +112,15 @@ module.exports = {
 						if (createItem) {
 							console.log('Lfg approved. Creating the item on the db and sending it to the channel!');
 
-							await message.channel.send(lfgMessage).then(async m => { data['message_id'] = m.id; });
+							await message.channel.send(lfgMessage).then(async m => {
+								data['message_id'] = m.id;
+							});
 
-							Lfg
-								.create(data)
-								.then(async () => {
-									await dmchannel.send('O teu pedido foi criado com sucesso. Obrigado!');
-								})
-								.catch(error => {
-									console.log(error);
-									message.channel.send('Error while creating the item.');
-								});
+							await LfgManager.create(
+								data,
+								async () => await dmchannel.send('O teu pedido foi criado com sucesso. Obrigado!'),
+								async () => await dmchannel.send('Ocorreu um erro ao criar o pedido, tenta de novo dentro de momentos'),
+							);
 						}
 						else {
 							console.log('LFG cancelled. Nothing to see here.');
