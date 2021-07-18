@@ -7,14 +7,16 @@ module.exports = (sequelize, DataTypes) => {
 
 	}
 	LookingForGroup.init({
-		game: DataTypes.STRING,
-		description: DataTypes.STRING,
+		game: DataTypes.TEXT,
+		description: DataTypes.TEXT,
 		players: DataTypes.INTEGER,
 		playAt: DataTypes.STRING,
 		message_id: DataTypes.STRING,
 		author_id: DataTypes.STRING,
 	}, {
 		sequelize,
+		charset: 'utf8mb4',
+		collate: 'utf8mb4_unicode_ci',
 		modelName: 'LookingForGroup',
 	});
 	return LookingForGroup;

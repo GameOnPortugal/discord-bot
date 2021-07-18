@@ -9,10 +9,10 @@ module.exports = {
 				type: Sequelize.INTEGER,
 			},
 			game: {
-				type: Sequelize.STRING,
+				type: Sequelize.TEXT,
 			},
 			description: {
-				type: Sequelize.STRING,
+				type: Sequelize.TEXT,
 			},
 			players: {
 				type: Sequelize.INTEGER,
@@ -34,6 +34,9 @@ module.exports = {
 				allowNull: false,
 				type: Sequelize.DATE,
 			},
+		}, {
+			charset: 'utf8mb4',
+			collate: 'utf8mb4_unicode_ci',
 		});
 	},
 	down: async (queryInterface) => {

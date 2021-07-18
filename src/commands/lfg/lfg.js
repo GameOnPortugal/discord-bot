@@ -39,11 +39,10 @@ module.exports = {
 					.then(async dmchannel => {
 						await dmchannel.send('Vamos criar um Looking for Group! Apenas tens 30 seg. entre perguntas para responder. No final, o post será criado por ti.');
 
-						let hasAnswered = false;
-
 						for (const questionName in questions) {
 							let validAnswer = false;
 							do {
+								let hasAnswered = false;
 								await dmchannel.send(questions[questionName].question);
 
 								await dmchannel
@@ -55,7 +54,7 @@ module.exports = {
 											validAnswer = true;
 										}
 										else {
-											await dmchannel.send('Parece que a tua mensagem não foi aceite, vamos tentar de novo!');
+											await dmchannel.send('A tua mensagem não foi aceite, por favor tenta de novo.');
 										}
 
 										data[questionName] = collected.last().content;
@@ -64,7 +63,7 @@ module.exports = {
 										hasAnswered = false;
 										console.log('Times up... finishing');
 
-										await dmchannel.send('Acabou o tempo... o anúncio não será criado.');
+										await dmchannel.send('Acabou o tempo... o pedido não será criado.');
 									});
 
 								if (!hasAnswered) {
@@ -123,7 +122,7 @@ module.exports = {
 								});
 						}
 						else {
-							console.log('Ad disapproved. Nothing to see here.');
+							console.log('LFG cancelled. Nothing to see here.');
 						}
 					});
 				break;
