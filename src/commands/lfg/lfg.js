@@ -20,6 +20,59 @@ const questions = {
 	},
 };
 
+async function handleReact(message, user, emoji) {
+	console.log('React from:', user, 'with emoji:', emoji);
+
+	const userReactions = message.reactions.cache.filter(reaction => reaction.users.cache.has(user.id));
+	try {
+		console.log('Reactions:', userReactions.values());
+		for (const reaction of userReactions.values()) {
+			if (reaction.emoji.name === emoji) continue;
+			await reaction.users.remove(user.id);
+		}
+	}
+	catch (error) {
+		console.error('Failed to remove reactions.');
+	}
+}
+
+function updateEmbed(original, data) {
+	const players = [];
+
+	original.reactions.resolve('👍').users.fetch()
+		.then(userList => {
+			console.log('UserList for Like:', userList);
+			userList.forEach((user) => {
+				if (!user.bot && user.id !== data.author_id) {
+					players.push(`<@${user.id}>`);
+				}
+			});
+			console.log('New party:', players);
+
+			const editedLfgMessage = new Discord.MessageEmbed()
+				.setColor('#0099ff')
+				.setTitle('Procura de Grupo')
+				.setDescription(data.description)
+				.addField('Jogo', data.game, false)
+				.addField('Autor', `<@${data.author_id}>`, true)
+				.addField('Jogadores', `${1 + players.length}/${data.players}`, true)
+				.addField('Hora Prevista', data.playAt, true);
+
+			if (players.length !== 0) {
+				editedLfgMessage.addField('Aceite', players.join(' '));
+			}
+
+			editedLfgMessage
+				.addField('\u200B', 'Reage com :thumbsup: para te juntares!')
+				.setThumbnail('https://i.ibb.co/LzHsvdn/Transparent-2.png')
+				.setTimestamp()
+				.setFooter('|lfg create', 'https://i.ibb.co/LzHsvdn/Transparent-2.png');
+
+			original.edit(editedLfgMessage);
+			console.log('Edited embed');
+		});
+}
+
 module.exports = {
 	name: 'lfg',
 	guildOnly: true,
@@ -127,8 +180,19 @@ module.exports = {
 									return ['👍', '❌'].includes(reaction.emoji.name);
 								};
 
+								// Problem here with timezones
+								const date = new Date();
+								const now = new Date();
+								const playAt = data['playAt'].split(':');
+								date.setHours(playAt[0], playAt[1]);
+								if (date < now) date.setDate(date.getDate() + 1);
+
+								console.log('Current date:', now.toString());
+								console.log('Date set to:', date.toString());
+								console.log('Enabling reacts up to (minutes):', (date - now) / 1000 / 60);
+
 								// collects reactions over 1 hour
-								const collector = m.createReactionCollector(filter, { time: 60000 * 60 });
+								const collector = m.createReactionCollector(filter, { time: date - Date.now() });
 
 								collector.on('collect', async (reaction, user) => {
 									await handleReact(m, user, reaction.emoji.name);
@@ -147,56 +211,3 @@ module.exports = {
 		}
 	},
 };
-
-async function handleReact(message, user, emoji) {
-	console.log('React from:', user, 'with emoji:', emoji);
-
-	const userReactions = message.reactions.cache.filter(reaction => reaction.users.cache.has(user.id));
-	try {
-		console.log('Reactions:', userReactions.values());
-		for (const reaction of userReactions.values()) {
-			if (reaction.emoji.name === emoji) continue;
-			await reaction.users.remove(user.id);
-		}
-	}
-	catch (error) {
-		console.error('Failed to remove reactions.');
-	}
-}
-
-function updateEmbed(original, data) {
-	const players = [];
-
-	original.reactions.resolve('👍').users.fetch()
-		.then(userList => {
-			console.log('UserList for Like:', userList);
-			userList.forEach((user) => {
-				if (!user.bot && user.id !== data.author_id) {
-					players.push(`<@${user.id}>`);
-				}
-			});
-			console.log('New party:', players);
-
-			const editedLfgMessage = new Discord.MessageEmbed()
-				.setColor('#0099ff')
-				.setTitle('Procura de Grupo')
-				.setDescription(data.description)
-				.addField('Jogo', data.game, false)
-				.addField('Autor', `<@${data.author_id}>`, true)
-				.addField('Jogadores', `${1 + players.length}/${data.players}`, true)
-				.addField('Hora Prevista', data.playAt, true);
-
-			if (players.length !== 0) {
-				editedLfgMessage.addField('Aceite', players.join(' '));
-			}
-
-			editedLfgMessage
-				.addField('\u200B', 'Reage com :thumbsup: para te juntares!')
-				.setThumbnail('https://i.ibb.co/LzHsvdn/Transparent-2.png')
-				.setTimestamp()
-				.setFooter('|lfg create', 'https://i.ibb.co/LzHsvdn/Transparent-2.png');
-
-			original.edit(editedLfgMessage);
-			console.log('Edited embed');
-		});
-}
