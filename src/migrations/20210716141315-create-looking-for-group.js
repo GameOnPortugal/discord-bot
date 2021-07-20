@@ -18,7 +18,7 @@ module.exports = {
 				type: Sequelize.INTEGER,
 			},
 			playAt: {
-				type: Sequelize.STRING,
+				type: Sequelize.DATE,
 			},
 			message_id: {
 				type: Sequelize.STRING,

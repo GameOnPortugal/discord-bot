@@ -1,7 +1,6 @@
 'use strict';
-const {
-	Model,
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
 	class LookingForGroup extends Model {
 
@@ -10,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
 		game: DataTypes.TEXT,
 		description: DataTypes.TEXT,
 		players: DataTypes.INTEGER,
-		playAt: DataTypes.STRING,
+		playAt: DataTypes.DATE,
 		message_id: DataTypes.STRING,
 		author_id: DataTypes.STRING,
 	}, {

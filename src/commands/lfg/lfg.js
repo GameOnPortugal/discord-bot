@@ -1,13 +1,19 @@
+const dayjs = require('dayjs');
+const customParseFormat = require('dayjs/plugin/customParseFormat');
+const isSameOrBefore = require('dayjs/plugin/isSameOrBefore');
+dayjs.extend(customParseFormat);
+dayjs.extend(isSameOrBefore);
+
 const Discord = require('discord.js');
 const LfgManager = require('./../../service/lfg/lfgManager');
 
 const questions = {
 	game: {
-		question: 'Qual é o nome do jogo?',
+		question: 'Qual é o nome do jogo? Ex: "Destiny 2"',
 		validator: /^.*$/,
 	},
 	description: {
-		question: 'Adiciona uma descrição ao teu pedido!',
+		question: 'Adiciona uma descrição ao teu pedido! Ex: "Cross play possivel", "Raid completa ou checkpoint X", "Noob-friendly"',
 		validator: /^.*$/,
 	},
 	players: {
@@ -15,8 +21,8 @@ const questions = {
 		validator: /^[1-9][0-9]*$/,
 	},
 	playAt: {
-		question: 'Quando está prevista a sessão de jogo (HH:MM)?',
-		validator: /^([0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/,
+		question: 'Quando está prevista a sessão de jogo (DD-MM-YYYY HH:MM ou HH:MM)? ex: "30-07-2021 08:03", "23:50"',
+		validator: /^(?:\d{2}-\d{2}-\d{4} )*\d{2}:\d{2}$/,
 	},
 };
 
@@ -56,7 +62,7 @@ function updateEmbed(original, data) {
 				.addField('Jogo', data.game, false)
 				.addField('Autor', `<@${data.author_id}>`, true)
 				.addField('Jogadores', `${1 + players.length}/${data.players}`, true)
-				.addField('Hora Prevista', data.playAt, true);
+				.addField('Hora/Data Prevista', data.playAt.format('YYYY-MM-DD HH:mm'), true);
 
 			if (players.length !== 0) {
 				editedLfgMessage.addField('Aceite', players.join(' '));
@@ -78,12 +84,15 @@ module.exports = {
 	guildOnly: true,
 	args: true,
 	description: 'Find a group of players for a gaming session',
-	usage: 'Inicia um pedido de procura de grupo!\n' +
-    '`|lfg create`',
+	usage: 'Inicia um pedido de procura de grupo!'
+		+ '\n `|lfg create`',
 	async execute(message, args) {
 		switch (args[0]) {
 			case 'create': {
 				const data = { author_id: message.author.id };
+				const now = dayjs();
+				let validAnswer = false;
+				let hasAnswered = false;
 
 				// deleting the original request
 				message.delete();
@@ -92,9 +101,9 @@ module.exports = {
 						await dmchannel.send('Vamos criar um Looking for Group! Apenas tens 30 seg. entre perguntas para responder. No final, o post será criado por ti.');
 
 						for (const questionName in questions) {
-							let validAnswer = false;
 							do {
-								let hasAnswered = false;
+								validAnswer = false;
+								hasAnswered = false;
 								await dmchannel.send(questions[questionName].question);
 
 								await dmchannel
@@ -105,28 +114,57 @@ module.exports = {
 									})
 									.then(async collected => {
 										hasAnswered = true;
+										let answer = collected.last().content;
 
-										if (questions[questionName].validator.test(collected.last().content)) {
-											validAnswer = true;
-										}
-										else {
+										if (!questions[questionName].validator.test(answer)) {
 											await dmchannel.send('A tua mensagem não foi aceite, por favor tenta de novo.');
+
+											return;
 										}
 
-										data[questionName] = collected.last().content;
+										// Additional validations for date
+										if (questionName === 'playAt') {
+											let format = 'HH:mm';
+											if (answer.trim().length > 5) {
+												format = 'DD-MM-YYYY HH:mm';
+											}
+
+											const playAt = dayjs(answer, format);
+
+											if (!playAt.isValid()) {
+												await dmchannel.send('Data inválida! Apenas datas como "20-03-2021 18:30" ou apenas horas "20:00" são aceites.');
+
+												return;
+											}
+											if (playAt.isSameOrBefore(now)) {
+												await dmchannel.send('Data inválida! Apenas datas no futuro.');
+
+												return;
+											}
+
+											answer = playAt;
+										}
+
+										validAnswer = true;
+										data[questionName] = answer;
 									})
-									.catch(async () => {
-										hasAnswered = false;
-										console.log('Times up... finishing');
+									.catch(async (error) => {
+										if (!hasAnswered) {
+											await dmchannel.send('Acabou o tempo... post cancelado.');
+										}
+										else if (error) {
+											console.error(error);
 
-										await dmchannel.send('Acabou o tempo... o pedido não será criado.');
+											await dmchannel.send('Error: ' + error);
+										}
 									});
+							} while (!validAnswer && hasAnswered);
 
-								if (!hasAnswered) {
-									console.log('Not answered! Stopping');
-									return;
-								}
-							} while (!validAnswer);
+							if (!validAnswer || !hasAnswered) {
+								console.log('Not all questions were answered or they were valid');
+
+								return;
+							}
 						}
 
 						// after information gathering
@@ -139,7 +177,7 @@ module.exports = {
 							.addField('Jogo', data.game, false)
 							.addField('Autor', `<@${data.author_id}>`, true)
 							.addField('Jogadores', `1/${data.players}`, true)
-							.addField('Hora Prevista', data.playAt, true)
+							.addField('Hora/Data Prevista', data.playAt.format('YYYY-MM-DD HH:mm'), true)
 							.addField('\u200B', 'Reage com :thumbsup: para te juntares!')
 							.setThumbnail('https://i.ibb.co/LzHsvdn/Transparent-2.png')
 							.setTimestamp()
@@ -158,11 +196,11 @@ module.exports = {
 								}
 							})
 							.catch(async () => {
-								await dmchannel.send('Time up.. no ad will be created.');
+								await dmchannel.send('Time up.. no LFG will be created.');
 							});
 
 						if (createItem) {
-							console.log('Lfg approved. Creating the item on the db and sending it to the channel!');
+							console.log('LFG approved. Creating the item on the db and sending it to the channel!');
 
 							if (!await LfgManager.create(data)) {
 								await dmchannel.send('Ocorreu um erro ao criar o pedido, tenta de novo dentro de momentos');
@@ -180,19 +218,7 @@ module.exports = {
 									return ['👍', '❌'].includes(reaction.emoji.name);
 								};
 
-								// Problem here with timezones
-								const date = new Date();
-								const now = new Date();
-								const playAt = data['playAt'].split(':');
-								date.setHours(playAt[0], playAt[1]);
-								if (date < now) date.setDate(date.getDate() + 1);
-
-								console.log('Current date:', now.toString());
-								console.log('Date set to:', date.toString());
-								console.log('Enabling reacts up to (minutes):', (date - now) / 1000 / 60);
-
-								// collects reactions over 1 hour
-								const collector = m.createReactionCollector(filter, { time: date - Date.now() });
+								const collector = m.createReactionCollector(filter, { time: data['playAt'].diff(now) });
 
 								collector.on('collect', async (reaction, user) => {
 									await handleReact(m, user, reaction.emoji.name);
