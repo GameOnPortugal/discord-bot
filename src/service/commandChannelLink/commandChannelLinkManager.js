@@ -27,6 +27,17 @@ module.exports = {
 	},
 
 	/**
+	 * Find command association by name
+	 *
+	 * @param {String} commandName
+	 *
+	 * @return {Promise<CommandChannelLink|null>}
+	 */
+	findByCommand: function(commandName) {
+		return CommandChannelLink.findOne({ where: { command: commandName } });
+	},
+
+	/**
 	 * Create an association between a command and a channel
 	 *
 	 * @param {Array} data
