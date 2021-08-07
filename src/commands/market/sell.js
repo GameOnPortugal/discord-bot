@@ -29,6 +29,10 @@ module.exports = {
 	name: 'sell',
 	guildOnly: true,
 	description: 'Sell an item in the marketplace',
+	usage: 'Cria um anúncio no canal anúncios'
+		+ '\n Exemplos:'
+		+ '\n'
+		+ '\n `|sell`',
 	async execute(message) {
 		const data = { adType: 'sell', author_id: message.author.id };
 		console.log('Message author ' + message.author.id);

@@ -30,6 +30,11 @@ module.exports = {
 	aliases: ['want', 'procuro'],
 	guildOnly: true,
 	description: 'Place a wanted ad for an item in the marketplace',
+	usage: 'Cria um anúncio de procura no canal anúncios.'
+		+ '\n Exemplos:'
+		+ '\n'
+		+ '\n `|want`'
+		+ '\n `|procuro`',
 	async execute(message) {
 		const data = { adType: 'wanted', author_id: message.author.id };
 		console.log('Message author ' + message.author.id);

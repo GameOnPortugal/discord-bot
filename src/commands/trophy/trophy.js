@@ -13,7 +13,7 @@ module.exports = {
         + '\nExamples:'
         + '\n'
 		+ '\nUse `|trophy rank [monthly,lifetime,creation]` - to show ranks (defaults to monthly)'
-        + '\nUse `|trophy https://psnprofiles/game/username',
+        + '\nUse `|trophy https://psnprofiles/game/username`',
 	async execute(message, args) {
 		switch (args[0]) {
 			case 'rank': {
