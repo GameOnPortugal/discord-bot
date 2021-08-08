@@ -1,3 +1,7 @@
+const dayjs = require('dayjs');
+const customParseFormat = require('dayjs/plugin/customParseFormat');
+dayjs.extend(customParseFormat);
+
 const Discord = require('discord.js');
 const TrophyProfileManager = require('./../../service/trophy/trophyProfileManager');
 const PsnCrawlService = require('./../../service/trophy/psnCrawlService');
@@ -14,16 +18,38 @@ module.exports = {
 	usage: 'Claim a trophy or show ranks'
         + '\nExamples:'
         + '\n'
-		+ '\nUse `|trophy rank [monthly,lifetime,creation]` - to show ranks (defaults to monthly)'
+        + '\nUse `|trophy rank [monthly,lifetime,creation]` - to show ranks (defaults to monthly)'
+        + '\nUse `|trophy rank monthly [MM,MM/YYYY]` - to show monthly rank for a specific month and year'
         + '\nUse `|trophy https://psnprofiles/game/username`',
 	async execute(message, args) {
 		switch (args[0]) {
 			case 'rank': {
-				const type = Object.prototype.hasOwnProperty.call(args, 1) ? args[1] : 'monthly';
+				let type = Object.prototype.hasOwnProperty.call(args, 1) ? args[1] : 'monthly';
 				let ranks = null;
 				switch (type) {
 					case 'monthly': {
-						ranks = await TrophyProfileManager.getTopMonthlyHunters(5);
+						let monthFilter = dayjs();
+						if (Object.prototype.hasOwnProperty.call(args, 2)) {
+							let filter = args[2];
+							let format = 'MM';
+							if (filter.length === 1) {
+								// append a 0 to a single month
+								filter = '0' + filter;
+							}
+							if (filter.length > 2) {
+								format = 'MM/YYYY';
+							}
+							monthFilter = dayjs(filter, format);
+							console.log(filter, monthFilter);
+							if (!monthFilter.isValid()) {
+								await message.channel.send('Data inválida, datas válidas: MM/YYYY ou MM ou M. Exemplo: 01/2021 ou 01 ou 1');
+
+								return;
+							}
+						}
+						type += ' ' + monthFilter.format('MM/YYYY');
+
+						ranks = await TrophyProfileManager.getTopMonthlyHunters(5, monthFilter);
 						break;
 					}
 					case 'creation': {

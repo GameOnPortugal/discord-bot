@@ -58,22 +58,29 @@ module.exports = {
 	 * Monthly ranks
 	 *
 	 * @param {int} limit
+	 * @param {Date} monthFilter
 	 *
 	 * @returns {Trophies[]}
 	 */
-	getTopMonthlyHunters: async function(limit) {
+	getTopMonthlyHunters: async function(limit, monthFilter) {
 		return await sequelize.query(
 			' SELECT ' +
-			'	tp.userId,' +
-			'	tp.psnProfile,' +
-			'	SUM(t.points) points,' +
-			'	COUNT(t.id) num_trophies' +
-			' FROM ' +
-			' 	' + TrophyProfile.tableName + ' tp ' +
-			' 	INNER JOIN ' + Trophies.tableName + ' t ON t.trophyProfile = tp.id ' +
-			' WHERE ' +
-			'	t.completionDate BETWEEN DATE_ADD(DATE_ADD(LAST_DAY(NOW()), INTERVAL 1 DAY), INTERVAL - 1 MONTH) AND LAST_DAY(NOW()) ' +
-			' GROUP BY tp.id ' +
+			'	userId,' +
+			'	psnProfile,' +
+			'	SUM(temp.points) points,' +
+			'	COUNT(*) num_trophies' +
+			' FROM (' +
+			'   SELECT ' +
+			'      tp.userId,' +
+			' 	   tp.psnProfile,' +
+			'      t.points' +
+			'   FROM ' +
+			'      ' + TrophyProfile.tableName + ' tp ' +
+			' 		INNER JOIN ' + Trophies.tableName + ' t ON t.trophyProfile = tp.id ' +
+			'	WHERE ' +
+			'		t.completionDate BETWEEN "' + monthFilter.format('YYYY-MM-DD') + '" AND "' + monthFilter.format('YYYY-MM-DD') + '" ' +
+			' ) temp' +
+			' GROUP BY temp.userId ' +
 			' ORDER BY points DESC' +
 			' LIMIT ' + limit,
 			{
