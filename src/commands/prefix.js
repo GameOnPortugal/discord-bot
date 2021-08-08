@@ -4,6 +4,11 @@ module.exports = {
 	name: 'prefix',
 	guildOnly: false,
 	description: 'Define prefix for bot',
+	usage: 'Devolve o prefix que está a ser utilizado ou define um novo'
+		+ '\n Exemplos:'
+		+ '\n'
+		+ '\n `|prefix` - mostra qual é o prefix que está a ser utilizado`'
+		+ '\n `|prefix [prefix]` - altera o prefix`',
 	async execute(message, args) {
 		if (args.length === 0) {
 			const prefix = await PrefixUtil.getPrefix();

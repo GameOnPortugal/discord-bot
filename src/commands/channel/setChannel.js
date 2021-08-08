@@ -47,11 +47,6 @@ module.exports = {
 		}
 
 		switch (args[0]) {
-			case 'help': {
-				message.channel.send(this.usage);
-
-				return;
-			}
 			case 'delete': {
 				if (args.length < 2) {
 					message.channel.send('Missing restriction id. You can remove all by mentioning "all" in your delete command');
