@@ -18,8 +18,8 @@ module.exports = {
 	usage: 'Claim a trophy or show ranks'
         + '\nExamples:'
         + '\n'
-		    + '\nUse `|trophy rank [monthly,lifetime,creation]` - to show ranks (defaults to monthly)'
-    		+ '\nUse `|trophy rank monthly [MM,MM/YYYY]` - to show monthly rank for a specific month and year'
+        + '\nUse `|trophy rank [monthly,lifetime,creation]` - to show ranks (defaults to monthly)'
+        + '\nUse `|trophy rank monthly [MM,MM/YYYY]` - to show monthly rank for a specific month and year'
         + '\nUse `|trophy https://psnprofiles/game/username`',
 	async execute(message, args) {
 		switch (args[0]) {
