@@ -1,6 +1,8 @@
 const models = require('./../../models');
 const Ad = models.Ad;
 
+const MessageCreatorUtil = require('./../../util/messageCreatorUtil');
+
 const questions = {
 	name: {
 		question: 'Qual o nome do artigo?',
@@ -29,6 +31,10 @@ module.exports = {
 	name: 'sell',
 	guildOnly: true,
 	description: 'Sell an item in the marketplace',
+	usage: 'Cria um anúncio no canal anúncios'
+		+ '\n Exemplos:'
+		+ '\n'
+		+ '\n `|sell`',
 	async execute(message) {
 		const data = { adType: 'sell', author_id: message.author.id };
 		console.log('Message author ' + message.author.id);
@@ -107,7 +113,7 @@ module.exports = {
 				if (createItem) {
 					console.log('Ad approved. Creating the item on the db and sending it to the channel!');
 
-					await message.channel.send(sellMessage).then(async m => { data['message_id'] = m.id; });
+					await MessageCreatorUtil.post(this, message, sellMessage).then(async m => { data['message_id'] = m.id; });
 
 					Ad
 						.create(data)

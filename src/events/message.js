@@ -52,6 +52,10 @@ module.exports = {
 			if (command.args && !args.length) {
 				return message.channel.send(command.usage);
 			}
+			const isHelp = Object.prototype.hasOwnProperty.call(args, 0) ? args[0] === 'help' : false;
+			if (isHelp) {
+				return message.channel.send(command.usage);
+			}
 
 			command.execute(message, args);
 		}
