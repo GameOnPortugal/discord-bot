@@ -4,6 +4,8 @@ const PsnCrawlService = require('./../../service/trophy/psnCrawlService');
 const TrophiesManager = require('./../../service/trophy/trophyManager');
 const emojiEnum = require('./../../enum/discord/emojiEnum');
 
+const MessageCreatorUtil = require('./../../util/messageCreatorUtil');
+
 module.exports = {
 	name: 'trophy',
 	description: 'Claim a trophy',
@@ -126,7 +128,7 @@ module.exports = {
 
 			trophy = await TrophiesManager.create(trophyProfile, trophyUrl, trophyData);
 
-			await message.channel.send('Parabéns <@' + message.author.id + '>! Acabaste de receber ' + trophy.points + ' TP (Trophy Points).');
+			await MessageCreatorUtil.post(this, message, 'Parabéns <@' + message.author.id + '>! Acabaste de receber ' + trophy.points + ' TP (Trophy Points).');
 		}
 		catch (exception) {
 			console.log('Problem creating trophy. Error: ' + exception.message);

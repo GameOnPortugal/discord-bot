@@ -7,6 +7,8 @@ dayjs.extend(isSameOrBefore);
 const Discord = require('discord.js');
 const LfgManager = require('./../../service/lfg/lfgManager');
 
+const MessageCreatorUtil = require('./../../util/messageCreatorUtil');
+
 const questions = {
 	game: {
 		question: 'Qual é o nome do jogo? Ex: "Destiny 2"',
@@ -207,7 +209,7 @@ module.exports = {
 								return;
 							}
 
-							await message.channel.send(lfgMessage).then(async m => {
+							await MessageCreatorUtil.post(this, message, lfgMessage).then(async m => {
 								data['message_id'] = m.id;
 								// insert reactions
 								await m.react('👍');

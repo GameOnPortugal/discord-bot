@@ -1,6 +1,8 @@
 const models = require('./../../models');
 const Ad = models.Ad;
 
+const MessageCreatorUtil = require('./../../util/messageCreatorUtil');
+
 const questions = {
 	name: {
 		question: 'Qual o nome do artigo que procuras?',
@@ -26,8 +28,8 @@ const questions = {
 };
 
 module.exports = {
-	name: 'wanted',
-	aliases: ['want', 'procuro'],
+	name: 'want',
+	aliases: ['procuro'],
 	guildOnly: true,
 	description: 'Place a wanted ad for an item in the marketplace',
 	async execute(message) {
@@ -108,7 +110,7 @@ module.exports = {
 				if (createItem) {
 					console.log('Ad approved. Creating the item on the db and sending it to the channel!');
 
-					await message.channel.send(wantedMessage).then(async m => { data['message_id'] = m.id; });
+					await MessageCreatorUtil.post(this, message, wantedMessage).then(async m => { data['message_id'] = m.id; });
 
 					Ad
 						.create(data)
