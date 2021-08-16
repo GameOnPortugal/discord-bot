@@ -82,7 +82,7 @@ module.exports = {
 			'      ' + TrophyProfile.tableName + ' tp ' +
 			' 		INNER JOIN ' + Trophies.tableName + ' t ON t.trophyProfile = tp.id ' +
 			'	WHERE ' +
-			'		t.completionDate BETWEEN "' + monthFilter.format('YYYY-MM-DD') + '" AND "' + lastDayMonth.format('YYYY-MM-DD') + '" ' +
+			'		t.completionDate BETWEEN "' + monthFilter.format('YYYY-MM-') + '01" AND "' + lastDayMonth.format('YYYY-MM-DD') + '" ' +
 			' ) temp' +
 			' GROUP BY temp.userId ' +
 			' ORDER BY points DESC' +
