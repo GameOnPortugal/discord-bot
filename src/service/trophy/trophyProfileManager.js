@@ -1,6 +1,9 @@
 const models = require('./../../models');
 const sequelize = models.sequelize;
 const { QueryTypes } = require('sequelize');
+const dayjs = require('dayjs');
+const customParseFormat = require('dayjs/plugin/customParseFormat');
+dayjs.extend(customParseFormat);
 const TrophyProfile = models.TrophyProfile;
 const Trophies = models.Trophies;
 
@@ -58,11 +61,12 @@ module.exports = {
 	 * Monthly ranks
 	 *
 	 * @param {int} limit
-	 * @param {Date} monthFilter
+	 * @param {dayjs} monthFilter
 	 *
 	 * @returns {Trophies[]}
 	 */
 	getTopMonthlyHunters: async function(limit, monthFilter) {
+		const lastDayMonth = dayjs(monthFilter.format('YYYY-MM-') + monthFilter.daysInMonth(), 'YYYY-MM-DD');
 		return await sequelize.query(
 			' SELECT ' +
 			'	userId,' +
@@ -78,7 +82,7 @@ module.exports = {
 			'      ' + TrophyProfile.tableName + ' tp ' +
 			' 		INNER JOIN ' + Trophies.tableName + ' t ON t.trophyProfile = tp.id ' +
 			'	WHERE ' +
-			'		t.completionDate BETWEEN "' + monthFilter.format('YYYY-MM-DD') + '" AND "' + monthFilter.format('YYYY-MM-DD') + '" ' +
+			'		t.completionDate BETWEEN "' + monthFilter.format('YYYY-MM-DD') + '" AND "' + lastDayMonth.format('YYYY-MM-DD') + '" ' +
 			' ) temp' +
 			' GROUP BY temp.userId ' +
 			' ORDER BY points DESC' +
