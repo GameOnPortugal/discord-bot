@@ -77,7 +77,7 @@ module.exports = {
 					let emoji = Object.prototype.hasOwnProperty.call(positionEmoji, position) ? positionEmoji[position] : emojiEnum.TROPHY_BRONZE;
 					emoji = await message.client.emojis.cache.get(emoji);
 
-					rankMessage += '`' + position + '.` <:' + emoji.name + ':' + emoji.id + '> <@' + rank.userId + '> com ' + rank.points + ' TP\n';
+					rankMessage += '`' + position + '.` <:' + emoji.name + ':' + emoji.id + '> ' + rank.psnProfile + ' (<@' + rank.userId + '>) com ' + rank.points + ' TP\n';
 					position++;
 				}
 
