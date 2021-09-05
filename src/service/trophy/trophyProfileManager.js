@@ -67,6 +67,7 @@ module.exports = {
 	 */
 	getTopMonthlyHunters: async function(limit, monthFilter) {
 		const lastDayMonth = dayjs(monthFilter.format('YYYY-MM-') + monthFilter.daysInMonth(), 'YYYY-MM-DD');
+
 		return await sequelize.query(
 			' SELECT ' +
 			'	userId,' +
@@ -145,5 +146,72 @@ module.exports = {
 				type: QueryTypes.SELECT,
 			},
 		);
+	},
+
+	/**
+	 * Find the user trophy data
+	 *
+	 * @param {User} author
+	 *
+	 * @returns {Object}
+	 */
+	findUserPosition: async function(author) {
+		const data = {
+			ranks: [
+				{ name: 'monthly', position: 0, points: 0, trophies: 0 },
+				{ name: 'creation', position: 0, points: 0, trophies: 0 },
+				{ name: 'lifetime', position: 0, points: 0, trophies: 0 },
+			],
+			totalTrophies: 0,
+			totalPoints: 0,
+		};
+
+		let totalPoints = 0;
+		let totalTrophies = 0;
+		let counter;
+
+		counter = 0;
+		const monthlyData = await this.getTopMonthlyHunters(10000, dayjs());
+		for (const trophyData of monthlyData) {
+			counter++;
+			if (trophyData.userId === author.id) {
+				data.ranks[0].position = counter;
+				totalPoints += data.ranks[0].points = parseInt(trophyData.points);
+				totalTrophies += data.ranks[0].trophies = trophyData.num_trophies;
+
+				break;
+			}
+		}
+
+		counter = 0;
+		const creationData = await this.getTopSinceCreationHunters(10000);
+		for (const trophyData of creationData) {
+			counter++;
+			if (trophyData.userId === author.id) {
+				data.ranks[1].position = counter;
+				totalPoints += data.ranks[1].points = parseInt(trophyData.points);
+				totalTrophies += data.ranks[1].trophies = trophyData.num_trophies;
+
+				break;
+			}
+		}
+
+		counter = 0;
+		const lifetimeData = await this.getTopLifetimeHunters(10000);
+		for (const trophyData of lifetimeData) {
+			counter++;
+			if (trophyData.userId === author.id) {
+				data.ranks[2].position = counter;
+				totalPoints += data.ranks[2].points = parseInt(trophyData.points);
+				totalTrophies += data.ranks[2].trophies = trophyData.num_trophies;
+
+				break;
+			}
+		}
+
+		data.totalTrophies = totalTrophies;
+		data.totalPoints = totalPoints;
+
+		return data;
 	},
 };

@@ -27,6 +27,20 @@ module.exports = {
 				let type = Object.prototype.hasOwnProperty.call(args, 1) ? args[1] : 'monthly';
 				let ranks = null;
 				switch (type) {
+					case 'me': {
+						const userData = await TrophyProfileManager.findUserPosition(message.author);
+
+						let userDataMessage = 'Tu estás colocado nos seguintes ranks:\n';
+						for (const rankData of userData.ranks) {
+							userDataMessage += 'Rank ' + rankData.name + ' - ' + rankData.position + ' lugar (' + rankData.points + 'TP - ' + rankData.trophies + ' troféus)\n';
+						}
+
+						userDataMessage += '\n Parabéns tens ' + userData.totalPoints + 'TP nos ' + userData.totalTrophies + ' troféus que submeteste';
+
+						await message.channel.send(userDataMessage);
+
+						return;
+					}
 					case 'monthly': {
 						let monthFilter = dayjs();
 						if (Object.prototype.hasOwnProperty.call(args, 2)) {
