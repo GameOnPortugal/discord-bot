@@ -32,7 +32,7 @@ const questions = {
 
 module.exports = {
 	name: 'sell',
-	guildOnly: false,
+	guildOnly: true,
 	args: true,
 	description: 'Sell an item in the marketplace',
 	usage: 'Cria um anúncio no canal anúncios'
