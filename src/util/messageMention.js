@@ -2,13 +2,13 @@
 
 module.exports = {
 	/**
-     * Get user from a mention string, e.g.: <@!823869192137998356>
-     *
-     * @param {Client} client
-     * @param {string} mention
-     *
-     * @returns {Promise<User>>}
-     */
+	 * Get user from a mention string, e.g.: <@!823869192137998356>
+	 *
+	 * @param {Client} client
+	 * @param {string} mention
+	 *
+	 * @returns {Promise<User>>}
+	 */
 	getMessageMention: async function(client, mention) {
 		if (!mention) return;
 
