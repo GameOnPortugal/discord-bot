@@ -3,35 +3,35 @@ const Ad = models.Ad;
 
 module.exports = {
 	/**
-     * Find ads created by an user
-     *
-     * @param {User} user
-     *
-     * @returns {Promise<Ad[]>}
-     */
+	 * Find ads created by an user
+	 *
+	 * @param {User} user
+	 *
+	 * @returns {Promise<Ad[]>}
+	 */
 	findAdsByUser: function(user) {
 		return Ad.findAll({ where: { author_id: user.id } });
 	},
 
 	/**
-     * Find an ad by its ID
-     *
-     * @param {int} adId
-     *
-     * @returns {Promise<Ad>}
-     */
+	 * Find an ad by its ID
+	 *
+	 * @param {int} adId
+	 *
+	 * @returns {Promise<Ad>}
+	 */
 	findById: function(adId) {
 		return Ad.findOne({ where: { id: adId } });
 	},
 
 	/**
-     * Delete an ad from the dabatase and from the channel
-     *
-     * @param {Client} client
-     * @param {int} adId
-     *
-     * @returns {Promise}
-     */
+	 * Delete an ad from the dabatase and from the channel
+	 *
+	 * @param {Client} client
+	 * @param {int} adId
+	 *
+	 * @returns {Promise}
+	 */
 	delete: async function(client, adId) {
 		const ad = await this.findById(adId);
 		if (!ad) {
