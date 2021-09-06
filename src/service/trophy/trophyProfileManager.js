@@ -198,8 +198,8 @@ module.exports = {
 				data.ranks[2].position = counter;
 
 				// total trophies and points are going to be the lifetime
-				data.totalTrophies += data.ranks[2].points = parseInt(trophyData.points);
-				data.totalPoints += data.ranks[2].trophies = trophyData.num_trophies;
+				data.totalPoints += data.ranks[2].points = parseInt(trophyData.points);
+				data.totalTrophies += data.ranks[2].trophies = trophyData.num_trophies;
 
 				break;
 			}
