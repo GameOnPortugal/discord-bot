@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
 	Ad.init({
 		name: DataTypes.STRING,
 		author_id: DataTypes.STRING,
+		channel_id: DataTypes.STRING,
 		message_id: DataTypes.STRING,
 		state: DataTypes.STRING,
 		price: DataTypes.STRING,
