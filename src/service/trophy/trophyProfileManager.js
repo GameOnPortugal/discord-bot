@@ -166,8 +166,6 @@ module.exports = {
 			totalPoints: 0,
 		};
 
-		let totalPoints = 0;
-		let totalTrophies = 0;
 		let counter;
 
 		counter = 0;
@@ -176,8 +174,6 @@ module.exports = {
 			counter++;
 			if (trophyData.userId === author.id) {
 				data.ranks[0].position = counter;
-				totalPoints += data.ranks[0].points = parseInt(trophyData.points);
-				totalTrophies += data.ranks[0].trophies = trophyData.num_trophies;
 
 				break;
 			}
@@ -189,8 +185,6 @@ module.exports = {
 			counter++;
 			if (trophyData.userId === author.id) {
 				data.ranks[1].position = counter;
-				totalPoints += data.ranks[1].points = parseInt(trophyData.points);
-				totalTrophies += data.ranks[1].trophies = trophyData.num_trophies;
 
 				break;
 			}
@@ -202,15 +196,14 @@ module.exports = {
 			counter++;
 			if (trophyData.userId === author.id) {
 				data.ranks[2].position = counter;
-				totalPoints += data.ranks[2].points = parseInt(trophyData.points);
-				totalTrophies += data.ranks[2].trophies = trophyData.num_trophies;
+
+				// total trophies and points are going to be the lifetime
+				data.totalTrophies += data.ranks[2].points = parseInt(trophyData.points);
+				data.totalPoints += data.ranks[2].trophies = trophyData.num_trophies;
 
 				break;
 			}
 		}
-
-		data.totalTrophies = totalTrophies;
-		data.totalPoints = totalPoints;
 
 		return data;
 	},
