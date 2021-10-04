@@ -12,6 +12,8 @@ module.exports = (sequelize, DataTypes) => {
 	}, {
 		sequelize,
 		modelName: 'CommandChannelLink',
+		freezeTableName: true,
+		tableName: 'commandchannellinks',
 	});
 	return CommandChannelLink;
 };

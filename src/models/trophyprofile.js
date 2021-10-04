@@ -20,6 +20,8 @@ module.exports = (sequelize, DataTypes) => {
 	}, {
 		sequelize,
 		modelName: 'TrophyProfile',
+		freezeTableName: true,
+		tableName: 'trophyprofiles',
 	});
 
 	return TrophyProfile;
