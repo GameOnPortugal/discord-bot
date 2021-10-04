@@ -58,7 +58,7 @@ module.exports = {
 						if (Object.prototype.hasOwnProperty.call(args, 1)) {
 							user = await MessageMentions.getMessageMention(message.client, args[1]);
 							if (!user) {
-								dmchannel.send('Utilizador nāo encontrado... por favor volta a tentar mais tarde!');
+								await dmchannel.send('Utilizador nāo encontrado... por favor volta a tentar mais tarde!');
 
 								return;
 							}
@@ -66,7 +66,7 @@ module.exports = {
 
 						const ads = await AdManager.findAdsByUser(user);
 						if (!ads.length) {
-							dmchannel.send(user.username + ' nāo têm nenhum anúncio de momento!');
+							await dmchannel.send(user.username + ' nāo têm nenhum anúncio de momento!');
 
 							return;
 						}
