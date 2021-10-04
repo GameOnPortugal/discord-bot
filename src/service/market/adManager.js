@@ -45,7 +45,8 @@ module.exports = {
 			await client.channels.cache.get(ad.channel_id).messages.delete(ad.message_id);
 
 			await Ad.destroy({ where: { id: adId } });
-		} catch (e) {
+		}
+		catch (e) {
 			// Ignore exceptions, e.g: the post is already removed
 		}
 	},
