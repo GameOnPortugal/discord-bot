@@ -82,7 +82,7 @@ module.exports = {
 					}
 					case 'delete': {
 						if (!Object.prototype.hasOwnProperty.call(args, 1)) {
-							dmchannel.send('Por favor coloca o ID do anúncio que pretendes apagar. Usa `|sell list` para saber qual é o ID que pretendes apagar');
+							await dmchannel.send('Por favor coloca o ID do anúncio que pretendes apagar. Usa `|sell list` para saber qual é o ID que pretendes apagar');
 
 							return;
 						}
@@ -90,20 +90,20 @@ module.exports = {
 						const adId = args[1];
 						const ad = await AdManager.findById(adId);
 						if (!ad) {
-							dmchannel.send('Anúncio com o id "' + adId + '" nāo existe. Usa `|sell list` para saber qual é o ID que pretendes apagar');
+							await dmchannel.send('Anúncio com o id "' + adId + '" nāo existe. Usa `|sell list` para saber qual é o ID que pretendes apagar');
 
 							return;
 						}
 
 						if (ad.author_id !== message.author.id) {
-							dmchannel.send('Este anúncio nāo te pertence! Usa `|sell list` para saber qual é o ID que pretendes apagar');
+							await dmchannel.send('Este anúncio nāo te pertence! Usa `|sell list` para saber qual é o ID que pretendes apagar');
 
 							return;
 						}
 
 						await AdManager.delete(message.client, adId);
 
-						dmchannel.send('O teu anúncio foi apagado com sucesso. Obrigado!');
+						await dmchannel.send('O teu anúncio foi apagado com sucesso. Obrigado!');
 
 						return;
 					}
