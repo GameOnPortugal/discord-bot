@@ -174,6 +174,8 @@ module.exports = {
 			counter++;
 			if (trophyData.userId === author.id) {
 				data.ranks[0].position = counter;
+				data.ranks[0].points = trophyData.points;
+				data.ranks[0].trophies = trophyData.num_trophies;
 
 				break;
 			}
@@ -185,6 +187,8 @@ module.exports = {
 			counter++;
 			if (trophyData.userId === author.id) {
 				data.ranks[1].position = counter;
+				data.ranks[1].points = trophyData.points;
+				data.ranks[1].trophies = trophyData.num_trophies;
 
 				break;
 			}

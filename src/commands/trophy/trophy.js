@@ -33,9 +33,20 @@ module.exports = {
 					case 'me': {
 						const userData = await TrophyProfileManager.findUserPosition(message.author);
 
+						let hasRanks = false;
 						let userDataMessage = 'Tu estás colocado nos seguintes ranks:\n';
 						for (const rankData of userData.ranks) {
+							if (rankData.position === 0) {
+								continue;
+							}
+							hasRanks = true;
 							userDataMessage += 'Rank ' + rankData.name + ' - ' + rankData.position + ' lugar (' + rankData.points + 'TP - ' + rankData.trophies + ' troféus)\n';
+						}
+
+						if (!hasRanks) {
+							await message.channel.send('Infelizmente ainda nāo submeteste nenhum troféu.');
+
+							return;
 						}
 
 						userDataMessage += '\n Parabéns tens ' + userData.totalPoints + 'TP nos ' + userData.totalTrophies + ' troféus que submeteste';
@@ -87,9 +98,21 @@ module.exports = {
 
 						const userData = await TrophyProfileManager.findUserPosition(mentionUser);
 
+						let hasRanks = false;
 						let userDataMessage = mentionUser.username + ' está colocado nos seguintes ranks:\n';
 						for (const rankData of userData.ranks) {
+							if (rankData.position === 0) {
+								continue;
+							}
+
+							hasRanks = true;
 							userDataMessage += 'Rank ' + rankData.name + ' - ' + rankData.position + ' lugar (' + rankData.points + 'TP - ' + rankData.trophies + ' troféus)\n';
+						}
+
+						if (!hasRanks) {
+							await message.channel.send('Infelizmente ' + mentionUser.username + ' ainda nāo submeteu nenhum troféu.');
+
+							return;
 						}
 
 						userDataMessage += '\n' + mentionUser.username + ' tem ' + userData.totalPoints + 'TP nos ' + userData.totalTrophies + ' troféus que submeteu.';
