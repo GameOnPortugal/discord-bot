@@ -15,6 +15,8 @@ module.exports = (sequelize, DataTypes) => {
 		{
 			sequelize,
 			modelName: 'SpecialChannel',
+			freezeTableName: true,
+			tableName: 'specialchannels',
 		},
 	);
 
