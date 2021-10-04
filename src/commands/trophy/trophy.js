@@ -9,6 +9,7 @@ const TrophiesManager = require('./../../service/trophy/trophyManager');
 const emojiEnum = require('./../../enum/discord/emojiEnum');
 
 const MessageCreatorUtil = require('./../../util/messageCreatorUtil');
+const MessageMentions = require('./../../util/messageMention');
 
 module.exports = {
 	name: 'trophy',
@@ -16,11 +17,13 @@ module.exports = {
 	guildOnly: true,
 	args: true,
 	usage: 'Claim a trophy or show ranks'
-        + '\nExamples:'
-        + '\n'
-        + '\nUse `|trophy rank [monthly,lifetime,creation]` - to show ranks (defaults to monthly)'
-        + '\nUse `|trophy rank monthly [MM,MM/YYYY]` - to show monthly rank for a specific month and year'
-        + '\nUse `|trophy https://psnprofiles/game/username`',
+		+ '\nExamples:'
+		+ '\n'
+		+ '\nUse `|trophy rank [monthly,lifetime,creation]` - top 5 jogadores de uma determinada categoria (default: monthly)'
+		+ '\nUse `|trophy rank me` - mostra os teus ranks em todas as categorias'
+		+ '\nUse `|trophy rank [discordUsername]` - mostra o rank de um determinado utilizador'
+		+ '\nUse `|trophy rank monthly [MM,MM/YYYY]` - to show monthly rank for a specific month and year'
+		+ '\nUse `|trophy https://psnprofiles/game/username`',
 	async execute(message, args) {
 		switch (args[0]) {
 			case 'rank': {
@@ -74,6 +77,27 @@ module.exports = {
 						ranks = await TrophyProfileManager.getTopLifetimeHunters(5);
 						break;
 					}
+					default: {
+						const mentionUser = await MessageMentions.getMessageMention(message.client, args[1]);
+						if (!mentionUser) {
+							message.channel.send('Utilizador ' + mentionUser.username + ' nāo encontrado... por favor volta a tentar mais tarde!');
+
+							return;
+						}
+
+						const userData = await TrophyProfileManager.findUserPosition(mentionUser);
+
+						let userDataMessage = mentionUser.username + ' está colocado nos seguintes ranks:\n';
+						for (const rankData of userData.ranks) {
+							userDataMessage += 'Rank ' + rankData.name + ' - ' + rankData.position + ' lugar (' + rankData.points + 'TP - ' + rankData.trophies + ' troféus)\n';
+						}
+
+						userDataMessage += '\n' + mentionUser.username + ' tem ' + userData.totalPoints + 'TP nos ' + userData.totalTrophies + ' troféus que submeteu.';
+
+						await message.channel.send(userDataMessage);
+
+						return;
+					}
 				}
 
 				if (ranks === null) {
@@ -120,8 +144,8 @@ module.exports = {
 
 			await message.author.send(
 				'URL inválido. Por favor volta a tentar.'
-                + '\nA tua mensagem foi eliminada uma vez que não foi aceite.'
-                + '\nSe isto for um erro por favor entra em contacto com o STAFF através do ModMail.',
+				+ '\nA tua mensagem foi eliminada uma vez que não foi aceite.'
+				+ '\nSe isto for um erro por favor entra em contacto com o STAFF através do ModMail.',
 			);
 
 			await message.delete();
@@ -138,8 +162,8 @@ module.exports = {
 		if (trophyProfile.userId !== message.author.id) {
 			await message.author.send(
 				'Esta conta já foi reclamada por outro utilizador no servidor.'
-                + '\nA tua mensagem foi eliminada uma vez que não foi aceite.'
-                + '\nSe isto for um erro por favor entra em contacto com o STAFF através do ModMail.',
+				+ '\nA tua mensagem foi eliminada uma vez que não foi aceite.'
+				+ '\nSe isto for um erro por favor entra em contacto com o STAFF através do ModMail.',
 			);
 
 			await message.delete();
@@ -151,8 +175,8 @@ module.exports = {
 		if (trophy) {
 			await message.author.send(
 				'Este trofeu já foi reclamado em ' + trophy.createdAt
-                + '\nA tua mensagem foi eliminada uma vez que não foi aceite.'
-                + '\nSe isto for um erro por favor entra em contacto com o STAFF através do ModMail.',
+				+ '\nA tua mensagem foi eliminada uma vez que não foi aceite.'
+				+ '\nSe isto for um erro por favor entra em contacto com o STAFF através do ModMail.',
 			);
 
 			await message.delete();
