@@ -9,8 +9,7 @@ const client = new Discord.Client();
 client.commands = new Discord.Collection();
 
 // SENTRY
-const Sentry = require("@sentry/node");
-const Tracing = require("@sentry/tracing");
+const Sentry = require('@sentry/node');
 
 Sentry.init({
 	dsn: process.env.SENTRY_DSN,
@@ -23,8 +22,8 @@ Sentry.init({
 });
 
 const transaction = Sentry.startTransaction({
-	op: "client.index",
-	name: "Bot is logged and listening",
+	op: 'client.index',
+	name: 'Bot is logged and listening',
 });
 
 setTimeout(() => {
@@ -50,9 +49,11 @@ setTimeout(() => {
 		}
 
 		client.login(process.env.BOT_TOKEN);
-	} catch (e) {
+	}
+	catch (e) {
 		Sentry.captureException(e);
-	} finally {
+	}
+	finally {
 		transaction.finish();
 	}
 }, 99);
