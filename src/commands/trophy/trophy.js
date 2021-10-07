@@ -182,6 +182,22 @@ module.exports = {
 			trophyProfile = await TrophyProfileManager.create(psnProfileUsername, message.author);
 		}
 
+		// Attempt to grab PSN Ranks, if they are not available means that the account is probably banned!
+		const profileRank = await PsnCrawlService.getProfileRank(psnProfileUsername);
+		if (profileRank.worldRank === null || profileRank.countryRank === null) {
+			await message.author.send(
+				'Esta conta foi banida na PSN Profile!'
+				+ '\nO teu troféu nāo foi aceite.'
+				+ '\nSe isto for um erro por favor entra em contacto com o STAFF através do ModMail.',
+			);
+
+			await TrophyProfileManager.flagAsBanned(trophyProfile);
+
+			await message.delete();
+
+			return;
+		}
+
 		if (trophyProfile.userId !== message.author.id) {
 			await message.author.send(
 				'Esta conta já foi reclamada por outro utilizador no servidor.'

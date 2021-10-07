@@ -2,10 +2,10 @@
 
 module.exports = {
 	up: async (queryInterface, Sequelize) => {
-		await queryInterface.addColumn('Trophies', 'completionDate', { type: Sequelize.DATE });
+		await queryInterface.addColumn('trophies', 'completionDate', { type: Sequelize.DATE });
 	},
 
 	down: async (queryInterface) => {
-		await queryInterface.removeColumn('Trophies', 'completionDate');
+		await queryInterface.removeColumn('trophies', 'completionDate');
 	},
 };

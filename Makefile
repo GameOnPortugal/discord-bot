@@ -2,7 +2,7 @@
 
 .PHONY: build
 build:
-	docker-compose build streetmerchant
+	docker-compose build discordbot
 
 .PHONY: run
 run:

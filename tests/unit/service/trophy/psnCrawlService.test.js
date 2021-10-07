@@ -17,3 +17,18 @@ test('Extracts trophy percentage - new urls', async () => {
 	expect(data.percentage).toBeGreaterThan(1);
 	expect(data.completionDate.format('YYYY-MM-DD')).toBe('2021-03-09');
 });
+
+test('Grabs the current ranks from a psn profile', async () => {
+	expect.assertions(4);
+
+	const ranks = await PsnCrawlService.getProfileRank('Josh_Lopes');
+
+	expect(ranks.worldRank).toBeGreaterThan(1);
+	expect(ranks.countryRank).toBeGreaterThan(1);
+
+	// Banned account
+	const ranks2 = await PsnCrawlService.getProfileRank('oneeye_japan');
+
+	expect(ranks2.worldRank).toBeNull();
+	expect(ranks2.countryRank).toBeNull();
+});

@@ -58,6 +58,15 @@ module.exports = {
 	},
 
 	/**
+	 * Set the profile as banned
+	 *
+	 * @param {TrophyProfile} trophyProfile
+	 */
+	flagAsBanned: async function(trophyProfile) {
+		await TrophyProfile.update({ isBanned: true }, { where: { id: trophyProfile.id } });
+	},
+
+	/**
 	 * Monthly ranks
 	 *
 	 * @param {int} limit
