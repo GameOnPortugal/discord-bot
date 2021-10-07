@@ -43,15 +43,39 @@ module.exports = {
 		const command = client.commands.get(commandName)
 		|| client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
 
+		// Command does not exist, nothing to do...
 		if (!command) return;
 
 		try {
+			// Check whether or not the command can be ran through direct messaging.
 			if (command.guildOnly && message.channel.type === 'dm') {
 				return message.reply('I can\'t execute that command inside DMs!');
 			}
+
+			// Command require arguments and none were sent
+			// Show the usage message
 			if (command.args && !args.length) {
-				return message.channel.send(command.usage);
+				const messageSent = await message.channel.send(command.usage);
+
+				// Delete user message and bots message
+				// Ignore any error that might happen because messages got deleted meanwhile
+				setTimeout(() => {
+					try {
+						message.delete();
+					}
+					catch (e) {
+						console.log(e);
+					}
+					try {
+						messageSent.delete();
+					}
+					catch (e) {
+						console.log(e);
+					}
+				}, 30000);
 			}
+
+			// Add help function to all commands which basically make them show the usage description
 			const isHelp = Object.prototype.hasOwnProperty.call(args, 0) ? args[0] === 'help' : false;
 			if (isHelp) {
 				return message.channel.send(command.usage);
