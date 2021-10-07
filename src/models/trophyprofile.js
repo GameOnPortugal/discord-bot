@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
 	TrophyProfile.init({
 		userId: DataTypes.STRING,
 		psnProfile: DataTypes.STRING,
+		isBanned: DataTypes.BOOLEAN,
 		createdAt: DataTypes.DATE,
 		updatedAt: DataTypes.DATE,
 	}, {

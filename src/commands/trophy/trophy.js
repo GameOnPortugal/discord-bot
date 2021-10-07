@@ -26,6 +26,51 @@ module.exports = {
 		+ '\nUse `|trophy https://psnprofiles/game/username`',
 	async execute(message, args) {
 		switch (args[0]) {
+			case 'check': {
+				if (!Object.prototype.hasOwnProperty.call(args, 1)) {
+					await message.channel.send('Comando inválido. Discord username em falta. Exemplo: |trophy check @username');
+
+					return;
+				}
+
+				const mentionUser = await MessageMentions.getMessageMention(message.client, args[1]);
+				if (!mentionUser) {
+					await message.channel.send('Utilizador ' + mentionUser.username + ' nāo encontrado... por favor volta a tentar mais tarde!');
+
+					return;
+				}
+
+				const trophyProfile = await TrophyProfileManager.findByDiscordUser(mentionUser);
+				if (!trophyProfile) {
+					await message.channel.send(mentionUser.username + ' ainda nāo tem uma conta de troféus!');
+
+					return;
+				}
+
+				const profileRank = await PsnCrawlService.getProfileRank(trophyProfile.psnProfile);
+
+				if (profileRank.worldRank === null || profileRank.countryRank === null) {
+					await message.channel.send(
+						'Oh oh. ' + trophyProfile.psnProfile + ' está banida no PSN Profile, como resultado nāo é considerado nos rankings do servidor!'
+						+ ' Para resolver o assunto tenta contactar a PSN Profile e "esconde" os troféus inválidos.',
+					);
+
+					console.log('Banning account');
+					await TrophyProfileManager.flagAsBanned(trophyProfile);
+
+					return;
+				}
+
+				await message.channel.send(trophyProfile.psnProfile + ' está valida!');
+
+				// Unban the account
+				if (trophyProfile.isBanned) {
+					console.log('Unbanning account');
+					await TrophyProfileManager.flagAsUnbanned(trophyProfile);
+				}
+
+				return;
+			}
 			case 'rank': {
 				let type = Object.prototype.hasOwnProperty.call(args, 1) ? args[1] : 'monthly';
 				let ranks = null;

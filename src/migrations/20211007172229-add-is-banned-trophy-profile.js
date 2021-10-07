@@ -2,7 +2,7 @@
 
 module.exports = {
 	up: async (queryInterface, Sequelize) => {
-		await queryInterface.addColumn('trophyprofiles', 'isBanned', { type: Sequelize.BOOLEAN });
+		await queryInterface.addColumn('trophyprofiles', 'isBanned', { type: Sequelize.BOOLEAN, defaultValue: false });
 	},
 
 	down: async (queryInterface) => {
