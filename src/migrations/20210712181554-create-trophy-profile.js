@@ -2,7 +2,7 @@
 module.exports = {
 	up: async (queryInterface, Sequelize) => {
 		await queryInterface.createTable(
-			'TrophyProfiles',
+			'trophyprofiles',
 			{
 				id: {
 					allowNull: false,
@@ -28,6 +28,6 @@ module.exports = {
 		);
 	},
 	down: async (queryInterface) => {
-		await queryInterface.dropTable('TrophyProfiles');
+		await queryInterface.dropTable('trophyprofiles');
 	},
 };

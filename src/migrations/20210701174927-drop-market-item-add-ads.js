@@ -6,7 +6,7 @@ module.exports = {
 		await queryInterface.dropTable('MarketItems');
 
 		// Create a new one
-		await queryInterface.createTable('Ads', {
+		await queryInterface.createTable('ads', {
 			id: {
 				allowNull: false,
 				autoIncrement: true,
@@ -68,7 +68,7 @@ module.exports = {
 	},
 
 	down: async (queryInterface, Sequelize) => {
-		await queryInterface.dropTable('Ads');
+		await queryInterface.dropTable('ads');
 
 		await queryInterface.createTable('MarketItems', {
 			id: {

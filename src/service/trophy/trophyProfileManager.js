@@ -36,6 +36,17 @@ module.exports = {
 	},
 
 	/**
+	 * Find a profile by discord username
+	 *
+	 * @param {User} user
+	 *
+	 * @returns {TrophyProfile|null}
+	 */
+	findByDiscordUser: async function(user) {
+		return await TrophyProfile.findOne({ where: { userId: user.id } });
+	},
+
+	/**
      * Create and link a discord user with a trophy profile
      *
      * @param {string} psnProfileUsername
@@ -55,6 +66,24 @@ module.exports = {
 				userId: author.id,
 			},
 		);
+	},
+
+	/**
+	 * Set the profile as banned
+	 *
+	 * @param {TrophyProfile} trophyProfile
+	 */
+	flagAsBanned: async function(trophyProfile) {
+		return await TrophyProfile.update({ isBanned: true }, { where: { id: trophyProfile.id } });
+	},
+
+	/**
+	 * Set the profile as unbanned
+	 *
+	 * @param {TrophyProfile} trophyProfile
+	 */
+	flagAsUnbanned: async function(trophyProfile) {
+		return await TrophyProfile.update({ isBanned: false }, { where: { id: trophyProfile.id } });
 	},
 
 	/**
@@ -84,6 +113,7 @@ module.exports = {
 			' 		INNER JOIN ' + Trophies.tableName + ' t ON t.trophyProfile = tp.id ' +
 			'	WHERE ' +
 			'		t.completionDate BETWEEN "' + monthFilter.format('YYYY-MM-') + '01" AND "' + lastDayMonth.format('YYYY-MM-DD') + '" ' +
+			'       tp.isBanned = 0 ' +
 			' ) temp' +
 			' GROUP BY temp.userId ' +
 			' ORDER BY points DESC' +
@@ -113,6 +143,7 @@ module.exports = {
 			' 	INNER JOIN ' + Trophies.tableName + ' t ON t.trophyProfile = tp.id ' +
 			' WHERE ' +
 			'	t.completionDate > "2021-03-01" ' +
+			'   tp.isBanned = 0 ' +
 			' GROUP BY tp.id ' +
 			' ORDER BY points DESC' +
 			' LIMIT ' + limit,
@@ -139,6 +170,8 @@ module.exports = {
 			' FROM ' +
 			' 	' + TrophyProfile.tableName + ' tp ' +
 			' 	INNER JOIN ' + Trophies.tableName + ' t ON t.trophyProfile = tp.id ' +
+			' WHERE ' +
+			'   tp.isBanned = 0 ' +
 			' GROUP BY tp.id ' +
 			' ORDER BY points DESC' +
 			' LIMIT ' + limit,

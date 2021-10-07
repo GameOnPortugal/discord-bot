@@ -1,7 +1,7 @@
 'use strict';
 module.exports = {
 	up: async (queryInterface, Sequelize) => {
-		await queryInterface.createTable('CommandChannelLinks', {
+		await queryInterface.createTable('commandchannellinks', {
 			id: {
 				allowNull: false,
 				autoIncrement: true,
@@ -25,6 +25,6 @@ module.exports = {
 		});
 	},
 	down: async (queryInterface) => {
-		await queryInterface.dropTable('CommandChannelLinks');
+		await queryInterface.dropTable('commandchannellinks');
 	},
 };

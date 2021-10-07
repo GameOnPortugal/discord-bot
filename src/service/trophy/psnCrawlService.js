@@ -69,4 +69,25 @@ module.exports = {
 			};
 		});
 	},
+
+	/**
+	 * Checks whether or not a psn profile is banned
+	 *
+	 * @param {string} psnProfileUsername
+	 *
+	 * @returns bool
+	 */
+	getProfileRank: async function(psnProfileUsername) {
+		return await JSDOM.fromURL('https://psnprofiles.com/' + psnProfileUsername).then(dom => {
+			const $ = require('jquery')(dom.window);
+
+			const $worldRank = $('div.stats > span.rank');
+			const $countryRank = $('div.stats > span.country-rank');
+
+			return {
+				worldRank: $worldRank.length ? parseInt($worldRank.text()) : null,
+				countryRank: $countryRank.length ? parseInt($countryRank.text()) : null,
+			};
+		});
+	},
 };

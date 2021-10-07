@@ -1,7 +1,7 @@
 'use strict';
 module.exports = {
 	up: async (queryInterface, Sequelize) => {
-		await queryInterface.createTable('Trophies', {
+		await queryInterface.createTable('trophies', {
 			id: {
 				allowNull: false,
 				autoIncrement: true,
@@ -12,7 +12,7 @@ module.exports = {
 				type: Sequelize.INTEGER,
 				allowNull: false,
 				references: {
-					model: 'TrophyProfiles',
+					model: 'trophyProfile',
 					key: 'id',
 				},
 				onDelete: 'CASCADE',
@@ -34,6 +34,6 @@ module.exports = {
 		});
 	},
 	down: async (queryInterface) => {
-		await queryInterface.dropTable('Trophies');
+		await queryInterface.dropTable('trophies');
 	},
 };
