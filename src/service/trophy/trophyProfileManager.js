@@ -16,12 +16,30 @@ module.exports = {
      * @return {string}
      */
 	getPsnProfileByUrl: function(url) {
+		// Grab username from a profile url
+		const regex = /https:\/\/(?:www\.){0,1}psnprofiles\.com\/([^/]+)$/gm;
+		const results = regex.exec(url);
+
+		if (results && Object.prototype.hasOwnProperty.call(results, 1)) {
+			return results[1];
+		}
+
+		// Grab username from a trophy url
 		const urlParts = url.split('/');
 		if (urlParts.length !== 6 || urlParts[urlParts.length - 1] === '') {
 			throw new Error('Profile url is invalid. Expected url: https://psnprofiles.com/trophies/game/PROFILE');
 		}
 
 		return urlParts[urlParts.length - 1];
+	},
+
+	/**
+	 * Find all profiles
+	 *
+	 * @returns {TrophyProfile[]|null}
+	 */
+	findAll: async function() {
+		return await TrophyProfile.findAll({ where: { isBanned: false } });
 	},
 
 	/**

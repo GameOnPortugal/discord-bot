@@ -90,4 +90,39 @@ module.exports = {
 			};
 		});
 	},
+
+	/**
+	 * Return all profile plats
+	 *
+	 * @param {string} psnProfileUsername
+	 *
+	 * @returns {string[]}
+	 */
+	getProfileTrophies: async function(psnProfileUsername) {
+		const urls = [];
+		let consumeUrls = true;
+		let page = 1;
+
+		while(consumeUrls) {
+			await JSDOM.fromURL('https://psnprofiles.com/' + psnProfileUsername + '?completion=platinum&order=last-played&pf=all&page=' + page).then(dom => {
+				const $ = require('jquery')(dom.window);
+				const $platinumRows = $('table#gamesTable tr.platinum');
+				if (!$platinumRows.length) {
+					// No more plats in this page
+					consumeUrls = false;
+
+					return;
+				}
+
+				$platinumRows.each(function(idx, element) {
+					const $row = $(element);
+					urls.push('https://psnprofiles.com' + $row.find('a:first').attr('href'));
+				});
+			});
+
+			page++;
+		}
+
+		return urls;
+	},
 };
