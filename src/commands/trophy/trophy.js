@@ -5,10 +5,8 @@ dayjs.extend(customParseFormat);
 const Discord = require('discord.js');
 const TrophyProfileManager = require('./../../service/trophy/trophyProfileManager');
 const PsnCrawlService = require('./../../service/trophy/psnCrawlService');
-const TrophiesManager = require('./../../service/trophy/trophyManager');
 const emojiEnum = require('./../../enum/discord/emojiEnum');
 
-const MessageCreatorUtil = require('./../../util/messageCreatorUtil');
 const MessageMentions = require('./../../util/messageMention');
 
 module.exports = {
@@ -19,11 +17,11 @@ module.exports = {
 	usage: 'Claim a trophy or show ranks'
 		+ '\nExamples:'
 		+ '\n'
-		+ '\nUse `|trophy rank [monthly,lifetime,creation]` - top 5 jogadores de uma determinada categoria (default: monthly)'
-		+ '\nUse `|trophy rank me` - mostra os teus ranks em todas as categorias'
-		+ '\nUse `|trophy rank [discordUsername]` - mostra o rank de um determinado utilizador'
-		+ '\nUse `|trophy rank monthly [MM,MM/YYYY]` - to show monthly rank for a specific month and year'
-		+ '\nUse `|trophy https://psnprofiles/game/username`',
+		+ '\nUsa `|trophy rank [monthly,lifetime,creation]` - top 5 jogadores de uma determinada categoria (default: monthly)'
+		+ '\nUsa `|trophy rank me` - mostra os teus ranks em todas as categorias'
+		+ '\nUsa `|trophy rank [discordUsername]` - mostra o rank de um determinado utilizador'
+		+ '\nUsa `|trophy rank monthly [MM,MM/YYYY]` - to show monthly rank for a specific month and year'
+		+ '\nUsa `|trophy https://psnprofiles/username` - cria o teu perfil e mantém sincronizado',
 	async execute(message, args) {
 		switch (args[0]) {
 			case 'check': {
@@ -61,7 +59,7 @@ module.exports = {
 					return;
 				}
 
-				await message.channel.send(trophyProfile.psnProfile + ' está valida!');
+				await message.channel.send(trophyProfile.psnProfile + ' está valida!\nRank Mundial:' + profileRank.worldRank + '\nRank Nacional:' + profileRank.countryRank);
 
 				// Unban the account
 				if (trophyProfile.isBanned) {
@@ -225,71 +223,9 @@ module.exports = {
 
 		if (!trophyProfile) {
 			trophyProfile = await TrophyProfileManager.create(psnProfileUsername, message.author);
+			await message.author.send('Parabéns a tua conta no discord foi linkada com ' + psnProfileUsername + '! Se isto foi em erro por favor avisa alguém da equipa.');
 		}
 
-		// Attempt to grab PSN Ranks, if they are not available means that the account is probably banned!
-		const profileRank = await PsnCrawlService.getProfileRank(psnProfileUsername);
-		if (profileRank.worldRank === null || profileRank.countryRank === null) {
-			await message.author.send(
-				'Esta conta foi banida na PSN Profile!'
-				+ '\nO teu troféu nāo foi aceite.'
-				+ '\nSe isto for um erro por favor entra em contacto com o STAFF através do ModMail.',
-			);
-
-			await TrophyProfileManager.flagAsBanned(trophyProfile);
-
-			await message.delete();
-
-			return;
-		}
-
-		if (trophyProfile.userId !== message.author.id) {
-			await message.author.send(
-				'Esta conta já foi reclamada por outro utilizador no servidor.'
-				+ '\nA tua mensagem foi eliminada uma vez que não foi aceite.'
-				+ '\nSe isto for um erro por favor entra em contacto com o STAFF através do ModMail.',
-			);
-
-			await message.delete();
-
-			return;
-		}
-
-		let trophy = await TrophiesManager.findByUsernameAndUrl(trophyProfile, trophyUrl);
-		if (trophy) {
-			await message.author.send(
-				'Este trofeu já foi reclamado em ' + trophy.createdAt
-				+ '\nA tua mensagem foi eliminada uma vez que não foi aceite.'
-				+ '\nSe isto for um erro por favor entra em contacto com o STAFF através do ModMail.',
-			);
-
-			await message.delete();
-
-			return;
-		}
-
-		try {
-			const trophyData = await PsnCrawlService.getPlatTrophyData(trophyUrl);
-
-			// Signal that trophy has been handled by bot
-			await message.react(emojiEnum.TROPHY_PLAT);
-
-			trophy = await TrophiesManager.create(trophyProfile, trophyUrl, trophyData);
-
-			await MessageCreatorUtil.post(this, message, 'Parabéns <@' + message.author.id + '>! Acabaste de receber ' + trophy.points + ' TP (Trophy Points).');
-		}
-		catch (exception) {
-			console.log('Problem creating trophy. Error: ' + exception.message);
-
-			await message.author.send(
-				'O bot encontrou o seguinte problema: ' + exception.message
-				+ '\nA tua mensagem foi eliminada uma vez que não foi aceite.'
-				+ '\nSe isto for um erro do bot por favor entra em contacto com o STAFF através do ModMail.',
-			);
-
-			await message.delete();
-
-			return;
-		}
+		await message.delete();
 	},
 };
