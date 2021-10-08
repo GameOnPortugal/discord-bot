@@ -35,7 +35,7 @@ module.exports = {
 
 				const mentionUser = await MessageMentions.getMessageMention(message.client, args[1]);
 				if (!mentionUser) {
-					await message.channel.send('Utilizador ' + mentionUser.username + ' nāo encontrado... por favor volta a tentar mais tarde!');
+					await message.channel.send('Utilizador nāo encontrado... por favor volta a tentar mais tarde!');
 
 					return;
 				}
