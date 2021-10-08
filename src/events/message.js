@@ -60,12 +60,18 @@ module.exports = {
 				// Delete user message and bots message
 				// Ignore any error that might happen because messages got deleted meanwhile
 				setTimeout(() => {
-					try {
-						message.delete();
+					// Check whether or not the message was already deleted by the user or by the command
+					// if it was not then delete it
+					const originalMessage = message.channel.messages.fetch(message.id);
+					if (originalMessage) {
+						try {
+							originalMessage.delete();
+						}
+						catch (e) {
+							console.log(e);
+						}
 					}
-					catch (e) {
-						console.log(e);
-					}
+
 					try {
 						messageSent.delete();
 					}
