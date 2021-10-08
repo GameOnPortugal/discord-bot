@@ -161,7 +161,7 @@ module.exports = {
 			' 	INNER JOIN ' + Trophies.tableName + ' t ON t.trophyProfile = tp.id ' +
 			' WHERE ' +
 			'	t.completionDate > "2021-03-01" ' +
-			'   tp.isBanned = 0 ' +
+			'   AND tp.isBanned = 0 ' +
 			' GROUP BY tp.id ' +
 			' ORDER BY points DESC' +
 			' LIMIT ' + limit,
