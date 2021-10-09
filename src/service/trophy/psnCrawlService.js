@@ -85,8 +85,8 @@ module.exports = {
 			const $countryRank = $('div.stats > span.country-rank');
 
 			return {
-				worldRank: $worldRank.length ? parseInt($worldRank.text()) : null,
-				countryRank: $countryRank.length ? parseInt($countryRank.text()) : null,
+				worldRank: $worldRank.length ? parseInt($worldRank.text().replaceAll(',','')) : null,
+				countryRank: $countryRank.length ? parseInt($countryRank.text().replaceAll(',','')) : null,
 			};
 		});
 	},

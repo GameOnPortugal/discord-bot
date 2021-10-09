@@ -38,8 +38,8 @@ test('Grabs the current ranks from a psn profile', async () => {
 
 	const ranks = await PsnCrawlService.getProfileRank('Josh_Lopes');
 
-	expect(ranks.worldRank).toBeGreaterThan(1);
-	expect(ranks.countryRank).toBeGreaterThan(1);
+	expect(ranks.worldRank).toBeGreaterThan(700000);
+	expect(ranks.countryRank).toBeGreaterThan(80000);
 
 	// Banned account
 	const ranks2 = await PsnCrawlService.getProfileRank('oneeye_japan');
