@@ -84,7 +84,7 @@ module.exports = {
 			const $worldRank = $('div.stats > span.rank');
 			const $countryRank = $('div.stats > span.country-rank');
 
-			console.log($worldRank, $countryRank)
+			console.log($worldRank, $countryRank);
 
 			return {
 				worldRank: $worldRank.length ? parseInt($worldRank.text().replaceAll(',', '')) : null,
