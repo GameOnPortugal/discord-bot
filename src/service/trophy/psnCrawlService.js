@@ -88,8 +88,8 @@ module.exports = {
 			console.log($worldRank.text(), $countryRank.text());
 
 			return {
-				worldRank: $worldRank.length ? parseInt($worldRank.text().replaceAll(',', '')) : null,
-				countryRank: $countryRank.length ? parseInt($countryRank.text().replaceAll(',', '')) : null,
+				worldRank: $worldRank.length ? parseInt($worldRank.text().replace(/,/g, '')) : null,
+				countryRank: $countryRank.length ? parseInt($countryRank.text().replace(/,/g, '')) : null,
 			};
 		});
 	},
