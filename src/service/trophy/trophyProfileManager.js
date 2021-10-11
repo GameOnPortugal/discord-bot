@@ -34,12 +34,12 @@ module.exports = {
 	},
 
 	/**
-	 * Find all profiles
+	 * Find all profiles non excluded
 	 *
 	 * @returns {TrophyProfile[]|null}
 	 */
-	findAll: async function() {
-		return await TrophyProfile.findAll({ where: { isBanned: false } });
+	findAllNonExcluded: async function() {
+		return await TrophyProfile.findAll({ where: { isExcluded: false } });
 	},
 
 	/**
@@ -94,6 +94,25 @@ module.exports = {
 	flagAsBanned: async function(trophyProfile) {
 		return await TrophyProfile.update({ isBanned: true }, { where: { id: trophyProfile.id } });
 	},
+
+	/**
+	 * Set the profile as excluded from ranks
+	 *
+	 * @param {TrophyProfile} trophyProfile
+	 */
+	flagAsExcluded: async function(trophyProfile) {
+		return await TrophyProfile.update({ isExcluded: true }, { where: { id: trophyProfile.id } });
+	},
+
+	/**
+	 * Set the profile as leaver
+	 *
+	 * @param {TrophyProfile} trophyProfile
+	 */
+	flagAsLeaver: async function(trophyProfile) {
+		return await TrophyProfile.update({ hasLeft: true }, { where: { id: trophyProfile.id } });
+	},
+
 
 	/**
 	 * Set the profile as unbanned
