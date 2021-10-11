@@ -80,6 +80,7 @@ module.exports = {
 	getProfileRank: async function(psnProfileUsername) {
 		return await JSDOM.fromURL('https://psnprofiles.com/' + psnProfileUsername).then(dom => {
 			const $ = require('jquery')(dom.window);
+			console.log($('body'));
 
 			const $worldRank = $('div.stats > span.rank');
 			const $countryRank = $('div.stats > span.country-rank');
