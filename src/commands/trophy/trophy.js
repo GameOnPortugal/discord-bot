@@ -25,47 +25,45 @@ module.exports = {
 	async execute(message, args) {
 		switch (args[0]) {
 			case 'check': {
-				if (!Object.prototype.hasOwnProperty.call(args, 1)) {
-					await message.channel.send('Comando inválido. Discord username em falta. Exemplo: |trophy check @username');
-
-					return;
-				}
-
-				const mentionUser = await MessageMentions.getMessageMention(message.client, args[1]);
+				const mentionUser = Object.prototype.hasOwnProperty.call(args, 1) ? await MessageMentions.getMessageMention(message.client, args[1]) : message.author;
 				if (!mentionUser) {
-					await message.channel.send('Utilizador nāo encontrado... por favor volta a tentar mais tarde!');
+					await message.reply('Utilizador nāo encontrado... por favor volta a tentar mais tarde!');
 
 					return;
 				}
 
 				const trophyProfile = await TrophyProfileManager.findByDiscordUser(mentionUser);
 				if (!trophyProfile) {
-					await message.channel.send(mentionUser.username + ' ainda nāo tem uma conta de troféus!');
+					await message.reply(mentionUser.username + ' ainda nāo tem uma conta de troféus!');
+
+					return;
+				}
+
+				if (trophyProfile.isExcluded) {
+					if (trophyProfile.isBanned) {
+						await message.channel.send(
+							'Oh oh. ' + trophyProfile.psnProfile + ' está banida no PSN Profile, como resultado nāo é considerado nos rankings do servidor!'
+							+ ' Para resolver o assunto tenta contactar a PSN Profile e "esconde" os troféus inválidos.',
+						);
+					}
+					else if (trophyProfile.hasLeft) {
+						await message.channel.send('Oh oh. ' + trophyProfile.psnProfile + ' já nāo está neste servidor como resultado nāo é considerado nos rankings do servidor!');
+					}
 
 					return;
 				}
 
 				const profileRank = await PsnCrawlService.getProfileRank(trophyProfile.psnProfile);
-
-				if (profileRank.worldRank === null || profileRank.countryRank === null) {
-					await message.channel.send(
-						'Oh oh. ' + trophyProfile.psnProfile + ' está banida no PSN Profile, como resultado nāo é considerado nos rankings do servidor!'
-						+ ' Para resolver o assunto tenta contactar a PSN Profile e "esconde" os troféus inválidos.',
-					);
-
-					console.log('Banning account');
-					await TrophyProfileManager.flagAsBanned(trophyProfile);
-
-					return;
-				}
-
-				await message.channel.send(trophyProfile.psnProfile + ' está valida!\nRank Mundial:' + profileRank.worldRank + '\nRank Nacional:' + profileRank.countryRank);
-
-				// Unban the account
+				let profileCheckMessage = trophyProfile.psnProfile + ' é válida para os ranks do servidor!';
 				if (trophyProfile.isBanned) {
-					console.log('Unbanning account');
-					await TrophyProfileManager.flagAsUnbanned(trophyProfile);
+					profileCheckMessage += '\nInfelizmente a tua conta está banida na PSN Profile o que impossibilita-nos de obter os teus ranks mundiais e nacionais!';
+					profileCheckMessage += '\nTenta contactar a PSN Profile para resolver o problema.';
 				}
+				else {
+					profileCheckMessage += '\nRank Mundial:' + profileRank.worldRank + '\nRank Nacional:' + profileRank.countryRank;
+				}
+
+				await message.channel.send(profileCheckMessage);
 
 				return;
 			}

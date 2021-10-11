@@ -34,12 +34,12 @@ module.exports = {
 	},
 
 	/**
-	 * Find all profiles
+	 * Find all profiles non excluded
 	 *
 	 * @returns {TrophyProfile[]|null}
 	 */
-	findAll: async function() {
-		return await TrophyProfile.findAll({ where: { isBanned: false } });
+	findAllNonExcluded: async function() {
+		return await TrophyProfile.findAll({ where: { isExcluded: false } });
 	},
 
 	/**
@@ -96,6 +96,25 @@ module.exports = {
 	},
 
 	/**
+	 * Set the profile as excluded from ranks
+	 *
+	 * @param {TrophyProfile} trophyProfile
+	 */
+	flagAsExcluded: async function(trophyProfile) {
+		return await TrophyProfile.update({ isExcluded: true }, { where: { id: trophyProfile.id } });
+	},
+
+	/**
+	 * Set the profile as leaver
+	 *
+	 * @param {TrophyProfile} trophyProfile
+	 */
+	flagAsLeaver: async function(trophyProfile) {
+		return await TrophyProfile.update({ hasLeft: true }, { where: { id: trophyProfile.id } });
+	},
+
+
+	/**
 	 * Set the profile as unbanned
 	 *
 	 * @param {TrophyProfile} trophyProfile
@@ -131,7 +150,7 @@ module.exports = {
 			' 		INNER JOIN ' + Trophies.tableName + ' t ON t.trophyProfile = tp.id ' +
 			'	WHERE ' +
 			'		t.completionDate BETWEEN "' + monthFilter.format('YYYY-MM-') + '01" AND "' + lastDayMonth.format('YYYY-MM-DD') + '" ' +
-			'       AND tp.isBanned = 0 ' +
+			'       AND tp.isExcluded = 0 ' +
 			' ) temp' +
 			' GROUP BY temp.userId ' +
 			' ORDER BY points DESC' +
@@ -161,7 +180,7 @@ module.exports = {
 			' 	INNER JOIN ' + Trophies.tableName + ' t ON t.trophyProfile = tp.id ' +
 			' WHERE ' +
 			'	t.completionDate > "2021-03-01" ' +
-			'   AND tp.isBanned = 0 ' +
+			'   AND tp.isExcluded = 0 ' +
 			' GROUP BY tp.id ' +
 			' ORDER BY points DESC' +
 			' LIMIT ' + limit,
@@ -189,7 +208,7 @@ module.exports = {
 			' 	' + TrophyProfile.tableName + ' tp ' +
 			' 	INNER JOIN ' + Trophies.tableName + ' t ON t.trophyProfile = tp.id ' +
 			' WHERE ' +
-			'   tp.isBanned = 0 ' +
+			'   tp.isExcluded = 0 ' +
 			' GROUP BY tp.id ' +
 			' ORDER BY points DESC' +
 			' LIMIT ' + limit,

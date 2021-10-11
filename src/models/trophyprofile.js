@@ -16,6 +16,8 @@ module.exports = (sequelize, DataTypes) => {
 		userId: DataTypes.STRING,
 		psnProfile: DataTypes.STRING,
 		isBanned: DataTypes.BOOLEAN,
+		hasLeft: DataTypes.BOOLEAN,
+		isExcluded: DataTypes.BOOLEAN,
 		createdAt: DataTypes.DATE,
 		updatedAt: DataTypes.DATE,
 	}, {
