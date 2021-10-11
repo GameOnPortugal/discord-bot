@@ -150,7 +150,7 @@ module.exports = {
 			' 		INNER JOIN ' + Trophies.tableName + ' t ON t.trophyProfile = tp.id ' +
 			'	WHERE ' +
 			'		t.completionDate BETWEEN "' + monthFilter.format('YYYY-MM-') + '01" AND "' + lastDayMonth.format('YYYY-MM-DD') + '" ' +
-			'       AND tp.isBanned = 0 ' +
+			'       AND tp.isExcluded = 0 ' +
 			' ) temp' +
 			' GROUP BY temp.userId ' +
 			' ORDER BY points DESC' +
@@ -180,7 +180,7 @@ module.exports = {
 			' 	INNER JOIN ' + Trophies.tableName + ' t ON t.trophyProfile = tp.id ' +
 			' WHERE ' +
 			'	t.completionDate > "2021-03-01" ' +
-			'   AND tp.isBanned = 0 ' +
+			'   AND tp.isExcluded = 0 ' +
 			' GROUP BY tp.id ' +
 			' ORDER BY points DESC' +
 			' LIMIT ' + limit,
@@ -208,7 +208,7 @@ module.exports = {
 			' 	' + TrophyProfile.tableName + ' tp ' +
 			' 	INNER JOIN ' + Trophies.tableName + ' t ON t.trophyProfile = tp.id ' +
 			' WHERE ' +
-			'   tp.isBanned = 0 ' +
+			'   tp.isExcluded = 0 ' +
 			' GROUP BY tp.id ' +
 			' ORDER BY points DESC' +
 			' LIMIT ' + limit,
