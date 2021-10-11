@@ -214,8 +214,6 @@ module.exports = {
 				+ '\nSe isto for um erro por favor entra em contacto com o STAFF através do ModMail.',
 			);
 
-			await message.delete();
-
 			return;
 		}
 
@@ -225,7 +223,5 @@ module.exports = {
 			trophyProfile = await TrophyProfileManager.create(psnProfileUsername, message.author);
 			await message.author.send('Parabéns a tua conta no discord foi linkada com ' + psnProfileUsername + '! Se isto foi em erro por favor avisa alguém da equipa.');
 		}
-
-		await message.delete();
 	},
 };

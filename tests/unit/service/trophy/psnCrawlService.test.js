@@ -34,7 +34,7 @@ test('Extracts trophy percentage - new urls', async () => {
 });
 
 test('Grabs the current ranks from a psn profile', async () => {
-	expect.assertions(4);
+	expect.assertions(6);
 
 	const ranks = await PsnCrawlService.getProfileRank('Josh_Lopes');
 
@@ -46,4 +46,9 @@ test('Grabs the current ranks from a psn profile', async () => {
 
 	expect(ranks2.worldRank).toBeNull();
 	expect(ranks2.countryRank).toBeNull();
+
+	const ranks3 = await PsnCrawlService.getProfileRank('Andrerego');
+
+	expect(ranks.worldRank).toBeGreaterThan(700000);
+	expect(ranks.countryRank).toBeGreaterThan(80000);
 });
