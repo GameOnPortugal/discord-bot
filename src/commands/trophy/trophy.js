@@ -56,7 +56,7 @@ module.exports = {
 
 				const profileRank = await PsnCrawlService.getProfileRank(trophyProfile.psnProfile);
 				let profileCheckMessage = trophyProfile.psnProfile + ' é válida para os ranks do servidor!';
-				profileCheckMessage += '\nhttps://psnprofile.com/' + trophyProfile.psnProfile + '\n';
+				profileCheckMessage += '\nhttps://psnprofiles.com/' + trophyProfile.psnProfile + '\n';
 				if (trophyProfile.isBanned) {
 					profileCheckMessage += '\nInfelizmente a tua conta está banida na PSN Profile o que impossibilita-nos de obter os teus ranks mundiais e nacionais!';
 					profileCheckMessage += '\nTenta contactar a PSN Profile para resolver o problema.';
