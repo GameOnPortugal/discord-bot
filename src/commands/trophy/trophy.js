@@ -21,7 +21,8 @@ module.exports = {
 		+ '\nUsa `|trophy rank me` - mostra os teus ranks em todas as categorias'
 		+ '\nUsa `|trophy rank [discordUsername]` - mostra o rank de um determinado utilizador'
 		+ '\nUsa `|trophy rank monthly [MM,MM/YYYY]` - to show monthly rank for a specific month and year'
-		+ '\nUsa `|trophy https://psnprofiles/username` - cria o teu perfil e mantém sincronizado',
+		+ '\nUsa `|trophy https://psnprofiles/username` - cria o teu perfil e mantém sincronizado'
+		+ '\nUsa `|trophy check [username]` - verifica o estado da tua conta (ou do utilizador mencionado) e os teus rankings',
 	async execute(message, args) {
 		switch (args[0]) {
 			case 'check': {
@@ -55,6 +56,7 @@ module.exports = {
 
 				const profileRank = await PsnCrawlService.getProfileRank(trophyProfile.psnProfile);
 				let profileCheckMessage = trophyProfile.psnProfile + ' é válida para os ranks do servidor!';
+				profileCheckMessage += '\nhttps://psnprofile.com/' + trophyProfile.psnProfile + '\n';
 				if (trophyProfile.isBanned) {
 					profileCheckMessage += '\nInfelizmente a tua conta está banida na PSN Profile o que impossibilita-nos de obter os teus ranks mundiais e nacionais!';
 					profileCheckMessage += '\nTenta contactar a PSN Profile para resolver o problema.';
