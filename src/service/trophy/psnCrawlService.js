@@ -104,7 +104,7 @@ module.exports = {
 		let page = 1;
 
 		while(consumeUrls) {
-			await JSDOM.fromURL('https://psnprofiles.com/' + psnProfileUsername + '?completion=platinum&order=last-played&pf=all&page=' + page).then(dom => {
+			await JSDOM.fromURL('https://psnprofiles.com/' + psnProfileUsername + '?completion=platinum&order=last-trophy&pf=all&page=' + page).then(dom => {
 				const $ = require('jquery')(dom.window);
 				const $platinumRows = $('table#gamesTable tr.platinum');
 				if (!$platinumRows.length) {
