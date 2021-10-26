@@ -21,7 +21,7 @@ test('Get profile trophies', async () => {
 	const urls = await PsnCrawlService.getProfileTrophies('oneeye_japan');
 
 	expect(urls.length).toBeGreaterThan(100);
-	expect(urls[urls.length - 1]).toEqual('https://psnprofiles.com/trophies/4003-need-for-speed/oneeye_japan');
+	expect(urls[urls.length - 1]).toMatch(new RegExp('https:\\/\\/psnprofiles.com\\/trophies\\/.*?\\/oneeye_japan'));
 });
 
 test('Extracts trophy percentage - new urls', async () => {
