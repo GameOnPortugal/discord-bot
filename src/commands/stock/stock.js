@@ -1,4 +1,4 @@
-const StockUrlManager = require('./../../service/stock/StockUrlManager');
+const StockUrlManager = require('./../../service/stock/stockUrlManager');
 
 
 module.exports = {
