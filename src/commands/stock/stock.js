@@ -6,11 +6,12 @@ module.exports = {
 	description: 'Submit a stock url or check if already exists',
 	guildOnly: true,
 	args: true,
-	usage: 'Submete um URL para controlo de stock ou verifica se um já existe!'
+	usage: 'Comando relacionado com stock. Os link submetidos é partilhado por todos!'
 		+ '\nExemplos:'
 		+ '\n'
 		+ '\nUsa `|stock create url` - Cria um pedido para verificar e controlar stock de um determinado url'
 		+ '\nUsa `|stock verify url` - Verifica o estado de um url e se já está a ser controlado ou nāo'
+		+ '\nUsa `|stock alert url` - Envia um alerta geral para todos sobre stock para um determinado url (ABUSOS NĀO SERÃO TOLERADOS!)'
 		+ '\nUsa `|stock help` - Instruções em como usar o comando',
 	async execute(message, args) {
 		if (args.length < 2) {
@@ -42,6 +43,17 @@ module.exports = {
 				await message.reply('Esse link existe e está **' + (stockUrl.is_validated ? 'validado!' : 'por validar!') + '**');
 
 				return;
+			}
+			case 'alert': {
+				let stockUrl = await StockUrlManager.findByUrl(args[1]);
+				if (!stockUrl) {
+					// Missing url from stock, create it
+					stockUrl = await StockUrlManager.create(message.author, args[1]);
+				}
+
+				await StockUrlManager.stockNotification(message, stockUrl);
+
+				await message.reply('Alerta de stock enviado! Nāo voltem a enviar para o mesmo URL num curto espaço de tempo! Lembrem-se que há delays para canais gratuitos!');
 			}
 		}
 
