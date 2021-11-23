@@ -52,7 +52,7 @@ module.exports = {
 
 		const notificationMessage = 'alertou para stock no site: ' + stockUrl.url;
 
-		await bot.sendMessage(telegramChatEnum.ALERTAS_PRIME, notificationMessage);
+		await bot.sendMessage(telegramChatEnum.ALERTAS_PRIME, message.author.username + ' ' + notificationMessage);
 		await message.client.channels.cache.get(channelEnum.PREMIUM_ALERT_CHAT).send('<@&' + rolesEnum.ALERTAS_PRIME + '> : <@' + message.author + '>' + notificationMessage);
 
 		setTimeout(async function() {

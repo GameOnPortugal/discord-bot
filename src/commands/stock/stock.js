@@ -54,6 +54,8 @@ module.exports = {
 				await StockUrlManager.stockNotification(message, stockUrl);
 
 				await message.reply('Alerta de stock enviado! Nāo voltem a enviar para o mesmo URL num curto espaço de tempo! Lembrem-se que há delays para canais gratuitos!');
+
+				return;
 			}
 		}
 
