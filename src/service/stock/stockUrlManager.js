@@ -56,8 +56,7 @@ module.exports = {
 		await message.client.channels.cache.get(channelEnum.PREMIUM_ALERT_CHAT).send('<@&' + rolesEnum.ALERTAS_PRIME + '> : <@' + message.author + '>' + notificationMessage);
 
 		setTimeout(async function() {
-			await bot.sendMessage(telegramChatEnum.EVERYONE, notificationMessage);
-			await message.client.channels.cache.get(channelEnum.FREE_ALERT_CHAT).send('<@&' + rolesEnum.EVERYONE + '> : <@' + message.author + '>' + notificationMessage);
+			await message.client.channels.cache.get(channelEnum.FREE_ALERT_CHAT).send('@everyone : <@' + message.author + '>' + notificationMessage);
 		}, 120000);
 	},
 };
