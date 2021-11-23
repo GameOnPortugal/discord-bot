@@ -3,6 +3,8 @@ const PermissionUtil = require('./../../util/permissionsUtil');
 
 const SpecialChannel = models.SpecialChannel;
 
+const SpecialChannelManager = require('./../../service/channel/specialChannelManager');
+
 const allowedSpecialTypes = [
 	'regex',
 	'only_commands',
@@ -75,16 +77,16 @@ module.exports = {
 				return;
 			}
 			case 'info': {
-				const currentRestrictions = await SpecialChannel.findAll({ where: { channelId: message.channel.id } });
-				if (!currentRestrictions.length) {
+				const channelConfigurations = await SpecialChannelManager.findByChannel(message.channel);
+				if (!channelConfigurations.length) {
 					message.channel.send('Channel does not have restrictions!');
 
 					return;
 				}
 
-				message.channel.send('Current channel restrictions are:');
-				for (const restriction of currentRestrictions) {
-					message.channel.send('[ID: ' + restriction.id + '] ' + restriction.specialType + ' (' + (restriction.data ? restriction.data : '') + ')');
+				message.channel.send('Current special channel configurations are:');
+				for (const configuration of channelConfigurations) {
+					message.channel.send('[ID: ' + configuration.id + '] ' + configuration.specialType + ' (' + (configuration.data ? configuration.data : '') + ')');
 				}
 
 				return;
