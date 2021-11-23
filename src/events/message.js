@@ -62,7 +62,7 @@ module.exports = {
 				setTimeout(async () => {
 					// Check whether or not the message was already deleted by the user or by the command
 					// if it was not then delete it
-					const originalMessage = message.channel.messages.fetch(message.id);
+					const originalMessage = await message.channel.messages.fetch(message.id);
 					if (originalMessage) {
 						try {
 							await originalMessage.delete();
