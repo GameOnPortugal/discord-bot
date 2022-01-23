@@ -1,4 +1,3 @@
-
 const models = require('./../../models');
 const Screenshot = models.Screenshot;
 
@@ -101,7 +100,7 @@ module.exports = {
 		return Screenshot.create(data);
 	},
 
-	findAllScreenshotsForThisWeek: function () {
+	findAllScreenshotsForThisWeek: function() {
 		const today = dayjs();
 		const lastMonday = today.weekday(-6);
 		const lastSunday = today.weekday(0);
@@ -112,9 +111,9 @@ module.exports = {
 					[models.Sequelize.Op.between]: [
 						lastMonday.format('YYYY-MM-DD 00:00:00'),
 						lastSunday.format('YYYY-MM-DD 23:59:59'),
-					]
-				}
-			}
+					],
+				},
+			},
 		});
-	}
+	},
 };
