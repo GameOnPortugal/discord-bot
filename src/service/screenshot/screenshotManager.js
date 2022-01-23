@@ -3,6 +3,9 @@ const Screenshot = models.Screenshot;
 
 const crypto = require('crypto');
 const https = require('https');
+const dayjs = require('dayjs');
+const weekday = require('dayjs/plugin/weekday');
+dayjs.extend(weekday);
 
 module.exports = {
 	/**
@@ -95,5 +98,22 @@ module.exports = {
      */
 	create: async function(data) {
 		return Screenshot.create(data);
+	},
+
+	findAllScreenshotsForThisWeek: function() {
+		const today = dayjs();
+		const lastMonday = today.weekday(-6);
+		const lastSunday = today.weekday(0);
+
+		return Screenshot.findAll({
+			where: {
+				createdAt: {
+					[models.Sequelize.Op.between]: [
+						lastMonday.format('YYYY-MM-DD 00:00:00'),
+						lastSunday.format('YYYY-MM-DD 23:59:59'),
+					],
+				},
+			},
+		});
 	},
 };
