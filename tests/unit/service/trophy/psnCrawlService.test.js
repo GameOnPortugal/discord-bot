@@ -22,7 +22,7 @@ test('Get profile trophies', async () => {
 
 	expect(urls.length).toBeGreaterThan(100);
 	expect(urls[urls.length - 1]).toMatch(new RegExp('https:\\/\\/psnprofiles.com\\/trophies\\/.*?\\/oneeye_japan'));
-});
+}, 60000);
 
 test('Extracts trophy percentage - new urls', async () => {
 	expect.assertions(2);
@@ -51,4 +51,4 @@ test('Grabs the current ranks from a psn profile', async () => {
 
 	expect(ranks3.worldRank).toBeGreaterThan(100000);
 	expect(ranks3.countryRank).toBeGreaterThan(1000);
-});
+}, 60000);
