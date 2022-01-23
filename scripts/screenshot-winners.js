@@ -52,13 +52,12 @@ const dayjs = require('dayjs');
 		console.log('Screenshots processed. Winner is ' + winner.screenshot.name);
 		const winnerMessage = 'Parabéns <@' + winner.screenshot.author_id + '> ganhaste o screenshot da semana com '
             + winner.screenshot.name + '. Plataforma: ' + winner.screenshot.plataform
-            + '.\n\n' + winner.screenshot.url;
+            + '.\n\n' + winner.message.url;
 
 		await channel.send(winnerMessage);
 		await channel.send('!give-xp <@' + winner.screenshot.author_id + '> 1000');
 
-		const tomorrow = dayjs();
-		tomorrow.add(1, 'day');
+		const tomorrow = dayjs().add(1, 'day');
 		await channel.send('========= Concurso ' + tomorrow.format('DD/MM') + ' ABERTO ===========');
 
 		process.exit(0);
