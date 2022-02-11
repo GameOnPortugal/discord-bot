@@ -111,10 +111,11 @@ module.exports = {
 
 					case 'create': {
 						if (!await MessageCreatorUtil.lockInteraction(message.author.id)) {
-							await dmchannel.send('Acaba o teu anúncio anterior para criar um novo!');
+							await dmchannel.send('Ainda nāo acabaste o teu pedido anterior!');
 
 							return;
 						}
+
 						await dmchannel.send('Vamos criar o anúncio. Tens 60 segundos para responder a cada pergunta. No final, o post será criado por ti.');
 						let hasAnswered = false;
 
