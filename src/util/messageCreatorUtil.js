@@ -9,16 +9,15 @@ module.exports = {
      * Post some message / content
      *
      * @param {Object} command
-     * @param {Message} message
+     * @param {Channel} targetChannel
      * @param {Object|string} content
      *
      * @return {Promise<Message>}
      */
-	post: async function(command, message, content) {
+	post: async function(command, targetChannel, content) {
 		const commandChannelLink = await CommandChannelLinkManager.findByCommand(command.name);
-		let targetChannel = message.channel;
 		if (commandChannelLink) {
-			targetChannel = await message.client.channels.fetch(commandChannelLink.channelId);
+			targetChannel = await targetChannel.client.channels.fetch(commandChannelLink.channelId);
 		}
 
 		await this.sendMessage(targetChannel, content);
@@ -27,7 +26,7 @@ module.exports = {
 	/**
 	 * Send a message respecting the limitations of the API (2000 chars)
 	 *
-	 * @param {Object} channel
+	 * @param {Channel} channel
 	 * @param {String} message
 	 */
 	sendMessage: async function(channel, message) {
@@ -65,5 +64,4 @@ module.exports = {
 	releaseLockInteraction: async function(authorId) {
 		await keyV.delete('lockInteraction_' + authorId);
 	},
-
 };
