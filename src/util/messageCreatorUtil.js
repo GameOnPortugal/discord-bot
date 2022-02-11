@@ -21,7 +21,7 @@ module.exports = {
 			targetChannel = await message.client.channels.fetch(commandChannelLink.channelId);
 		}
 
-
+		await this.sendMessage(targetChannel, content);
 	},
 
 	/**
@@ -32,7 +32,7 @@ module.exports = {
 	 */
 	sendMessage: async function(channel, message) {
 		while(message) {
-			let limitedMessage = Voca.prune(message, 1800, '');
+			const limitedMessage = Voca.prune(message, 1800, '');
 			message = message.substring(limitedMessage.length);
 
 			await channel.send(limitedMessage);
@@ -46,11 +46,10 @@ module.exports = {
 	 *
 	 * @return bool returns true if lock was successful otherwise false if an interaction is already in place?
 	 */
-	lockInteraction: async function(authorId)
-	{
-		let isLocked = await keyV.get('lockInteraction_'+authorId)
+	lockInteraction: async function(authorId) {
+		const isLocked = await keyV.get('lockInteraction_' + authorId);
 		if (isLocked === undefined) {
-			await keyV.set('lockInteraction_'+authorId, true, 120000);
+			await keyV.set('lockInteraction_' + authorId, true, 120000);
 
 			return true;
 		}
@@ -63,9 +62,8 @@ module.exports = {
 	 *
 	 * @param {string} authorId
 	 */
-	releaseLockInteraction: async function(authorId)
-	{
-		await keyV.delete('lockInteraction_'+authorId);
+	releaseLockInteraction: async function(authorId) {
+		await keyV.delete('lockInteraction_' + authorId);
 	},
 
 };
