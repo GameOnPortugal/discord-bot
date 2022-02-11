@@ -2,7 +2,6 @@
 const AdManager = require('../src/service/market/adManager');
 
 const Discord = require('discord.js');
-const MessageCreatorUtil = require("../src/util/messageCreatorUtil");
 const client = new Discord.Client();
 
 let guild = null;
@@ -11,7 +10,7 @@ let marketChannel = null;
 async function askUser(ad, adMessage) {
 	const dmChannel = await guild.members.fetch(ad.author_id).then(member => member.createDM());
 
-	let sellMessage = ':moneybag: **VENDO**'
+	const sellMessage = ':moneybag: **VENDO**'
 		+ `\n:arrow_right: **${ad.name}**`
 		+ `\n:dollar: **Preço:** ${ad.price}`
 		+ `\n:bust_in_silhouette: <@${ad.author_id}>`
@@ -24,7 +23,7 @@ async function askUser(ad, adMessage) {
 
 	const embed = new Discord.MessageEmbed()
 		.setTitle(ad.adType === 'want' ? 'Ainda continuas a procura deste artigo?' : 'Este artigo já foi vendido?')
-		.setDescription(sellMessage+'\n\n'+adMessage.url)
+		.setDescription(sellMessage + '\n\n' + adMessage.url)
 		.setColor('#0099ff')
 		.setFooter('Por favor usa as reações para responder. Tens 1 dia para responder, na ausência de resposta iremos apagar o anúncio!')
 		.setTimestamp();
@@ -37,7 +36,7 @@ async function askUser(ad, adMessage) {
 	const dayInMilliseconds = 1000 * 60 * 60 * 24;
 
 	await msg
-		.awaitReactions(filter, { max: 1, time: dayInMilliseconds, errors: ["time"] })
+		.awaitReactions(filter, { max: 1, time: dayInMilliseconds, errors: ['time'] })
 		.then(async (collected) => {
 			const reaction = collected.first();
 			await msg.delete();
@@ -50,7 +49,8 @@ async function askUser(ad, adMessage) {
 						console.log(err);
 						await dmChannel.send('Ocorreu um erro ao apagar o teu anúncio! Por favor, tenta novamente.');
 					});
-			} else if (reaction.emoji.name === '❌') {
+			}
+			else if (reaction.emoji.name === '❌') {
 				const newMessage = await marketChannel.send(sellMessage);
 				const newAdData = {
 					'name': ad.name,
@@ -64,7 +64,7 @@ async function askUser(ad, adMessage) {
 					'warranty': ad.warranty,
 					'description': ad.description,
 					'adType': ad.adType,
-				}
+				};
 				await AdManager.create(newAdData);
 				await AdManager.delete(client, ad.id);
 
@@ -105,7 +105,7 @@ async function askUser(ad, adMessage) {
 
 	const ads = await AdManager.findOldestAds();
 	console.log('Found ' + ads.length + ' old ads. Asking users whether they are still interested.');
-	for (let ad of ads) {
+	for (const ad of ads) {
 		const message = await marketChannel.messages.fetch(ad.message_id);
 		if (!message) {
 			console.error('Message not found');

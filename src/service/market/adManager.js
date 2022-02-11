@@ -1,4 +1,3 @@
-const MessageCreatorUtil = require("../../util/messageCreatorUtil");
 const models = require('./../../models');
 const Ad = models.Ad;
 
@@ -69,18 +68,18 @@ module.exports = {
 	 * @returns {Promise<Model[]>}
 	 */
 	findOldestAds: async function() {
-		let now = dayjs().subtract(1, 'week');
+		const now = dayjs().subtract(1, 'week');
 
 		return Ad.findAll({
 			where: {
 				createdAt: {
-					[models.Sequelize.Op.lt]: now.toDate()
+					[models.Sequelize.Op.lt]: now.toDate(),
 				},
 			},
 			order: [
-				['createdAt', 'ASC']
+				['createdAt', 'ASC'],
 			],
-			limit: 5
+			limit: 5,
 		});
-	}
+	},
 };
