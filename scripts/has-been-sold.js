@@ -10,8 +10,9 @@ let marketChannel = null;
 async function askUser(ad, adMessage) {
 	console.log('Asking user '+ad.author_id+' if they have already sold the item '+ad.name);
 
+	let dmChannel = null;
 	try {
-		const dmChannel = await guild.members.fetch(ad.author_id).then(member => member.createDM());
+		dmChannel = await guild.members.fetch(ad.author_id).then(member => member.createDM());
 	} catch (error) {
 		console.log(error);
 		console.error('Could not send DM to user '+ad.author_id+'deleting AD to prevent further problems down the lane!');
