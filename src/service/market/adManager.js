@@ -80,7 +80,7 @@ module.exports = {
 			order: [
 				['createdAt', 'ASC']
 			],
-			limit: 1
+			limit: 5
 		});
 	}
 };
