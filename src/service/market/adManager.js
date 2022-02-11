@@ -79,7 +79,6 @@ module.exports = {
 			order: [
 				['createdAt', 'ASC'],
 			],
-			limit: 5,
 		});
 	},
 };

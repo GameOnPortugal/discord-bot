@@ -40,7 +40,20 @@ async function askUser(ad, adMessage) {
 		.then(async (collected) => {
 			const reaction = collected.first();
 			await msg.delete();
-			if (reaction.emoji.name === '✅') {
+			const deleteMessage = (
+				// Approved, sold already happened
+				reaction.emoji.name === '✅' && ad.adType === 'sell'
+				// Refused, no longer wanted
+				|| reaction.emoji.name === '❌' && ad.adType === 'want'
+			);
+			const renewMessage = (
+				// Refused, item still not sold
+				reaction.emoji.name === '❌' && ad.adType === 'sell'
+				// Accepted, still looking for this item
+				|| reaction.emoji.name === '✅' && ad.adType === 'want'
+			);
+
+			if (deleteMessage) {
 				await AdManager.delete(client, ad.id)
 					.then(async () => {
 						await dmChannel.send('Obrigado! O anúncio foi apagado.');
@@ -50,7 +63,7 @@ async function askUser(ad, adMessage) {
 						await dmChannel.send('Ocorreu um erro ao apagar o teu anúncio! Por favor, tenta novamente.');
 					});
 			}
-			else if (reaction.emoji.name === '❌') {
+			else if (renewMessage) {
 				const newMessage = await marketChannel.send(sellMessage);
 				const newAdData = {
 					'name': ad.name,
@@ -108,9 +121,8 @@ async function askUser(ad, adMessage) {
 	for (const ad of ads) {
 		const message = await marketChannel.messages.fetch(ad.message_id);
 		if (!message) {
-			console.error('Message not found');
+			console.error('Message not found. Deleting the ad to prevent further problems...');
 			await AdManager.delete(client, ad.id);
-			console.log('Deleting ad because message is missing...');
 
 			continue;
 		}
