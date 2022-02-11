@@ -5,6 +5,7 @@ const AdManager = require('./../../service/market/adManager');
 
 const MessageCreatorUtil = require('./../../util/messageCreatorUtil');
 const MessageMentions = require('./../../util/messageMention');
+const PermissionUtil = require('./../../util/permissionsUtil');
 
 const questions = {
 	name: {
@@ -76,7 +77,7 @@ module.exports = {
 							adListMessage += '[ID: ' + ad.id + '][' + ad.adType + '] ' + ad.name + '\n';
 						}
 
-						await dmchannel.send(adListMessage);
+						await MessageCreatorUtil.sendMessage(dmchannel, adListMessage);
 
 						return;
 					}
@@ -95,7 +96,7 @@ module.exports = {
 							return;
 						}
 
-						if (ad.author_id !== message.author.id) {
+						if (ad.author_id !== message.author.id && !(await PermissionUtil.isAdmin(message.member))) {
 							await dmchannel.send('Este anúncio nāo te pertence! Usa `|sell list` para saber qual é o ID que pretendes apagar');
 
 							return;
@@ -109,7 +110,13 @@ module.exports = {
 					}
 
 					case 'create': {
-						await dmchannel.send('Vamos criar o anúncio. Tens 60 segundos para cada pergunta para responder. No final, o post será criado por ti.');
+						if (!await MessageCreatorUtil.lockInteraction(message.author.id)) {
+							await dmchannel.send('Ainda nāo acabaste o teu pedido anterior!');
+
+							return;
+						}
+
+						await dmchannel.send('Vamos criar o anúncio. Tens 60 segundos para responder a cada pergunta. No final, o post será criado por ti.');
 						let hasAnswered = false;
 
 						for (const questionName in questions) {
@@ -197,6 +204,8 @@ module.exports = {
 						else {
 							console.log('Ad disapproved. Nothing to see here.');
 						}
+
+						await MessageCreatorUtil.releaseLockInteraction(message.author.id);
 
 						return;
 					}

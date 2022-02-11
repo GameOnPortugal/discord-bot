@@ -4,6 +4,7 @@ const MessageCreatorUtil = require('./../../util/messageCreatorUtil');
 const MessageMentions = require('./../../util/messageMention');
 const { MessageEmbed } = require('discord.js');
 const emojiEnum = require('./../../enum/discord/emojiEnum');
+const PermissionUtil = require('../../util/permissionsUtil');
 
 const questions = {
 	name: {
@@ -80,7 +81,7 @@ module.exports = {
 							return;
 						}
 
-						if (screenshot.author_id !== message.author.id) {
+						if (screenshot.author_id !== message.author.id && !(await PermissionUtil.isAdmin(message.member))) {
 							await dmchannel.send('Este screenshot nāo te pertence! Usa `|screenshot list` para saber qual é o ID que pretendes apagar');
 
 							return;
@@ -94,6 +95,12 @@ module.exports = {
 					}
 
 					case 'create': {
+						if (!await MessageCreatorUtil.lockInteraction(message.author.id)) {
+							await dmchannel.send('Ainda nāo acabaste o teu pedido anterior!');
+
+							return;
+						}
+
 						await dmchannel.send('Vamos criar o screenshot. Tens 60 segundos para cada pergunta para responder. No final, o post será criado por ti.');
 						let hasAnswered = false;
 
@@ -125,6 +132,7 @@ module.exports = {
 
 							if (!hasAnswered) {
 								console.log('Not answered! Stopping');
+								await MessageCreatorUtil.releaseLockInteraction(message.author.id);
 
 								return;
 							}
@@ -134,6 +142,7 @@ module.exports = {
 
 						if (await ScreenshotManager.findByMD5(data.image_md5)) {
 							await dmchannel.send('Esta imagem já foi submetida!');
+							await MessageCreatorUtil.releaseLockInteraction(message.author.id);
 
 							return;
 						}
@@ -159,6 +168,7 @@ module.exports = {
 							})
 							.catch(async () => {
 								await dmchannel.send('Acabou o tempo. Nada vai ser criado. Volta a tentar logo que disponhas de tempo!');
+								await MessageCreatorUtil.releaseLockInteraction(message.author.id);
 							});
 
 						if (createItem) {
@@ -187,6 +197,9 @@ module.exports = {
 						else {
 							console.log('Screenshot disapproved. Nothing to see here.');
 						}
+
+
+						await MessageCreatorUtil.releaseLockInteraction(message.author.id);
 
 						return;
 					}
