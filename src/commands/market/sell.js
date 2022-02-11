@@ -5,6 +5,7 @@ const AdManager = require('./../../service/market/adManager');
 
 const MessageCreatorUtil = require('./../../util/messageCreatorUtil');
 const MessageMentions = require('./../../util/messageMention');
+const PermissionUtil = require('./../../util/permissionsUtil');
 
 const questions = {
 	name: {
@@ -95,7 +96,7 @@ module.exports = {
 							return;
 						}
 
-						if (ad.author_id !== message.author.id) {
+						if (ad.author_id !== message.author.id && !(await PermissionUtil.isAdmin(message.member))) {
 							await dmchannel.send('Este anúncio nāo te pertence! Usa `|sell list` para saber qual é o ID que pretendes apagar');
 
 							return;
