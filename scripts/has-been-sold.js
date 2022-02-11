@@ -119,7 +119,13 @@ async function askUser(ad, adMessage) {
 	const ads = await AdManager.findOldestAds();
 	console.log('Found ' + ads.length + ' old ads. Asking users whether they are still interested.');
 	for (const ad of ads) {
-		const message = await marketChannel.messages.fetch(ad.message_id);
+		let message = null;
+		try {
+			message = await marketChannel.messages.fetch(ad.message_id);
+		} catch (error) {
+			message = null;
+			console.error(error);
+		}
 		if (!message) {
 			console.error('Message not found. Deleting the ad to prevent further problems...');
 			await AdManager.delete(client, ad.id);
