@@ -48,6 +48,12 @@ module.exports = {
 		await message.author
 			.createDM()
 			.then(async dmchannel => {
+				if (!await MessageCreatorUtil.lockInteraction(message.author.id)) {
+					await dmchannel.send('Acaba o teu anúncio anterior para criar um novo!');
+
+					return;
+				}
+
 				await dmchannel.send('Vamos criar o anúncio. Apenas tens 30 seg. entre perguntas para responder. No final, o post será criado por ti.');
 
 				let hasAnswered = false;
@@ -131,6 +137,8 @@ module.exports = {
 				else {
 					console.log('Ad disapproved. Nothing to see here.');
 				}
+
+				await MessageCreatorUtil.releaseLockInteraction(message.author.id);
 			});
 	},
 };

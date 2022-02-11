@@ -77,7 +77,7 @@ module.exports = {
 							adListMessage += '[ID: ' + ad.id + '][' + ad.adType + '] ' + ad.name + '\n';
 						}
 
-						await dmchannel.send(adListMessage);
+						await MessageCreatorUtil.sendMessage(dmchannel, adListMessage);
 
 						return;
 					}
@@ -110,7 +110,12 @@ module.exports = {
 					}
 
 					case 'create': {
-						await dmchannel.send('Vamos criar o anúncio. Tens 60 segundos para cada pergunta para responder. No final, o post será criado por ti.');
+						if (!await MessageCreatorUtil.lockInteraction(message.author.id)) {
+							await dmchannel.send('Acaba o teu anúncio anterior para criar um novo!');
+
+							return;
+						}
+						await dmchannel.send('Vamos criar o anúncio. Tens 60 segundos para responder a cada pergunta. No final, o post será criado por ti.');
 						let hasAnswered = false;
 
 						for (const questionName in questions) {
@@ -198,6 +203,8 @@ module.exports = {
 						else {
 							console.log('Ad disapproved. Nothing to see here.');
 						}
+
+						await MessageCreatorUtil.releaseLockInteraction(message.author.id);
 
 						return;
 					}
