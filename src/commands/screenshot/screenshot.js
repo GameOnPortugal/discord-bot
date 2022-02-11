@@ -4,7 +4,7 @@ const MessageCreatorUtil = require('./../../util/messageCreatorUtil');
 const MessageMentions = require('./../../util/messageMention');
 const { MessageEmbed } = require('discord.js');
 const emojiEnum = require('./../../enum/discord/emojiEnum');
-const PermissionUtil = require("../../util/permissionsUtil");
+const PermissionUtil = require('../../util/permissionsUtil');
 
 const questions = {
 	name: {
