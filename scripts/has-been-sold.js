@@ -15,7 +15,7 @@ async function askUser(ad, adMessage) {
 		dmChannel = await guild.members.fetch(ad.author_id).then(member => member.createDM());
 	} catch (error) {
 		console.log(error);
-		console.error('Could not send DM to user '+ad.author_id+'deleting AD to prevent further problems down the lane!');
+		console.error('Could not send DM to user '+ad.author_id+' deleting AD to prevent further problems down the lane!');
 		await AdManager.delete(client, ad.id);
 		return;
 	}
