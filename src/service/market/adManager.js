@@ -28,6 +28,15 @@ module.exports = {
 	},
 
 	/**
+	 * @param {object} data
+	 *
+	 * @returns {Promise<CreateOptions<Model["_attributes"]> extends ({returning: false} | {ignoreDuplicates: true}) ? void : Model>}
+	 */
+	create: function(data) {
+		return Ad.create(data);
+	},
+
+	/**
 	 * Delete an ad from the dabatase and from the channel
 	 *
 	 * @param {Client} client

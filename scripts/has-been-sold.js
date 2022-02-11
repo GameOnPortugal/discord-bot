@@ -2,6 +2,7 @@
 const AdManager = require('../src/service/market/adManager');
 
 const Discord = require('discord.js');
+const MessageCreatorUtil = require("../src/util/messageCreatorUtil");
 const client = new Discord.Client();
 
 let guild = null;
@@ -19,12 +20,11 @@ async function askUser(ad, adMessage) {
 		+ `\n**Envio:** ${ad.dispatch}`
 		+ `\n**Garantia:** ${ad.warranty}`
 		+ (ad.description ? `\n\n${ad.description}` : '')
-		+ '\n\n'+adMessage.url
 	;
 
 	const embed = new Discord.MessageEmbed()
 		.setTitle(ad.adType === 'want' ? 'Ainda continuas a procura deste artigo?' : 'Este artigo já foi vendido?')
-		.setDescription(sellMessage)
+		.setDescription(sellMessage+'\n\n'+adMessage.url)
 		.setColor('#0099ff')
 		.setFooter('Por favor usa as reações para responder. Tens 1 dia para responder, na ausência de resposta iremos apagar o anúncio!')
 		.setTimestamp();
@@ -51,7 +51,24 @@ async function askUser(ad, adMessage) {
 						await dmChannel.send('Ocorreu um erro ao apagar o teu anúncio! Por favor, tenta novamente.');
 					});
 			} else if (reaction.emoji.name === '❌') {
-				await dmChannel.send('Obrigado! O anúncio não foi apagado.');
+				const newMessage = await marketChannel.send(sellMessage);
+				const newAdData = {
+					'name': ad.name,
+					'author_id': ad.author_id,
+					'channel_id': ad.channel_id,
+					'message_id': newMessage.id,
+					'state': ad.state,
+					'price': ad.price,
+					'zone': ad.zone,
+					'dispatch': ad.dispatch,
+					'warranty': ad.warranty,
+					'description': ad.description,
+					'adType': ad.adType,
+				}
+				await AdManager.create(newAdData);
+				await AdManager.delete(client, ad.id);
+
+				await dmChannel.send('Obrigado! O teu anúncio foi renovado!');
 			}
 		})
 		.catch(async (err) => {
