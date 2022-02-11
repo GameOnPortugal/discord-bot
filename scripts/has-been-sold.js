@@ -8,7 +8,15 @@ let guild = null;
 let marketChannel = null;
 
 async function askUser(ad, adMessage) {
-	const dmChannel = await guild.members.fetch(ad.author_id).then(member => member.createDM());
+	console.log('Asking user '+ad.author_id+' if they have already sold the item '+ad.name);
+
+	try {
+		const dmChannel = await guild.members.fetch(ad.author_id).then(member => member.createDM());
+	} catch (error) {
+		console.log(error);
+		console.error('Could not send DM to user '+ad.author_id+'deleting AD to prevent further problems down the lane!');
+		await AdManager.delete(client, ad.id);
+	}
 
 	const sellMessage = ':moneybag: **VENDO**'
 		+ `\n:arrow_right: **${ad.name}**`
@@ -40,6 +48,9 @@ async function askUser(ad, adMessage) {
 		.then(async (collected) => {
 			const reaction = collected.first();
 			await msg.delete();
+
+			console.log('Got an reaction from user '+ad.author_id+' with emoji '+reaction.emoji.name);
+
 			const deleteMessage = (
 				// Approved, sold already happened
 				reaction.emoji.name === '✅' && ad.adType === 'sell'
