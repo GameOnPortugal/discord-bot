@@ -16,6 +16,7 @@ async function askUser(ad, adMessage) {
 		console.log(error);
 		console.error('Could not send DM to user '+ad.author_id+'deleting AD to prevent further problems down the lane!');
 		await AdManager.delete(client, ad.id);
+		return;
 	}
 
 	const sellMessage = ':moneybag: **VENDO**'
