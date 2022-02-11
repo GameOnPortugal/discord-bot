@@ -1,6 +1,8 @@
 const models = require('./../../models');
 const Ad = models.Ad;
 
+const dayjs = require('dayjs');
+
 module.exports = {
 	/**
 	 * Find ads created by an user
@@ -22,6 +24,15 @@ module.exports = {
 	 */
 	findById: function(adId) {
 		return Ad.findOne({ where: { id: adId } });
+	},
+
+	/**
+	 * @param {object} data
+	 *
+	 * @returns {Promise<CreateOptions<Model["_attributes"]> extends ({returning: false} | {ignoreDuplicates: true}) ? void : Model>}
+	 */
+	create: function(data) {
+		return Ad.create(data);
 	},
 
 	/**
@@ -49,5 +60,25 @@ module.exports = {
 		}
 
 		await Ad.destroy({ where: { id: adId } });
+	},
+
+	/**
+	 * Find the oldest ADs in the database
+	 *
+	 * @returns {Promise<Model[]>}
+	 */
+	findOldestAds: async function() {
+		const now = dayjs().subtract(1, 'week');
+
+		return Ad.findAll({
+			where: {
+				createdAt: {
+					[models.Sequelize.Op.lt]: now.toDate(),
+				},
+			},
+			order: [
+				['createdAt', 'ASC'],
+			],
+		});
 	},
 };

@@ -175,7 +175,7 @@ module.exports = {
 							console.log('Screenshot approved. Creating the item on the db and sending it to the channel!');
 
 							await MessageCreatorUtil
-								.post(this, message, screenshotEmbedded)
+								.post(this, message.channel, screenshotEmbedded)
 								.then(async m => {
 									m.react(await message.client.emojis.cache.get(emojiEnum.TROPHY_PLAT));
 

@@ -209,7 +209,7 @@ module.exports = {
 								return;
 							}
 
-							await MessageCreatorUtil.post(this, message, lfgMessage).then(async m => {
+							await MessageCreatorUtil.post(this, message.channel, lfgMessage).then(async m => {
 								data['message_id'] = m.id;
 								// insert reactions
 								await m.react('👍');
