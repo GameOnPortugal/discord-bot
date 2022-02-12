@@ -1,1 +1,1 @@
-worker: npm has-been-sold & npm start
+worker: npm run has-been-sold & npm start
