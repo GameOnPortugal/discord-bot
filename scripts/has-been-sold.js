@@ -6,16 +6,18 @@ const client = new Discord.Client();
 
 let guild = null;
 let marketChannel = null;
+const dayInMilliseconds = 1000 * 60 * 60 * 24;
 
 async function askUser(ad, adMessage) {
-	console.log('Asking user '+ad.author_id+' if they have already sold the item '+ad.name);
+	console.log('Asking user ' + ad.author_id + ' if they have already sold the item ' + ad.name);
 
 	let dmChannel = null;
 	try {
 		dmChannel = await guild.members.fetch(ad.author_id).then(member => member.createDM());
-	} catch (error) {
+	}
+	catch (error) {
 		console.log(error);
-		console.error('Could not send DM to user '+ad.author_id+' deleting AD to prevent further problems down the lane!');
+		console.error('Could not send DM to user ' + ad.author_id + ' deleting AD to prevent further problems down the lane!');
 		await AdManager.delete(client, ad.id);
 		return;
 	}
@@ -43,7 +45,6 @@ async function askUser(ad, adMessage) {
 	const filter = (reaction, user) => {
 		return ['✅', '❌'].includes(reaction.emoji.name) && user.id === ad.author_id;
 	};
-	const dayInMilliseconds = 1000 * 60 * 60 * 24;
 
 	await msg
 		.awaitReactions(filter, { max: 1, time: dayInMilliseconds, errors: ['time'] })
@@ -51,7 +52,7 @@ async function askUser(ad, adMessage) {
 			const reaction = collected.first();
 			await msg.delete();
 
-			console.log('Got an reaction from user '+ad.author_id+' with emoji '+reaction.emoji.name);
+			console.log('Got an reaction from user ' + ad.author_id + ' with emoji ' + reaction.emoji.name);
 
 			const deleteMessage = (
 				// Approved, sold already happened
@@ -135,7 +136,8 @@ async function askUser(ad, adMessage) {
 		let message = null;
 		try {
 			message = await marketChannel.messages.fetch(ad.message_id);
-		} catch (error) {
+		}
+		catch (error) {
 			message = null;
 			console.error(error);
 		}

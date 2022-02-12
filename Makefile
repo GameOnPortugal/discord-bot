@@ -14,7 +14,7 @@ run-detached:
 
 .PHONY: stop
 stop:
-	docker-compose down
+	docker-compose stop
 
 .PHONY: eslint
 eslint:

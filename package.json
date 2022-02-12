@@ -11,7 +11,8 @@
   "scripts": {
     "lint": "eslint .",
     "start": "node src/index.js",
-    "test": "jest --detectOpenHandles"
+    "test": "jest --detectOpenHandles",
+    "has-been-sold": "node scripts/has-been-sold.js"
   },
   "dependencies": {
     "@keyv/redis": "^2.1.2",
