@@ -14,7 +14,7 @@ async function askUser(ad, adMessage) {
 
 	let dmChannel = null;
 	try {
-		dmChannel = await guild.members.fetch('244496994914009089').then(member => member.createDM());
+		dmChannel = await guild.members.fetch(ad.author_id).then(member => member.createDM());
 	}
 	catch (error) {
 		console.log(error);
