@@ -6,14 +6,15 @@ const client = new Discord.Client();
 
 let guild = null;
 let marketChannel = null;
-const dayInMilliseconds = 1000 * 60 * 60 * 24;
+const threeHoursInMilliseconds = 10800000;
+const oneHourInMilliseconds = 3600000;
 
 async function askUser(ad, adMessage) {
 	console.log('Asking user ' + ad.author_id + ' if they have already sold the item ' + ad.name);
 
 	let dmChannel = null;
 	try {
-		dmChannel = await guild.members.fetch(ad.author_id).then(member => member.createDM());
+		dmChannel = await guild.members.fetch('244496994914009089').then(member => member.createDM());
 	}
 	catch (error) {
 		console.log(error);
@@ -37,7 +38,7 @@ async function askUser(ad, adMessage) {
 		.setTitle(ad.adType === 'want' ? 'Ainda continuas a procura deste artigo?' : 'Este artigo já foi vendido?')
 		.setDescription(sellMessage + '\n\n' + adMessage.url)
 		.setColor('#0099ff')
-		.setFooter('Por favor usa as reações para responder. Tens 1 dia para responder, na ausência de resposta iremos apagar o anúncio!')
+		.setFooter('Por favor usa as reações para responder. Tens 3 horas para responder, na ausência de resposta iremos apagar o anúncio!')
 		.setTimestamp();
 	const msg = await dmChannel.send(embed);
 	await msg.react('✅');
@@ -47,7 +48,7 @@ async function askUser(ad, adMessage) {
 	};
 
 	await msg
-		.awaitReactions(filter, { max: 1, time: dayInMilliseconds, errors: ['time'] })
+		.awaitReactions(filter, { max: 1, time: threeHoursInMilliseconds, errors: ['time'] })
 		.then(async (collected) => {
 			const reaction = collected.first();
 			await msg.delete();
@@ -97,6 +98,22 @@ async function askUser(ad, adMessage) {
 
 				await dmChannel.send('Obrigado! O teu anúncio foi renovado!');
 			}
+
+			const moreUserAds = await AdManager.findOldestAdsByUser(ad.author_id);
+			if (moreUserAds.length) {
+				console.log('Found more ads by user ' + ad.author_id + ' gonna try and resolve this as well...');
+				for (const moreUserAd of moreUserAds) {
+					const originalMessage = await getOriginalAdMessage(moreUserAd);
+					if (!originalMessage) {
+						continue;
+					}
+
+					await askUser(moreUserAd, originalMessage);
+				}
+			}
+			else {
+				console.log('This user ' + ad.author_id + ' doesn\'t have more items in the market');
+			}
 		})
 		.catch(async (err) => {
 			console.log(err);
@@ -109,6 +126,33 @@ async function askUser(ad, adMessage) {
 				});
 		})
 	;
+}
+
+
+/**
+ * Look for the original discord message for the ad
+ * If the message doesn't exist attempt to delete it and send null instead
+ */
+async function getOriginalAdMessage(ad) {
+	let message = null;
+	try {
+		message = await marketChannel.messages.fetch(ad.message_id);
+	}
+	catch (error) {
+		message = null;
+		console.error(error);
+	}
+	if (!message) {
+		console.error('Message not found. Deleting the ad to prevent further problems...');
+		try {
+			await AdManager.delete(client, ad.id);
+		}
+		catch (error) {
+			console.error(error);
+		}
+	}
+
+	return message;
 }
 
 
@@ -130,27 +174,22 @@ async function askUser(ad, adMessage) {
 		return;
 	}
 
-	const ads = await AdManager.findOldestAds();
-	console.log('Found ' + ads.length + ' old ads. Asking users whether they are still interested.');
-	for (const ad of ads) {
-		let message = null;
-		try {
-			message = await marketChannel.messages.fetch(ad.message_id);
-		}
-		catch (error) {
-			message = null;
-			console.error(error);
-		}
-		if (!message) {
-			console.error('Message not found. Deleting the ad to prevent further problems...');
-			await AdManager.delete(client, ad.id);
-
+	for (;;) {
+		const ads = await AdManager.findOldestAds();
+		if (ads.length === 0) {
+			console.log('No more ads to refresh... sleep for 1 hour');
+			await new Promise(resolve => setTimeout(resolve, oneHourInMilliseconds));
 			continue;
 		}
 
-		await askUser(ad, message);
-	}
+		console.log('Found ' + ads.length + ' old ads. Asking users whether they are still interested.');
+		await Promise.all(ads.map(async (ad) => {
+			const message = await getOriginalAdMessage(ad);
+			if (!message) {
+				return;
+			}
 
-	console.log('Done!');
-	process.exit(0);
+			await askUser(ad, message);
+		}));
+	}
 })();
