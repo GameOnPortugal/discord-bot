@@ -63,7 +63,7 @@ module.exports = {
 	},
 
 	/**
-	 * Find the oldest ADs in the database
+	 * Find the oldest ADs in the database max 1 per user on each iteration
 	 *
 	 * @returns {Promise<Model[]>}
 	 */
@@ -79,6 +79,26 @@ module.exports = {
 			order: [
 				['createdAt', 'ASC'],
 			],
+			group: ['author_id']
 		});
 	},
+
+	/**
+	 * Find ALL the oldest ADs in the database for the given user
+	 */
+	findOldestAdsByUser: async function(author_id) {
+		const now = dayjs().subtract(1, 'week');
+
+		return Ad.findAll({
+			where: {
+				createdAt: {
+					[models.Sequelize.Op.lt]: now.toDate(),
+				},
+				author_id: author_id
+			},
+			order: [
+				['createdAt', 'ASC'],
+			]
+		});
+	}
 };
