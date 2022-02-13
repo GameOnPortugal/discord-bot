@@ -40,7 +40,15 @@ async function askUser(ad, adMessage) {
 		.setColor('#0099ff')
 		.setFooter('Por favor usa as reações para responder. Tens 3 horas para responder, na ausência de resposta iremos apagar o anúncio!')
 		.setTimestamp();
-	const msg = await dmChannel.send(embed);
+	let msg = null;
+	try {
+		msg = await dmChannel.send(embed);
+	} catch (error) {
+		console.log(error);
+		console.error('Could not send DM to user ' + ad.author_id + ' deleting AD to prevent further problems down the lane!');
+		await AdManager.delete(client, ad.id);
+		return;
+	}
 	await msg.react('✅');
 	await msg.react('❌');
 	const filter = (reaction, user) => {
