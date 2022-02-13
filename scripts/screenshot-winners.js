@@ -22,7 +22,15 @@ const dayjs = require('dayjs');
 	for (const screenshot of screenshots) {
 		console.log('Checking votes for ' + screenshot.name);
 
-		const message = await channel.messages.fetch(screenshot.message_id);
+		let message = null;
+		try {
+			message = await channel.messages.fetch(screenshot.message_id);
+		} catch (error) {
+			console.log('Could not find message for ' + screenshot.name + '. Deleting to prevent further problems..');
+			await ScreenshotManager.delete(client, screenshot.id);
+			continue;
+		}
+
 		if (!message) {
 			console.error('Message not found');
 			continue;
