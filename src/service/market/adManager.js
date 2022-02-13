@@ -79,7 +79,7 @@ module.exports = {
 			order: [
 				['createdAt', 'ASC'],
 			],
-			group: ['author_id']
+			group: ['author_id'],
 		});
 	},
 
@@ -94,11 +94,11 @@ module.exports = {
 				createdAt: {
 					[models.Sequelize.Op.lt]: now.toDate(),
 				},
-				author_id: author_id
+				author_id: author_id,
 			},
 			order: [
 				['createdAt', 'ASC'],
-			]
+			],
 		});
-	}
+	},
 };

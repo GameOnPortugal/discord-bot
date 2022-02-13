@@ -14,7 +14,7 @@ async function askUser(ad, adMessage) {
 
 	let dmChannel = null;
 	try {
-		dmChannel = await guild.members.fetch("244496994914009089").then(member => member.createDM());
+		dmChannel = await guild.members.fetch('244496994914009089').then(member => member.createDM());
 	}
 	catch (error) {
 		console.log(error);
@@ -99,18 +99,19 @@ async function askUser(ad, adMessage) {
 				await dmChannel.send('Obrigado! O teu anúncio foi renovado!');
 			}
 
-			let moreUserAds = await AdManager.findOldestAdsByUser(ad.author_id);
+			const moreUserAds = await AdManager.findOldestAdsByUser(ad.author_id);
 			if (moreUserAds.length) {
 				console.log('Found more ads by user ' + ad.author_id + ' gonna try and resolve this as well...');
 				for (const moreUserAd of moreUserAds) {
-					let originalMessage = await getOriginalAdMessage(moreUserAd);
+					const originalMessage = await getOriginalAdMessage(moreUserAd);
 					if (!originalMessage) {
 						continue;
 					}
 
 					await askUser(moreUserAd, originalMessage);
 				}
-			} else {
+			}
+			else {
 				console.log('This user ' + ad.author_id + ' doesn\'t have more items in the market');
 			}
 		})
@@ -173,9 +174,9 @@ async function getOriginalAdMessage(ad) {
 		return;
 	}
 
-	while (true) {
+	for (;;) {
 		const ads = await AdManager.findOldestAds();
-		if (0 === ads.length) {
+		if (ads.length === 0) {
 			console.log('No more ads to refresh... sleep for 1 hour');
 			await new Promise(resolve => setTimeout(resolve, oneHourInMilliseconds));
 			continue;
@@ -183,7 +184,7 @@ async function getOriginalAdMessage(ad) {
 
 		console.log('Found ' + ads.length + ' old ads. Asking users whether they are still interested.');
 		await Promise.all(ads.map(async (ad) => {
-			let message = await getOriginalAdMessage(ad);
+			const message = await getOriginalAdMessage(ad);
 			if (!message) {
 				return;
 			}
@@ -191,7 +192,4 @@ async function getOriginalAdMessage(ad) {
 			await askUser(ad, message);
 		}));
 	}
-
-	console.log('Done!');
-	process.exit(0);
 })();
