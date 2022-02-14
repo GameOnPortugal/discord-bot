@@ -12,6 +12,12 @@ const oneHourInMilliseconds = 3600000;
 async function askUser(ad, adMessage) {
 	console.log('Asking user ' + ad.author_id + ' if they have already sold the item ' + ad.name);
 
+	if (!await AdManager.findById(ad.id)) {
+		console.log('Could not find ad with id ' + ad.id + ' moving on... Probably already deleted manually?!');
+
+		return;
+	}
+
 	let dmChannel = null;
 	try {
 		dmChannel = await guild.members.fetch(ad.author_id).then(member => member.createDM());
