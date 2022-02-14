@@ -23,7 +23,7 @@ async function askUser(ad, adMessage) {
 		return;
 	}
 
-	const sellMessage = ':moneybag: **VENDO**'
+	const sellMessage = (ad.adType === 'wanted' ? ':mag: **PROCURO**' : ':moneybag: **VENDO**')
 		+ `\n:arrow_right: **${ad.name}**`
 		+ `\n:dollar: **Preço:** ${ad.price}`
 		+ `\n:bust_in_silhouette: <@${ad.author_id}>`
@@ -35,7 +35,7 @@ async function askUser(ad, adMessage) {
 	;
 
 	const embed = new Discord.MessageEmbed()
-		.setTitle(ad.adType === 'want' ? 'Ainda continuas a procura deste artigo?' : 'Este artigo já foi vendido?')
+		.setTitle(ad.adType === 'wanted' ? 'Ainda continuas a procura deste artigo?' : 'Este artigo já foi vendido?')
 		.setDescription(sellMessage + '\n\n' + adMessage.url)
 		.setColor('#0099ff')
 		.setFooter('Por favor usa as reações para responder. Tens 3 horas para responder, na ausência de resposta iremos apagar o anúncio!')
@@ -66,15 +66,15 @@ async function askUser(ad, adMessage) {
 
 			const deleteMessage = (
 				// Approved, sold already happened
-				reaction.emoji.name === '✅' && ad.adType === 'sell'
+				(reaction.emoji.name === '✅' && ad.adType === 'sell')
 				// Refused, no longer wanted
-				|| reaction.emoji.name === '❌' && ad.adType === 'want'
+				|| (reaction.emoji.name === '❌' && ad.adType === 'wanted')
 			);
 			const renewMessage = (
 				// Refused, item still not sold
-				reaction.emoji.name === '❌' && ad.adType === 'sell'
+				(reaction.emoji.name === '❌' && ad.adType === 'sell')
 				// Accepted, still looking for this item
-				|| reaction.emoji.name === '✅' && ad.adType === 'want'
+				|| (reaction.emoji.name === '✅' && ad.adType === 'wanted')
 			);
 
 			if (deleteMessage) {
