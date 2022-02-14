@@ -25,7 +25,8 @@ const dayjs = require('dayjs');
 		let message = null;
 		try {
 			message = await channel.messages.fetch(screenshot.message_id);
-		} catch (error) {
+		}
+		catch (error) {
 			console.log('Could not find message for ' + screenshot.name + '. Deleting to prevent further problems..');
 			await ScreenshotManager.delete(client, screenshot.id);
 			continue;

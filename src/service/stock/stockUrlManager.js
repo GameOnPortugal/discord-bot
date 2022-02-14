@@ -51,12 +51,19 @@ module.exports = {
 		const bot = new TelegramBot(process.env.TELEGRAM_ACCESS_TOKEN);
 
 		const notificationMessage = 'alertou para stock no site: ' + stockUrl.url;
+		const minuteInMilliseconds = 60000;
 
 		await bot.sendMessage(telegramChatEnum.ALERTAS_PRIME, message.author.username + ' ' + notificationMessage);
 		await message.client.channels.cache.get(channelEnum.PREMIUM_ALERT_CHAT).send('<@&' + rolesEnum.ALERTAS_PRIME + '> : <@' + message.author + '>' + notificationMessage);
 
+		// 3 min Discord alert
 		setTimeout(async function() {
 			await message.client.channels.cache.get(channelEnum.FREE_ALERT_CHAT).send('@everyone : <@' + message.author + '>' + notificationMessage);
-		}, 120000);
+		}, minuteInMilliseconds * 3);
+
+		// 5 min Telegram alert
+		setTimeout(async function() {
+			await bot.sendMessage(telegramChatEnum.EVERYONE, message.author.username + ' ' + notificationMessage);
+		}, minuteInMilliseconds * 5);
 	},
 };
