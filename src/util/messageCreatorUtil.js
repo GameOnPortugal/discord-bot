@@ -12,7 +12,7 @@ module.exports = {
      * @param {Channel} targetChannel
      * @param {Object|string} content
      *
-     * @return {Promise<Message>}
+     * @return Message
      */
 	post: async function(command, targetChannel, content) {
 		const commandChannelLink = await CommandChannelLinkManager.findByCommand(command.name);
@@ -20,7 +20,7 @@ module.exports = {
 			targetChannel = await targetChannel.client.channels.fetch(commandChannelLink.channelId);
 		}
 
-		await this.sendMessage(targetChannel, content);
+		return await this.sendMessage(targetChannel, content);
 	},
 
 	/**

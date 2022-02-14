@@ -209,26 +209,26 @@ module.exports = {
 								return;
 							}
 
-							await MessageCreatorUtil.post(this, message.channel, lfgMessage).then(async m => {
-								data['message_id'] = m.id;
-								// insert reactions
-								await m.react('👍');
-								await m.react('❌');
+							let newMessage = await MessageCreatorUtil.post(this, message.channel, lfgMessage);
+							data['message_id'] = newMessage.id;
 
-								// wait for reactions
-								const filter = (reaction) => {
-									return ['👍', '❌'].includes(reaction.emoji.name);
-								};
+							// insert reactions
+							await m.react('👍');
+							await m.react('❌');
 
-								const collector = m.createReactionCollector(filter, { time: data['playAt'].diff(now) });
+							// wait for reactions
+							const filter = (reaction) => {
+								return ['👍', '❌'].includes(reaction.emoji.name);
+							};
 
-								collector.on('collect', async (reaction, user) => {
-									await handleReact(m, user, reaction.emoji.name);
-									updateEmbed(m, data);
-								});
+							const collector = m.createReactionCollector(filter, { time: data['playAt'].diff(now) });
 
-								await dmchannel.send('O teu pedido foi criado com sucesso. Obrigado!');
+							collector.on('collect', async (reaction, user) => {
+								await handleReact(m, user, reaction.emoji.name);
+								updateEmbed(m, data);
 							});
+
+							await dmchannel.send('O teu pedido foi criado com sucesso. Obrigado!');
 						}
 						else {
 							console.log('LFG cancelled. Nothing to see here.');

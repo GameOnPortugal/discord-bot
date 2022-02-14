@@ -183,12 +183,9 @@ module.exports = {
 						if (createItem) {
 							console.log('Ad approved. Creating the item on the db and sending it to the channel!');
 
-							await MessageCreatorUtil
-								.post(this, message.channel, sellMessage)
-								.then(async m => {
-									data['message_id'] = m.id;
-									data['channel_id'] = m.channel.id;
-								});
+							let newMessage = await MessageCreatorUtil.post(this, message.channel, sellMessage);
+							data['message_id'] = newMessage.id;
+							data['channel_id'] = newMessage.channel.id;
 
 							Ad
 								.create(data)
