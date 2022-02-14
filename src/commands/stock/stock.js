@@ -51,7 +51,13 @@ module.exports = {
 					stockUrl = await StockUrlManager.create(message.author, args[1]);
 				}
 
-				await StockUrlManager.stockNotification(message, stockUrl);
+				try {
+					await StockUrlManager.stockNotification(message, stockUrl);
+				}
+				catch (error) {
+					console.error(error);
+					await message.reply('@Josh_Lopes ocorreu um erro ao enviar o alerta!');
+				}
 
 				await message.reply('Alerta de stock enviado! Nāo voltem a enviar para o mesmo URL num curto espaço de tempo! Lembrem-se que há delays para canais gratuitos!');
 
