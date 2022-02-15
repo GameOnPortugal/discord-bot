@@ -20,7 +20,7 @@ test('Get profile trophies', async () => {
 
 	const urls = await PsnCrawlService.getProfileTrophies('oneeye_japan');
 
-	expect(urls.length).toBeGreaterThan(100);
+	expect(urls.length).toBeGreaterThan(50);
 	expect(urls[urls.length - 1]).toMatch(new RegExp('https:\\/\\/psnprofiles.com\\/trophies\\/.*?\\/oneeye_japan'));
 }, 60000);
 
