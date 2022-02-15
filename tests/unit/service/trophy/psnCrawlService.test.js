@@ -51,9 +51,4 @@ test('Grabs the current ranks from a psn profile', async () => {
 
 	expect(ranks3.worldRank).toBeGreaterThan(100000);
 	expect(ranks3.countryRank).toBeGreaterThan(1000);
-
-	const ranks4 = await PsnCrawlService.getProfileRank('franciskoG');
-
-	expect(ranks4.worldRank).toBeGreaterThan(0);
-	expect(ranks4.countryRank).toBeGreaterThan(0);
 }, 60000);
