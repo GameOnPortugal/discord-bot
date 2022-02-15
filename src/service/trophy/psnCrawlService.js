@@ -92,37 +92,30 @@ module.exports = {
 	},
 
 	/**
-	 * Return all profile plats
+	 * Return all profile trophy urls for a given psn profile and page
+	 * Return an empty array if no urls are found
 	 *
 	 * @param {string} psnProfileUsername
+	 * @param {int} page
 	 *
 	 * @returns {string[]}
 	 */
-	getProfileTrophies: async function(psnProfileUsername) {
+	getProfileTrophies: async function(psnProfileUsername, page = 1) {
 		const urls = [];
-		let consumeUrls = true;
-		let page = 1;
 
-		while(consumeUrls) {
-			await JSDOM.fromURL('https://psnprofiles.com/' + psnProfileUsername + '?completion=platinum&order=last-trophy&pf=all&page=' + page).then(dom => {
-				const $ = require('jquery')(dom.window);
-				const $platinumRows = $('table#gamesTable tr.platinum');
-				if (!$platinumRows.length) {
-					// No more plats in this page
-					consumeUrls = false;
+		return await JSDOM.fromURL('https://psnprofiles.com/' + psnProfileUsername + '?completion=platinum&order=last-trophy&pf=all&page=' + page).then(dom => {
+			const $ = require('jquery')(dom.window);
+			const $platinumRows = $('table#gamesTable tr.platinum');
+			if (!$platinumRows.length) {
+				return [];
+			}
 
-					return;
-				}
-
-				$platinumRows.each(function(idx, element) {
-					const $row = $(element);
-					urls.push('https://psnprofiles.com' + $row.find('a:first').attr('href'));
-				});
+			$platinumRows.each(function(idx, element) {
+				const $row = $(element);
+				urls.push('https://psnprofiles.com' + $row.find('a:first').attr('href'));
 			});
 
-			page++;
-		}
-
-		return urls;
+			return urls;
+		});
 	},
 };

@@ -209,23 +209,23 @@ module.exports = {
 								return;
 							}
 
-							let newMessage = await MessageCreatorUtil.post(this, message.channel, lfgMessage);
+							const newMessage = await MessageCreatorUtil.post(this, message.channel, lfgMessage);
 							data['message_id'] = newMessage.id;
 
 							// insert reactions
-							await m.react('👍');
-							await m.react('❌');
+							await newMessage.react('👍');
+							await newMessage.react('❌');
 
 							// wait for reactions
 							const filter = (reaction) => {
 								return ['👍', '❌'].includes(reaction.emoji.name);
 							};
 
-							const collector = m.createReactionCollector(filter, { time: data['playAt'].diff(now) });
+							const collector = newMessage.createReactionCollector(filter, { time: data['playAt'].diff(now) });
 
 							collector.on('collect', async (reaction, user) => {
-								await handleReact(m, user, reaction.emoji.name);
-								updateEmbed(m, data);
+								await handleReact(newMessage, user, reaction.emoji.name);
+								updateEmbed(newMessage, data);
 							});
 
 							await dmchannel.send('O teu pedido foi criado com sucesso. Obrigado!');

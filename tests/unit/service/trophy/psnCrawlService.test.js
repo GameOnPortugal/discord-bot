@@ -20,7 +20,7 @@ test('Get profile trophies', async () => {
 
 	const urls = await PsnCrawlService.getProfileTrophies('oneeye_japan');
 
-	expect(urls.length).toBeGreaterThan(100);
+	expect(urls.length).toBeGreaterThan(50);
 	expect(urls[urls.length - 1]).toMatch(new RegExp('https:\\/\\/psnprofiles.com\\/trophies\\/.*?\\/oneeye_japan'));
 }, 60000);
 
@@ -51,4 +51,9 @@ test('Grabs the current ranks from a psn profile', async () => {
 
 	expect(ranks3.worldRank).toBeGreaterThan(100000);
 	expect(ranks3.countryRank).toBeGreaterThan(1000);
+
+	const ranks4 = await PsnCrawlService.getProfileRank('franciskoG');
+
+	expect(ranks4.worldRank).toBeGreaterThan(0);
+	expect(ranks4.countryRank).toBeGreaterThan(0);
 }, 60000);

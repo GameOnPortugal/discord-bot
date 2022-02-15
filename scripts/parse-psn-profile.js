@@ -15,7 +15,8 @@ async function createTrophies(trophyProfile, urls) {
 			console.log('Trophy ' + trophyUrl + ' is already submitted!');
 			console.log('Stopping going through the urls as i think I\'ve catched up');
 
-			return;
+			// Return false to let other scripts now we won't be parsing anything else
+			return false;
 		}
 
 		try {
@@ -30,7 +31,7 @@ async function createTrophies(trophyProfile, urls) {
 
 		console.log('Trophy created successfully. Sending webhook!');
 
-		hook.send('Parabéns <@' + trophyProfile.userId + '>! Acabaste de receber ' + trophy.points + ' TP (Trophy Points) pelo teu troféu: ' + trophyUrl);
+		await hook.send('Parabéns <@' + trophyProfile.userId + '>! Acabaste de receber ' + trophy.points + ' TP (Trophy Points) pelo teu troféu: ' + trophyUrl);
 	}
 }
 
@@ -44,40 +45,60 @@ async function createTrophies(trophyProfile, urls) {
 	console.log('Parsing and updating ' + trophyProfiles.length + ' profiles');
 
 	for (const trophyProfile of trophyProfiles) {
-		console.log(' >>> Parsing profile ' + trophyProfile.psnProfile + ' >>>>');
+		console.log('[' + trophyProfile.psnProfile + '] Parsing profile');
 
 		const profileRank = await PsnCrawlService.getProfileRank(trophyProfile.psnProfile);
 		if (!trophyProfile.isBanned && (profileRank.worldRank === null || profileRank.countryRank === null)) {
-			console.log('Profile ' + trophyProfile.psnProfile + ' is banned. Flag as banned!');
+			console.log('[' + trophyProfile.psnProfile + '] Profile is banned on PSN Profile. Flag as banned!');
 			await TrophyProfileManager.flagAsBanned(trophyProfile);
 			await TrophyProfileManager.flagAsExcluded(trophyProfile);
 
 			continue;
 		}
 
+		let user = null;
 		try {
-			await guild.members.fetch(trophyProfile.userId);
+			user = await guild.members.fetch(trophyProfile.userId);
 		}
 		catch (exception) {
 			if (exception.code === 10007) {
 				// Unknown member code
-				console.log('User ' + trophyProfile.psnProfile + ' has left the server. Flag as leaver!');
+				console.log('[' + trophyProfile.psnProfile + '] Has left the server. Flag as leaver!');
 				await TrophyProfileManager.flagAsLeaver(trophyProfile);
 				await TrophyProfileManager.flagAsExcluded(trophyProfile);
 
 				continue;
 			}
 
-			throw exception;
+			console.error(exception);
 		}
 
-		const urls = await PsnCrawlService.getProfileTrophies(trophyProfile.psnProfile);
-		console.log('Found ' + urls.length + ' trophy urls for this profile.');
+		if (!user) {
+			console.log('[' + trophyProfile.psnProfile + '] Problem finding the user (#' + trophyProfile.userId + ') on the server! Skipping..');
+			continue;
+		}
 
-		await createTrophies(trophyProfile, urls);
+		console.log('[' + trophyProfile.psnProfile + '] Found the user! Trying to grab the urls!');
 
-		console.log(' <<< Job ended <<<<');
+		let page = 1;
+		let urls = await PsnCrawlService.getProfileTrophies(trophyProfile.psnProfile, page);
+		if (urls.length === 0) {
+			console.log('[' + trophyProfile.psnProfile + '] URLs not found for this profile!');
+		}
+
+		while (urls.length > 0) {
+			console.log('[' + trophyProfile.psnProfile + '] Found ' + urls.length + ' trophy urls for page num ' + page);
+			if (!await createTrophies(trophyProfile, urls)) {
+				break;
+			}
+			page++;
+			urls = await PsnCrawlService.getTrophyUrls(trophyProfile.psnProfile, page);
+		}
+
+		console.log('[' + trophyProfile.psnProfile + '] Finished parsing profile!');
 	}
 
 	console.log('Parsing has ended for all profiles!');
+
+	process.exit(0);
 })();

@@ -183,7 +183,7 @@ module.exports = {
 						if (createItem) {
 							console.log('Ad approved. Creating the item on the db and sending it to the channel!');
 
-							let newMessage = await MessageCreatorUtil.post(this, message.channel, sellMessage);
+							const newMessage = await MessageCreatorUtil.post(this, message.channel, sellMessage);
 							data['message_id'] = newMessage.id;
 							data['channel_id'] = newMessage.channel.id;
 
