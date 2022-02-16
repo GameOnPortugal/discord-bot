@@ -30,6 +30,9 @@ module.exports = {
 	 * @param {String} message
 	 */
 	sendMessage: async function(channel, message) {
+		if (typeof message === 'object') {
+			await channel.send(message);
+		}
 		while(message) {
 			const limitedMessage = Voca.prune(message, 1800, '');
 			message = message.substring(limitedMessage.length);
