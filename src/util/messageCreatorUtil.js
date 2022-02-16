@@ -31,14 +31,18 @@ module.exports = {
 	 */
 	sendMessage: async function(channel, message) {
 		if (typeof message === 'object') {
-			await channel.send(message);
+			return await channel.send(message);
 		}
+
+		let lastMessage = '';
 		while(message) {
 			const limitedMessage = Voca.prune(message, 1800, '');
 			message = message.substring(limitedMessage.length);
 
-			await channel.send(limitedMessage);
+			lastMessage = await channel.send(limitedMessage);
 		}
+
+		return lastMessage;
 	},
 
 	/**

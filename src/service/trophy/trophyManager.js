@@ -1,5 +1,5 @@
 const models = require('./../../models');
-const TrophyAlreadyClaimedException = require("../../exception/trophy/trophyAlreadyClaimedException");
+const TrophyAlreadyClaimedException = require('../../exception/trophy/trophyAlreadyClaimedException');
 const Trophies = models.Trophies;
 
 /**
