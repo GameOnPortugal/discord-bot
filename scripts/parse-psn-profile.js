@@ -8,12 +8,24 @@ const client = new Discord.Client();
 const { Webhook } = require('discord-webhook-node');
 const hook = new Webhook(process.env.TROPHY_WEBHOOK);
 
+const argv = require('minimist')(process.argv.slice(2));
+const parseAll = Object.prototype.hasOwnProperty.call(argv, 'all');
+const profile = Object.prototype.hasOwnProperty.call(argv, 'profile') ? argv.profile : null;
+if (parseAll && !profile) {
+	console.log('You must specify a profile to parse all profiles!');
+	process.exit(1);
+}
+
+if (parseAll) {
+	console.log('Parsing all trophies of profile:' + profile);
+}
+
 async function createTrophies(trophyProfile, urls) {
 	for (const trophyUrl of urls) {
 		let trophy = await TrophiesManager.findByUsernameAndUrl(trophyProfile, trophyUrl);
-		if (trophy) {
-			console.log('Trophy ' + trophyUrl + ' is already submitted!');
-			console.log('Stopping going through the urls as i think I\'ve catched up');
+		if (trophy && !parseAll) {
+			console.log('[' + trophyProfile.psnProfile + '] Trophy ' + trophyUrl + ' is already submitted!');
+			console.log('[' + trophyProfile.psnProfile + '] Stopping going through the urls as i think I\'ve catched up');
 
 			// Return false to let other scripts now we won't be parsing anything else
 			return false;
@@ -29,7 +41,7 @@ async function createTrophies(trophyProfile, urls) {
 			continue;
 		}
 
-		console.log('Trophy created successfully. Sending webhook!');
+		console.log('[' + trophyProfile.psnProfile + '] Trophy created successfully. Sending webhook!');
 
 		await hook.send('Parabéns <@' + trophyProfile.userId + '>! Acabaste de receber ' + trophy.points + ' TP (Trophy Points) pelo teu troféu: ' + trophyUrl);
 	}
@@ -45,6 +57,11 @@ async function createTrophies(trophyProfile, urls) {
 	console.log('Parsing and updating ' + trophyProfiles.length + ' profiles');
 
 	for (const trophyProfile of trophyProfiles) {
+		if (profile && trophyProfile.psnProfile !== profile) {
+			console.log('Skipping profile ' + trophyProfile.psnProfile + ' as it is not the profile we are looking for');
+			continue;
+		}
+
 		console.log('[' + trophyProfile.psnProfile + '] Parsing profile');
 
 		const profileRank = await PsnCrawlService.getProfileRank(trophyProfile.psnProfile);
@@ -92,7 +109,7 @@ async function createTrophies(trophyProfile, urls) {
 				break;
 			}
 			page++;
-			urls = await PsnCrawlService.getTrophyUrls(trophyProfile.psnProfile, page);
+			urls = await PsnCrawlService.getProfileTrophies(trophyProfile.psnProfile, page);
 		}
 
 		console.log('[' + trophyProfile.psnProfile + '] Finished parsing profile!');

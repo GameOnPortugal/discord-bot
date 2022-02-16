@@ -26,6 +26,7 @@
     "jquery": "^3.6.0",
     "jsdom": "^16.6.0",
     "keyv": "^4.0.3",
+    "minimist": "^1.2.5",
     "mysql2": "^2.2.5",
     "node-telegram-bot-api": "^0.54.0",
     "recursive-readdir": "^2.2.2",
