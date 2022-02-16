@@ -51,6 +51,9 @@ async function createTrophies(trophyProfile, urls) {
 
 		await hook.send('Parabéns <@' + trophyProfile.userId + '>! Acabaste de receber ' + trophy.points + ' TP (Trophy Points) pelo teu troféu: ' + trophyUrl);
 	}
+
+	// Continue to the next page
+	return true;
 }
 
 (async () => {
