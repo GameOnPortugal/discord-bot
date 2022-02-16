@@ -6,6 +6,7 @@ const Discord = require('discord.js');
 const client = new Discord.Client();
 
 const { Webhook } = require('discord-webhook-node');
+const TrophyAlreadyClaimedException = require("../src/exception/trophy/trophyAlreadyClaimedException");
 const hook = new Webhook(process.env.TROPHY_WEBHOOK);
 
 const argv = require('minimist')(process.argv.slice(2));
@@ -36,7 +37,11 @@ async function createTrophies(trophyProfile, urls) {
 			trophy = await TrophiesManager.create(trophyProfile, trophyUrl, trophyData);
 		}
 		catch (exception) {
-			console.error(exception);
+			if (exception instanceof TrophyAlreadyClaimedException) {
+				console.log('[' + trophyProfile.psnProfile + '] Trophy ' + trophyUrl + ' is already submitted!')
+			} else {
+				console.error(exception);
+			}
 
 			continue;
 		}

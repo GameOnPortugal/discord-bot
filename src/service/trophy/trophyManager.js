@@ -1,4 +1,5 @@
 const models = require('./../../models');
+const TrophyAlreadyClaimedException = require("../../exception/trophy/trophyAlreadyClaimedException");
 const Trophies = models.Trophies;
 
 /**
@@ -56,7 +57,7 @@ module.exports = {
 	create: async function(trophyProfile, url, trophyData) {
 		const trophy = await this.findByUsernameAndUrl(trophyProfile, url);
 		if (trophy) {
-			throw new Error(url + ' has already been claimed!');
+			throw new TrophyAlreadyClaimedException(url + ' has already been claimed!');
 		}
 
 		return await Trophies.create(

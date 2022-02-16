@@ -102,11 +102,13 @@ module.exports = {
 	 */
 	getProfileTrophies: async function(psnProfileUsername, page = 1) {
 		const urls = [];
+		const fetchUrl = 'https://psnprofiles.com/' + psnProfileUsername + '?ajax=1&completion=platinum&order=last-trophy&pf=all&page=' + page;
 
-		return await JSDOM.fromURL('https://psnprofiles.com/' + psnProfileUsername + '?completion=platinum&order=last-trophy&pf=all&page=' + page).then(dom => {
+		return await JSDOM.fromURL(fetchUrl).then(dom => {
 			const $ = require('jquery')(dom.window);
 			const $platinumRows = $('table#gamesTable tr.platinum');
 			if (!$platinumRows.length) {
+				console.log('No platinum trophies row found!');
 				return [];
 			}
 
