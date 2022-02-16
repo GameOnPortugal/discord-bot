@@ -174,14 +174,11 @@ module.exports = {
 						if (createItem) {
 							console.log('Screenshot approved. Creating the item on the db and sending it to the channel!');
 
-							await MessageCreatorUtil
-								.post(this, message.channel, screenshotEmbedded)
-								.then(async m => {
-									m.react(await message.client.emojis.cache.get(emojiEnum.TROPHY_PLAT));
+							const newMessage = await MessageCreatorUtil.post(this, message.channel, screenshotEmbedded);
+							await newMessage.react(await message.client.emojis.cache.get(emojiEnum.TROPHY_PLAT));
 
-									data['message_id'] = m.id;
-									data['channel_id'] = m.channel.id;
-								});
+							data['message_id'] = newMessage.id;
+							data['channel_id'] = newMessage.channel.id;
 
 							ScreenshotManager
 								.create(data)
@@ -197,7 +194,6 @@ module.exports = {
 						else {
 							console.log('Screenshot disapproved. Nothing to see here.');
 						}
-
 
 						await MessageCreatorUtil.releaseLockInteraction(message.author.id);
 
