@@ -10,11 +10,13 @@ services:
     container_name: playstationpt_bot
     volumes:
       - ./:/app:rw
+      - /app/node_modules
     env_file:
       - .env
 
   db:
     image: mysql:5.6
+    platform: linux/x86_64
     container_name: playstationpt_db
     environment:
       MYSQL_ROOT_PASSWORD: 'root'
@@ -22,12 +24,12 @@ services:
       MYSQL_USER: 'app'
       MYSQL_PASSWORD: 'pw'
     volumes:
-      - ./docker/db/data:/var/lib/mysql/data:rw
+      - ./docker/db:/var/lib/mysql:rw
     ports:
       - "3306:3306"
 
   redis:
-    image: redis:3.2.6
+    image: redis:bullseye
     container_name: playstationpt_redis
     volumes:
       - ./docker/redis/redis-data:/var/lib/redis/data:rw
