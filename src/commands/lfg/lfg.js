@@ -5,7 +5,7 @@ dayjs.extend(customParseFormat);
 dayjs.extend(isSameOrBefore);
 
 const Discord = require('discord.js');
-const LfgManager = require('./../../service/lfg/lfgManager');
+const LfgGamesManager = require('../../service/lfg/lfgGamesManager');
 const LfgProfileManager = require('./../../service/lfg/lfgProfileManager');
 
 const MessageCreatorUtil = require('./../../util/messageCreatorUtil');
@@ -220,7 +220,8 @@ module.exports = {
 							if (createItem) {
 								console.log('LFG approved. Creating the item on the db and sending it to the channel!');
 
-								if (!await LfgManager.create(data)) {
+								const lfgGame = await LfgGamesManager.create(data);
+								if (!lfgGame) {
 									await dmchannel.send('Ocorreu um erro ao criar o pedido, tenta de novo dentro de momentos');
 									return;
 								}
@@ -236,6 +237,8 @@ module.exports = {
 								const filter = (reaction) => {
 									return ['👍', '❌'].includes(reaction.emoji.name);
 								};
+
+								LfgGamesManager.updateMessageId(lfgGame.id, newMessage.id);
 
 								const collector = newMessage.createReactionCollector(filter, { time: data['playAt'].diff(now) });
 
