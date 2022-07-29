@@ -10,7 +10,6 @@ services:
     container_name: playstationpt_bot
     volumes:
       - ./:/app:rw
-      - /app/node_modules
     env_file:
       - .env
 
