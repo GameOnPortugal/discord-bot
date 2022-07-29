@@ -12,7 +12,9 @@ module.exports = {
 				type: Sequelize.INTEGER,
 				allowNull: false,
 				references: {
-					model: 'trophyProfile',
+					model: {
+						tableName: 'trophyprofiles',
+					},
 					key: 'id',
 				},
 				onDelete: 'CASCADE',
