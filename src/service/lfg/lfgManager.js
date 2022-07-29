@@ -1,5 +1,5 @@
 const models = require('./../../models');
-const Lfg = models.LookingForGroup;
+const LFGGame = models.LFGGame;
 
 module.exports = {
 	/**
@@ -9,6 +9,6 @@ module.exports = {
    * @returns {Promise<Lfg>}
    */
 	create: async function(lfgData) {
-		return Lfg.create(lfgData);
+		return LFGGame.create(lfgData);
 	},
 };

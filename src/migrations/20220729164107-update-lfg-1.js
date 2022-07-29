@@ -24,11 +24,11 @@ module.exports = {
 				type: Sequelize.INTEGER,
 				defaultValue: 0,
 			},
-			created_at: {
+			createdAt: {
 				allowNull: false,
 				type: Sequelize.DATE,
 			},
-			updated_at: {
+			updatedAt: {
 				allowNull: false,
 				type: Sequelize.DATE,
 			},
@@ -42,6 +42,7 @@ module.exports = {
 		await queryInterface.bulkDelete('lfggames', null, {});
 
 		await queryInterface.removeColumn('lfggames', 'author_id');
+		await queryInterface.removeColumn('lfggames', 'message_id');
 
 		await queryInterface.addColumn('lfggames', 'lfgProfile', {
 			type: Sequelize.INTEGER,
@@ -62,6 +63,9 @@ module.exports = {
 	down: async (queryInterface, Sequelize) => {
 		await queryInterface.removeColumn('lfggames', 'lfgProfile');
 		await queryInterface.addColumn('lfggames', 'author_id', {
+			type: Sequelize.STRING,
+		});
+		await queryInterface.addColumn('lfggames', 'message_id', {
 			type: Sequelize.STRING,
 		});
 		await queryInterface.removeColumn('lfggames', 'platform');
