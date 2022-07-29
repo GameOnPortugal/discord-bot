@@ -89,6 +89,20 @@ module.exports = {
 	usage: 'Inicia um pedido de procura de grupo!'
 		+ '\n `|lfg create`',
 	async execute(message, args) {
+		if (process.env.NODE_ENV === 'development') {
+			// get the user and guild and print to console in a line
+			const user = message.author;
+			const guild = message.guild;
+			console.log(`LFG Command: ${user.username} in ${guild.name} with args: ${args}`);
+			message.reply('LFG Command: ' + user.username + ' in ' + guild.name + ' with args: ' + args);
+		}
+		else {
+			// send message to channel to let the user know that the command is not available
+			message.reply('Este comando não está disponível no momento.');
+			return;
+		}
+
+		/*
 		switch (args[0]) {
 			case 'create': {
 				const data = { author_id: message.author.id };
@@ -237,5 +251,6 @@ module.exports = {
 				break;
 			}
 		}
+		*/
 	},
 };
