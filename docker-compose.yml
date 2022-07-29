@@ -24,12 +24,12 @@ services:
       MYSQL_USER: 'app'
       MYSQL_PASSWORD: 'pw'
     volumes:
-      - ./docker/db:/var/lib/mysql:rw
+      - ./docker/db/data:/var/lib/mysql/data:rw
     ports:
       - "3306:3306"
 
   redis:
-    image: redis:bullseye
+    image: redis:7.0.4
     container_name: playstationpt_redis
     volumes:
       - ./docker/redis/redis-data:/var/lib/redis/data:rw
