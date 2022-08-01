@@ -7,6 +7,7 @@ dayjs.extend(isSameOrBefore);
 const Discord = require('discord.js');
 const LfgGamesManager = require('../../service/lfg/lfgGamesManager');
 const LfgProfileManager = require('./../../service/lfg/lfgProfileManager');
+const LfgEventManager = require('./../../service/lfg/lfgEventManager');
 
 const MessageCreatorUtil = require('./../../util/messageCreatorUtil');
 
@@ -268,6 +269,8 @@ module.exports = {
 							);
 							return;
 						}
+
+						LfgEventManager.createGameEvent(lfgProfile, lfgGame);
 
 						const newMessage = await MessageCreatorUtil.post(
 							this,
