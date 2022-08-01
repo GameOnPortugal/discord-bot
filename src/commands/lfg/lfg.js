@@ -51,7 +51,7 @@ async function handleReact(message, user, emoji) {
 	}
 }
 
-function updateEmbed(original, data) {
+function updateEmbed(original, data, lfgProfile) {
 	const players = [];
 
 	original.reactions
@@ -60,7 +60,7 @@ function updateEmbed(original, data) {
 		.then((userList) => {
 			console.log('UserList for Like:', userList);
 			userList.forEach((user) => {
-				if (!user.bot && user.id !== data.author_id) {
+				if (!user.bot && user.id !== data.user_id) {
 					players.push(`<@${user.id}>`);
 				}
 			});
@@ -72,8 +72,8 @@ function updateEmbed(original, data) {
 				.setDescription(data.description)
 				.addField('Jogo', data.game, false)
 				.addField('Plataforma', data.platform, true)
-				.addField('Autor', `<@${data.author_id}>`, true)
-				.addField('Jogadores', `${1 + players.length}/${data.players}`, true)
+				.addField('Autor', `<@${lfgProfile.user_id}>`, true)
+				.addField('Jogadores', `${players.length}/${data.players}`, true)
 				.addField(
 					'Hora/Data Prevista',
 					data.playAt.format('YYYY-MM-DD HH:mm'),
@@ -220,7 +220,7 @@ module.exports = {
 						.addField('Jogo', data.game, false)
 						.addField('Plataforma', data.platform, true)
 						.addField('Autor', `<@${lfgProfile.user_id}>`, true)
-						.addField('Jogadores', `1/${data.players}`, true)
+						.addField('Jogadores', `0/${data.players}`, true)
 						.addField(
 							'Hora/Data Prevista',
 							data.playAt.format('YYYY-MM-DD HH:mm'),
@@ -293,7 +293,7 @@ module.exports = {
 
 						collector.on('collect', async (reaction, _user) => {
 							await handleReact(newMessage, _user, reaction.emoji.name);
-							updateEmbed(newMessage, data);
+							updateEmbed(newMessage, data, lfgProfile);
 						});
 
 						await dmchannel.send(
