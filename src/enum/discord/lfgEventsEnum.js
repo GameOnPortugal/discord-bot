@@ -15,5 +15,6 @@ module.exports = {
 		participation: lfgevent('participation', 10),
 		leaving: lfgevent('leaving', -10),
 		miss: lfgevent('miss', -10),
+		report: lfgevent('report', 0),
 	},
 };

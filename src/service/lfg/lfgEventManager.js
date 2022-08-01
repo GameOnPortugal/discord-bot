@@ -83,4 +83,21 @@ module.exports = {
 		return lfgEvent;
 	},
 
+	reportEvent: async (issuerId, targetProfile, lfgGame, detail, options) => {
+		const lfgEvent = await LFGEvent.create({
+			lfg_profile_id: options.hasLfgProfile ? (await lfgProfileManager.getProfile(issuerId)).id : null,
+			lfg_game_id: options.hasLfgGame ? lfgGame.id : null,
+			type: LFG_EVENTS.report.name,
+			points: LFG_EVENTS.report.points,
+			detail,
+			is_addressed: false,
+			admin_note: null,
+			report_user_id: targetProfile.id,
+			admin_user_id: options.isAdmin ? issuerId : null,
+		});
+
+		console.log(`LFG Event: ${lfgEvent.type} created!:\n ${lfgEvent}`);
+		return lfgEvent;
+	},
+
 };

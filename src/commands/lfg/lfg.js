@@ -346,7 +346,7 @@ module.exports = {
 				return;
 			}
 			case 'miss': {
-				if (args.length < 2) {
+				if (args.length < 4) {
 					message.reply('Comando inválido. Use `lfg miss <game_id> <@user> <details>`');
 					return;
 				}
@@ -403,6 +403,72 @@ module.exports = {
 					return;
 				}
 				message.reply('Falta reportada com sucesso. Obrigado.');
+
+				return;
+			}
+			case 'report': {
+				let i = 1;
+				let game = null;
+				const options = {
+					isAdmin: false,
+					hasLfgProfile: true,
+					hasLfgGame: false,
+				};
+
+				if (args.length < 3) {
+					message.reply('Comando inválido. Use `lfg report [<game_id>] <@user> <details>`');
+					return;
+				}
+
+				if (Number.isInteger(Number(args[i++]))) {
+					const gameId = args[1];
+					game = await LfgGamesManager.getGameById(gameId);
+					if (!game) {
+						message.reply('Não consegui encontrar o LFG Game.');
+						return;
+					}
+					options.hasLfgGame = true;
+				}
+
+				const user = await LfgProfileManager.getProfile(message.author.id);
+				const details = args.slice(i + 1).join(' ');
+
+				if (!user) {
+					message.reply('Não tens um perfil LFG. Cria um pedido LFG ou entra num já existente!');
+					if (!PermissionsUtil.isAdmin(message.member)) {
+						message.reply('... E não tens permissão para fazer isso!');
+						return;
+					}
+					options.hasLfgProfile = false;
+					options.isAdmin = true;
+				}
+
+				const reportedUser = await LfgProfileManager.getProfile(message.mentions.users.first().id);
+				if (!reportedUser) {
+					message.reply(`Não consegui encontrar o utilizador <@${reportedUser.user_id}>`);
+					return;
+				}
+
+				const reportEvent = await LfgEventManager.reportEvent(
+					message.author.id,
+					reportedUser,
+					game,
+					details,
+					options,
+				);
+				if (!reportEvent) {
+					message.reply('Ocorreu um erro ao reportar o utilizador.');
+					return;
+				}
+				message.reply('Utilizador reportado com sucesso. Obrigado.');
+
+				// enviar mensagem para canal ID: 1003663012256825484
+				const channel = message.client.channels.cache.get(message.channel.id);
+				if (channel) {
+					channel.send(`<@${message.author.id}> reportou <@${reportedUser.user_id}>` +
+					`${game ? ` no jogo **${game.game}**(${game.id})` : ''}` +
+					`${details ? `:\n ${details}` : ''}`);
+				}
 
 				return;
 			}
