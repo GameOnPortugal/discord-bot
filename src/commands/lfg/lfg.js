@@ -10,6 +10,7 @@ const LfgProfileManager = require('./../../service/lfg/lfgProfileManager');
 const LfgEventManager = require('./../../service/lfg/lfgEventManager');
 
 const MessageCreatorUtil = require('./../../util/messageCreatorUtil');
+const PermissionsUtil = require('../../util/permissionsUtil');
 
 const questions = {
 	game: {
@@ -126,7 +127,9 @@ module.exports = {
 	guildOnly: true,
 	args: true,
 	description: 'Find a group of players for a gaming session',
-	usage: 'Inicia um pedido de procura de grupo!' + '\n `|lfg create`',
+	usage: 'Inicia um pedido de procura de grupo!' +
+	'\n `|lfg create`' +
+	'\n `|lfg miss <game_id> <@user> <Details>`',
 	async execute(message, args) {
 		if (process.env.NODE_ENV !== 'development') {
 			// send message to channel to let the user know that the command is not available
@@ -340,6 +343,67 @@ module.exports = {
 						console.log('LFG cancelled. Nothing to see here.');
 					}
 				});
+				return;
+			}
+			case 'miss': {
+				if (args.length < 2) {
+					message.reply('Comando inválido. Use `lfg miss <game_id> <@user> <details>`');
+					return;
+				}
+
+				const gameId = args[1];
+				const targetUser = await LfgProfileManager.getProfile(message.mentions.users.first().id);
+				const details = args.slice(3).join(' ');
+				const user = await LfgProfileManager.getProfile(message.author.id);
+
+				const options = {
+					isAdmin: false,
+					hasLfgProfile: true,
+				};
+
+				if (!user) {
+					message.reply('Não tens um perfil LFG. Cria um pedido LFG ou entra num já existente!');
+					if (!PermissionsUtil.isAdmin(message.member)) {
+						message.reply('... E não tens permissão para fazer isso!');
+						return;
+					}
+					options.hasLfgProfile = false;
+					options.isAdmin = true;
+				}
+
+				if (!targetUser) {
+					message.reply(`Não consegui encontrar o utilizador <@${targetUser.user_id}>`);
+					return;
+				}
+
+				const lfgGame = await LfgGamesManager.getGameById(gameId);
+				if (!lfgGame) {
+					message.reply('Não consegui encontrar o LFG Game.');
+					return;
+				}
+
+				// game has to be at least 5 min in
+				const playAt = dayjs(lfgGame.playAt);
+
+				if (playAt.diff('minutes') < 5) {
+					message.reply('Só podes reportar a falta se o jogo tiver começado há pelo menos 5 minutos.');
+					return;
+				}
+
+				const participants = await LfgGamesManager.getParticipants(lfgGame);
+				const participantsIds = participants.map((p) => p.lfgProfile.id);
+				if (!participantsIds.includes(targetUser.id)) {
+					message.reply('Este utilizador não está no jogo.');
+					return;
+				}
+
+				const miss = await LfgEventManager.missEvent(message.author.id, targetUser, lfgGame, details, options);
+				if (!miss) {
+					message.reply('Ocorreu um erro ao reportar a falta ou já foi reportada anteriormente.');
+					return;
+				}
+				message.reply('Falta reportada com sucesso. Obrigado.');
+
 				return;
 			}
 		}

@@ -70,4 +70,15 @@ module.exports = {
 			include: ['lfgGame', 'lfgProfile'],
 		});
 	},
+
+	/**
+     * Get Game by Id
+     */
+	getGameById: async function(id) {
+		return await LFGGame.findOne({
+			where: {
+				id,
+			},
+		});
+	},
 };
