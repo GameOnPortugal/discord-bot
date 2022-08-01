@@ -34,8 +34,23 @@ const questions = {
 	},
 };
 
-async function handleReact(message, user, emoji) {
+async function handleReact(message, user, emoji, lfgGame) {
 	console.log('React from:', user, 'with emoji:', emoji);
+
+	const lfgProfile = await LfgProfileManager.handleGetOrCreateProfile(user.id);
+	if (lfgProfile.is_banned) {
+		return message.reply('Você está banido do LFG! :no_entry:');
+	}
+	if (emoji === '👍') {
+		// add participation
+		const participation = await LfgGamesManager.addParticipation(lfgGame, lfgProfile);
+		console.log('Added participation:', participation);
+	}
+	else {
+		// remove participation
+		const participation = await LfgGamesManager.removeParticipation(lfgGame, lfgProfile);
+		console.log('Removed participation:', participation);
+	}
 
 	const userReactions = message.reactions.cache.filter((reaction) =>
 		reaction.users.cache.has(user.id),
@@ -52,48 +67,39 @@ async function handleReact(message, user, emoji) {
 	}
 }
 
-function updateEmbed(original, data, lfgProfile) {
-	const players = [];
+async function updateEmbed(original, lfgProfile, lfgGame) {
+	const participating = await LfgGamesManager.getParticipants(lfgGame);
 
-	original.reactions
-		.resolve('👍')
-		.users.fetch()
-		.then((userList) => {
-			console.log('UserList for Like:', userList);
-			userList.forEach((user) => {
-				if (!user.bot && user.id !== data.user_id) {
-					players.push(`<@${user.id}>`);
-				}
-			});
-			console.log('New party:', players);
+	console.log('Participating:', participating);
 
-			const editedLfgMessage = new Discord.MessageEmbed()
-				.setColor('#0099ff')
-				.setTitle('Procura de Grupo')
-				.setDescription(data.description)
-				.addField('Jogo', data.game, false)
-				.addField('Plataforma', data.platform, true)
-				.addField('Autor', `<@${lfgProfile.user_id}>`, true)
-				.addField('Jogadores', `${players.length}/${data.players}`, true)
-				.addField(
-					'Hora/Data Prevista',
-					data.playAt.format('YYYY-MM-DD HH:mm'),
-					true,
-				);
+	const editedLfgMessage = new Discord.MessageEmbed()
+		.setColor('#0099ff')
+		.setTitle('Procura de Grupo')
+		.setDescription(lfgGame.description)
+		.addField('Jogo', lfgGame.game, false)
+		.addField('Plataforma', lfgGame.platform, true)
+		.addField('Autor', `<@${lfgProfile.user_id}>`, true)
+		.addField('Jogadores', `${participating.length}/${lfgGame.players}`, true)
+		.addField(
+			'Hora/Data Prevista',
+			dayjs(lfgGame.playAt).format('YYYY-MM-DD HH:mm'),
+			true,
+		);
 
-			if (players.length !== 0) {
-				editedLfgMessage.addField('Aceite', players.join(' '));
-			}
+	const playerIds = participating.map((participant) => `<@${participant.lfgProfile.user_id}>`);
 
-			editedLfgMessage
-				.addField('\u200B', 'Reage com :thumbsup: para te juntares!')
-				.setThumbnail('https://i.ibb.co/LzHsvdn/Transparent-2.png')
-				.setTimestamp()
-				.setFooter('|lfg create', 'https://i.ibb.co/LzHsvdn/Transparent-2.png');
+	if (participating.length !== 0) {
+		editedLfgMessage.addField('Aceite', playerIds.join(' '));
+	}
 
-			original.edit(editedLfgMessage);
-			console.log('Edited embed');
-		});
+	editedLfgMessage
+		.addField('\u200B', 'Reage com :thumbsup: para te juntares!')
+		.setThumbnail('https://i.ibb.co/LzHsvdn/Transparent-2.png')
+		.setTimestamp()
+		.setFooter('|lfg create', 'https://i.ibb.co/LzHsvdn/Transparent-2.png');
+
+	original.edit(editedLfgMessage);
+	console.log('Edited embed');
 }
 
 module.exports = {
@@ -295,8 +301,8 @@ module.exports = {
 						});
 
 						collector.on('collect', async (reaction, _user) => {
-							await handleReact(newMessage, _user, reaction.emoji.name);
-							updateEmbed(newMessage, data, lfgProfile);
+							await handleReact(newMessage, _user, reaction.emoji.name, lfgGame);
+							await updateEmbed(newMessage, lfgProfile, lfgGame);
 						});
 
 						await dmchannel.send(
