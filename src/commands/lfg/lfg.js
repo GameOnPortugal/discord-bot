@@ -21,7 +21,8 @@ const questions = {
 		validator: /^.*$/,
 	},
 	description: {
-		question: 'Adiciona uma descrição ao teu pedido! Ex: "Cross play possivel", "Raid completa ou checkpoint X", "Noob-friendly"',
+		question:
+      'Adiciona uma descrição ao teu pedido! Ex: "Cross play possivel", "Raid completa ou checkpoint X", "Noob-friendly"',
 		validator: /^.*$/,
 	},
 	players: {
@@ -29,7 +30,8 @@ const questions = {
 		validator: /^[1-9][0-9]*$/,
 	},
 	playAt: {
-		question: 'Quando está prevista a sessão de jogo (DD-MM-YYYY HH:MM ou HH:MM)? ex: "30-07-2021 08:03", "23:50"',
+		question:
+      'Quando está prevista a sessão de jogo (DD-MM-YYYY HH:MM ou HH:MM)? ex: "30-07-2021 08:03", "23:50"',
 		validator: /^(?:\d{2}-\d{2}-\d{4} )*\d{2}:\d{2}$/,
 	},
 };
@@ -38,23 +40,38 @@ async function handleReact(message, user, emoji, lfgGame) {
 	console.log('React from:', user, 'with emoji:', emoji);
 
 	const lfgProfile = await LfgProfileManager.handleGetOrCreateProfile(user.id);
+	const userReactions = message.reactions.cache.filter((reaction) =>
+		reaction.users.cache.has(user.id),
+	);
 	if (lfgProfile.is_banned) {
-		return message.reply('Você está banido do LFG! :no_entry:');
+		// send message to user saying they are banned from LFG
+		return user.createDM().then((dm) => {
+			for (const reaction of userReactions.values()) {
+				reaction.users.remove(user.id);
+			}
+			dm.send(
+				'Foste banido do LFG, e por isso não podes reagir a posts!\n' +
+          'Para mais informações, entre em contato com o administrador do servidor.',
+			);
+		});
 	}
 	if (emoji === '👍') {
 		// add participation
-		const participation = await LfgGamesManager.addParticipation(lfgGame, lfgProfile);
+		const participation = await LfgGamesManager.addParticipation(
+			lfgGame,
+			lfgProfile,
+		);
 		console.log('Added participation:', participation);
 	}
 	else {
 		// remove participation
-		const participation = await LfgGamesManager.removeParticipation(lfgGame, lfgProfile);
+		const participation = await LfgGamesManager.removeParticipation(
+			lfgGame,
+			lfgProfile,
+		);
 		console.log('Removed participation:', participation);
 	}
 
-	const userReactions = message.reactions.cache.filter((reaction) =>
-		reaction.users.cache.has(user.id),
-	);
 	try {
 		console.log('Reactions:', userReactions.values());
 		for (const reaction of userReactions.values()) {
@@ -86,7 +103,9 @@ async function updateEmbed(original, lfgProfile, lfgGame) {
 			true,
 		);
 
-	const playerIds = participating.map((participant) => `<@${participant.lfgProfile.user_id}>`);
+	const playerIds = participating.map(
+		(participant) => `<@${participant.lfgProfile.user_id}>`,
+	);
 
 	if (participating.length !== 0) {
 		editedLfgMessage.addField('Aceite', playerIds.join(' '));
@@ -122,10 +141,13 @@ module.exports = {
 					userId,
 				);
 				if (lfgProfile.is_banned) {
-					message.reply(
-						'Foste banido do LFG! Contacta o administrador do servidor para mais informações.',
-					);
-					return;
+					// send message to user saying they are banned from LFG
+					return message.author.createDM().then((dm) => {
+						dm.send(
+							'Foste banido do LFG.\n' +
+                'Para mais informações, entre em contato com o administrador do servidor.',
+						);
+					});
 				}
 
 				console.log('LFG Profile:', lfgProfile);
@@ -301,7 +323,12 @@ module.exports = {
 						});
 
 						collector.on('collect', async (reaction, _user) => {
-							await handleReact(newMessage, _user, reaction.emoji.name, lfgGame);
+							await handleReact(
+								newMessage,
+								_user,
+								reaction.emoji.name,
+								lfgGame,
+							);
 							await updateEmbed(newMessage, lfgProfile, lfgGame);
 						});
 
