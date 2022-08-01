@@ -20,4 +20,37 @@ module.exports = {
 		console.log(`LFG Event: ${lfgEvent.type} created!`);
 		return lfgEvent;
 	},
+
+	participateEvent: async (lfgProfile, lfgGame) => {
+		const lfgEvent = await LFGEvent.create({
+			lfg_profile_id: lfgProfile.id,
+			lfg_game_id: lfgGame.id,
+			type: LFG_EVENTS.participation.name,
+			points: LFG_EVENTS.participation.points,
+			detail: 'participating on game',
+			is_addressed: true,
+			admin_note: null,
+			report_user_id: null,
+			admin_user_id: null,
+		});
+		console.log(`LFG Event: ${lfgEvent.type} created!`);
+		return lfgEvent;
+	},
+
+	leaveEvent: async (lfgProfile, lfgGame) => {
+		const lfgEvent = await LFGEvent.create({
+			lfg_profile_id: lfgProfile.id,
+			lfg_game_id: lfgGame.id,
+			type: LFG_EVENTS.leaving.name,
+			points: LFG_EVENTS.leaving.points,
+			detail: 'leaving game',
+			is_addressed: true,
+			admin_note: null,
+			report_user_id: null,
+			admin_user_id: null,
+		});
+		console.log(`LFG Event: ${lfgEvent.type} created!`);
+		return lfgEvent;
+	},
+
 };
