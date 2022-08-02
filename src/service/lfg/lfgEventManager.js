@@ -133,4 +133,23 @@ module.exports = {
 		});
 		return reports;
 	},
+
+	getEventById: async (id) => {
+		const event = await LFGEvent.findOne({
+			where: {
+				id,
+			},
+		});
+		return event;
+	},
+
+	resolveReport: async (report, points, notes, adminId) => {
+		report.admin_user_id = adminId;
+		report.admin_note = notes;
+		report.points = points;
+		report.is_addressed = true;
+		await report.save();
+		console.log(`LFG Event: ${report.type} resolved!`);
+		return report;
+	},
 };

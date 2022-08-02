@@ -45,7 +45,6 @@ function buildReportEmbed(report, userId) {
 		.addField('Reportado', `<@${report.report_user_id}>`, true)
 		.addField('Reportado Por', `<@${userId}>`, true)
 		.addField('Status', report.is_addressed ? 'Resolvido' : 'Aberto', true)
-		.addField('Admin', report.admin_user_id ? `<@${report.admin_user_id}>` : 'N/A', true)
 		.addField('ID', report.id, true)
 		.setTimestamp(report.createdAt)
 		.setThumbnail('https://i.ibb.co/LzHsvdn/Transparent-2.png')
@@ -54,6 +53,13 @@ function buildReportEmbed(report, userId) {
 	if (report.lfg_game_id) {
 		embed.addField('Jogo', `${report.game.game} (${report.game.id})`, true);
 	}
+
+	if (report.is_addressed) {
+		embed.addField('Pontos', report.points);
+		embed.addField('Admin', report.admin_user_id ? `<@${report.admin_user_id}>` : 'N/A');
+		embed.addField('Notas Admin', report.admin_note);
+	}
+
 
 	return embed;
 }
@@ -557,6 +563,48 @@ module.exports = {
 				}
 
 				return;
+			}
+			case 'resolve': {
+				// |lfg resolve <id> <points> [note...]
+				if (args.length < 3) {
+					message.reply('Comando inválido. Use `|lfg resolve <id> <points> [note...]`');
+					return;
+				}
+
+				// only admins can do this
+				if (!(await PermissionsUtil.isAdmin(message.member)) && process.env.NODE_ENV !== 'development') {
+					message.reply('Não tens permissão para fazer isso!');
+					return;
+				}
+
+				const id = args[1];
+				const points = parseInt(args[2]);
+				if (isNaN(points)) {
+					message.reply('Comando inválido. Use `|lfg resolve <id> <points> [note...]`');
+					return;
+				}
+
+				const note = args.slice(3).join(' ');
+				// get report
+				const report = await LfgEventManager.getEventById(id);
+
+				if (!report) {
+					message.reply('Report inválido.');
+					return;
+				}
+				if (report.is_addressed) {
+					message.reply('Report já foi resolvido.');
+					return;
+				}
+
+				// resolve report
+				const resolved = await LfgEventManager.resolveReport(report, points, note, message.author.id);
+				if (!resolved) {
+					message.reply('Ocorreu um erro ao resolver o report.');
+					return;
+				}
+
+				message.reply('Report resolvido com sucesso.');
 			}
 		}
 		await message.reply(
