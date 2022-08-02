@@ -57,7 +57,7 @@ function buildReportEmbed(report, userId) {
 	if (report.is_addressed) {
 		embed.addField('Pontos', report.points);
 		embed.addField('Admin', report.admin_user_id ? `<@${report.admin_user_id}>` : 'N/A');
-		embed.addField('Notas Admin', report.admin_note);
+		embed.addField('Notas Admin', report.admin_note ? report.admin_note : 'N/A');
 	}
 
 
@@ -511,9 +511,9 @@ module.exports = {
 				// enviar mensagem para canal ID: 1003663012256825484
 				const channel = message.client.channels.cache.get('1003663012256825484');
 				if (channel) {
-					channel.send(`<@${message.author.id}> reportou <@${reportedUser.user_id}>` +
-					`${game ? ` no jogo **${game.game}**(${game.id})` : ''}` +
-					`${details ? `:\n ${details}` : ''}`);
+					const report = await LfgEventManager.getEventById(reportEvent.id);
+					const embed = buildReportEmbed(report, message.author.id);
+					channel.send(embed);
 				}
 
 				return;
