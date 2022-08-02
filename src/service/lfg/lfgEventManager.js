@@ -92,7 +92,7 @@ module.exports = {
 			detail,
 			is_addressed: false,
 			admin_note: null,
-			report_user_id: targetProfile.id,
+			report_user_id: targetProfile.user_id,
 			admin_user_id: options.isAdmin ? issuerId : null,
 		});
 
@@ -100,4 +100,37 @@ module.exports = {
 		return lfgEvent;
 	},
 
+	getReportsDoneByUser: async (lfgProfile) => {
+		const reports = await LFGEvent.findAll({
+			where: {
+				lfg_profile_id: lfgProfile.id,
+				type: LFG_EVENTS.report.name,
+			},
+			include: [{
+				model: models.LFGGame,
+				as: 'game',
+			}],
+		});
+		return reports;
+	},
+
+	getReportsDoneToUser: async (lfgProfile) => {
+		const reports = await LFGEvent.findAll({
+			where: {
+				report_user_id: lfgProfile.user_id,
+				type: LFG_EVENTS.report.name,
+			},
+			include: [
+				{
+					model: models.LFGGame,
+					as: 'game',
+				},
+				{
+					model: models.LFGProfile,
+					as: 'lfgProfile',
+				},
+			],
+		});
+		return reports;
+	},
 };

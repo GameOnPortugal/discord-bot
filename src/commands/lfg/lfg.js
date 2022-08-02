@@ -37,6 +37,27 @@ const questions = {
 	},
 };
 
+function buildReportEmbed(report, userId) {
+	const embed = new Discord.MessageEmbed()
+		.setTitle('LFG Report')
+		.setDescription(`${report.detail}`)
+		.setColor(report.is_addressed ? '#00ff00' : '#0000ff')
+		.addField('Reportado', `<@${report.report_user_id}>`, true)
+		.addField('Reportado Por', `<@${userId}>`, true)
+		.addField('Status', report.is_addressed ? 'Resolvido' : 'Aberto', true)
+		.addField('Admin', report.admin_user_id ? `<@${report.admin_user_id}>` : 'N/A', true)
+		.addField('ID', report.id, true)
+		.setTimestamp(report.createdAt)
+		.setThumbnail('https://i.ibb.co/LzHsvdn/Transparent-2.png')
+		.setFooter('|lfg reports', 'https://i.ibb.co/LzHsvdn/Transparent-2.png');
+
+	if (report.lfg_game_id) {
+		embed.addField('Jogo', `${report.game.game} (${report.game.id})`, true);
+	}
+
+	return embed;
+}
+
 async function handleReact(message, user, emoji, lfgGame) {
 	console.log('React from:', user, 'with emoji:', emoji);
 
@@ -468,6 +489,71 @@ module.exports = {
 					channel.send(`<@${message.author.id}> reportou <@${reportedUser.user_id}>` +
 					`${game ? ` no jogo **${game.game}**(${game.id})` : ''}` +
 					`${details ? `:\n ${details}` : ''}`);
+				}
+
+				return;
+			}
+			case 'reports': {
+				if (args.length > 2) {
+					message.reply('Comando inválido. Use `lfg reports [<@user_id>]`');
+					return;
+				}
+
+				let userId = message.author.id;
+
+				if (args.length === 2) {
+					userId = message.mentions.users.first().id;
+				}
+
+				// get LFGProfile
+				const lfgProfile = await LfgProfileManager.getProfile(userId);
+				if (!lfgProfile) {
+					message.reply('Este utilizador não tem perfil LFG.');
+					return;
+				}
+
+				// get reports
+				const reports = await LfgEventManager.getReportsDoneByUser(lfgProfile);
+				if (reports.length === 0) {
+					message.reply(`Utilizador <@${userId}> não reportou nenhum utilizador.`);
+					return;
+				}
+
+				message.reply(`Aqui estão os reports feitos por <@${userId}>:`);
+				// send reports
+				for (const report of reports) {
+					const embed = buildReportEmbed(report, userId);
+					message.channel.send(embed);
+				}
+				return;
+			}
+			case 'reported': {
+				if (args.length > 2) {
+					message.reply('Comando inválido. Use `lfg reported [<@user_id>]`');
+					return;
+				}
+				let userId = message.author.id;
+				if (args.length === 2) {
+					userId = message.mentions.users.first().id;
+				}
+				// get LFGProfile
+				const lfgProfile = await LfgProfileManager.getProfile(userId);
+				if (!lfgProfile) {
+					message.reply('Este utilizador não tem perfil LFG.');
+					return;
+				}
+				// get reports
+				const reports = await LfgEventManager.getReportsDoneToUser(lfgProfile);
+
+				if (reports.length === 0) {
+					message.reply(`Utilizador <@${userId}> não recebeu nenhum report.`);
+					return;
+				}
+				message.reply(`Aqui estão os reports feitos para <@${userId}>:`);
+				// send reports
+				for (const report of reports) {
+					const embed = buildReportEmbed(report, report.lfgProfile.user_id);
+					message.channel.send(embed);
 				}
 
 				return;
