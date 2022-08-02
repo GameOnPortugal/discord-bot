@@ -2,6 +2,7 @@ const { LFG_EVENTS } = require('../../enum/discord/lfgEventsEnum');
 const models = require('../../models');
 const lfgProfileManager = require('./lfgProfileManager');
 const LFGEvent = models.LFGEvent;
+const { Op } = require('sequelize');
 
 
 module.exports = {
@@ -75,7 +76,7 @@ module.exports = {
 			detail,
 			is_addressed: true,
 			admin_note: null,
-			report_user_id: targetProfile.id,
+			report_user_id: targetProfile.user_id,
 			admin_user_id: options.isAdmin ? issuerId : null,
 		});
 
@@ -139,6 +140,16 @@ module.exports = {
 			where: {
 				id,
 			},
+			include: [
+				{
+					model: models.LFGProfile,
+					as: 'lfgProfile',
+				},
+				{
+					model: models.LFGGame,
+					as: 'game',
+				},
+			],
 		});
 		return event;
 	},
@@ -151,5 +162,37 @@ module.exports = {
 		await report.save();
 		console.log(`LFG Event: ${report.type} resolved!`);
 		return report;
+	},
+
+	getCommendsLeft: async (lfgProfile) => {
+		// number of commendations done on the last 7 days by the user
+		const commendations = await LFGEvent.findAll({
+			where: {
+				lfg_profile_id: lfgProfile.id,
+				type: LFG_EVENTS.commendation.name,
+				createdAt: {
+					[Op.gte]: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+				},
+			},
+		});
+
+		return 5 - commendations.length;
+	},
+
+	createCommend: async (userId, commendedUser, game, details, options) => {
+		const lfgEvent = await LFGEvent.create({
+			lfg_profile_id: options.hasLfgProfile ? (await lfgProfileManager.getProfile(userId)).id : null,
+			lfg_game_id: options.hasLfgGame ? game.id : null,
+			type: LFG_EVENTS.commendation.name,
+			points: LFG_EVENTS.commendation.points,
+			detail: details,
+			is_addressed: true,
+			admin_note: null,
+			report_user_id: commendedUser.user_id,
+			admin_user_id: options.isAdmin ? userId : null,
+		});
+
+		console.log(`LFG Event: ${lfgEvent.type} created!:\n ${lfgEvent}`);
+		return lfgEvent;
 	},
 };

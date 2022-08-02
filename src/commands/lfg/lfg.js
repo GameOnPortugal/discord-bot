@@ -64,6 +64,24 @@ function buildReportEmbed(report, userId) {
 	return embed;
 }
 
+function buildCommendationEmbed(commend, userId) {
+	const embed = new Discord.MessageEmbed()
+		.setTitle('LFG Commendation')
+		.setDescription(`${commend.detail}`)
+		.setColor('#00ff00')
+		.addField('Utilizador Recomendado', `<@${commend.report_user_id}>`, true)
+		.addField('Recomendado Por', `<@${userId}>`, true)
+		.setTimestamp(commend.createdAt)
+		.setThumbnail('https://i.ibb.co/LzHsvdn/Transparent-2.png')
+		.setFooter('|lfg reports', 'https://i.ibb.co/LzHsvdn/Transparent-2.png');
+
+	if (commend.lfg_game_id) {
+		embed.addField('Jogo', `${commend.game.game} (${commend.game.id})`, true);
+	}
+
+	return embed;
+}
+
 async function handleReact(message, user, emoji, lfgGame) {
 	console.log('React from:', user, 'with emoji:', emoji);
 
@@ -447,13 +465,14 @@ module.exports = {
 					return;
 				}
 
-				if (Number.isInteger(Number(args[i++]))) {
+				if (Number.isInteger(Number(args[i]))) {
 					const gameId = args[1];
 					game = await LfgGamesManager.getGameById(gameId);
 					if (!game) {
 						message.reply('Não consegui encontrar o LFG Game.');
 						return;
 					}
+					i++;
 					options.hasLfgGame = true;
 				}
 
@@ -565,7 +584,6 @@ module.exports = {
 				return;
 			}
 			case 'resolve': {
-				// |lfg resolve <id> <points> [note...]
 				if (args.length < 3) {
 					message.reply('Comando inválido. Use `|lfg resolve <id> <points> [note...]`');
 					return;
@@ -605,6 +623,80 @@ module.exports = {
 				}
 
 				message.reply('Report resolvido com sucesso.');
+				return;
+			}
+			case 'commend': {
+				if (args.length < 3) {
+					message.reply('Comando inválido. Use `|lfg commend [gameId] <@username> [note...]`');
+					return;
+				}
+
+				let i = 1;
+				let game = null;
+				const options = {
+					isAdmin: false,
+					hasLfgProfile: true,
+					hasLfgGame: false,
+				};
+
+				if (args.length < 3) {
+					message.reply('Comando inválido. Use `|lfg commend [<game_id>] <@user> <details>`');
+					return;
+				}
+
+				if (Number.isInteger(Number(args[i]))) {
+					const gameId = args[1];
+					game = await LfgGamesManager.getGameById(gameId);
+					if (!game) {
+						message.reply('Não consegui encontrar o LFG Game.');
+						return;
+					}
+					i++;
+					options.hasLfgGame = true;
+				}
+
+				const details = args.slice(i + 1).join(' ');
+
+				const user = await LfgProfileManager.getProfile(message.author.id);
+				if (!user) {
+					message.reply('Não tens perfil LFG.');
+					if (!(await PermissionsUtil.isAdmin(message.member))) {
+						message.reply('... E não tens permissão para fazer isso! Cria um pedido LFG ou entra num já existente.');
+						return;
+					}
+					options.isAdmin = true;
+					options.hasLfgProfile = false;
+				}
+
+				const commendsLeft = await LfgEventManager.getCommendsLeft(user);
+				if (commendsLeft === 0) {
+					message.reply('Não podes fazer mais recomendações, já atingiste o limite para os últimos 7 dias.');
+					return;
+				}
+
+				const commendedUser = await LfgProfileManager.getProfile(message.mentions.users.first().id);
+				if (!commendedUser) {
+					message.reply('Este utilizador não tem perfil LFG.');
+					return;
+				}
+
+				let report = await LfgEventManager.createCommend(message.author.id, commendedUser, game, details, options);
+				if (!report) {
+					message.reply('Ocorreu um erro ao criar o report.');
+					return;
+				}
+
+				message.reply(
+					`Recomendação criada com sucesso. Tens **${commendsLeft - 1}** recomendações restantes.` +
+					'\nExiste um máximo de 5 recomendações por utilizador por semana.',
+				);
+
+				// the game property was not being updated on create so we need to query again
+				report = await LfgEventManager.getEventById(report.id);
+				const embed = buildCommendationEmbed(report, message.author.id);
+				message.channel.send(embed);
+
+				return;
 			}
 		}
 		await message.reply(
