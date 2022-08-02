@@ -51,4 +51,9 @@ module.exports = {
 		return lfgProfiles;
 	},
 
+	getAllProfiles: async function() {
+		const lfgProfiles = await LFGProfile.findAll();
+		return lfgProfiles;
+	},
+
 };

@@ -729,6 +729,44 @@ module.exports = {
 
 					message.channel.send(rankMessage);
 				}
+				else if (rankType === 'monthly') {
+					// current month
+					let month = new Date().getMonth();
+					if (args.length == 3) {
+						// if number ok, use it
+						if (Number.isInteger(Number(args[2]))) {
+							month = Number(args[2] - 1);
+						}
+						else {
+							message.reply('Comando inválido. Use `|lfg rank monthly [month] - month must be a number`');
+							return;
+						}
+					}
+
+					const allProfiles = await LfgProfileManager.getAllProfiles();
+					for (let i = 0; i < allProfiles.length; i++) {
+						const profile = allProfiles[i];
+						const points = await LfgEventManager.getPointsMonthly(profile, new Date(new Date().getFullYear(), month, 1));
+						profile.points = points;
+					}
+
+					const sortedLfgProfiles = allProfiles.sort((a, b) => b.points - a.points);
+					let rankMessage = '';
+
+					for (let i = 0; i < sortedLfgProfiles.length; i++) {
+						rankMessage += `\`${i + 1}.\` <@${sortedLfgProfiles[i].user_id}> with **${sortedLfgProfiles[i].points}** points\n`;
+					}
+
+					rankMessage = new Discord.MessageEmbed()
+						.setColor('#0099ff')
+						.setTitle('Top Monthly LFG Profiles')
+						.setDescription(rankMessage)
+						.setThumbnail('https://i.ibb.co/LzHsvdn/Transparent-2.png')
+						.setTimestamp()
+						.setFooter('|lfg rank monthly', 'https://i.ibb.co/LzHsvdn/Transparent-2.png');
+
+					message.channel.send(rankMessage);
+				}
 
 				return;
 			}

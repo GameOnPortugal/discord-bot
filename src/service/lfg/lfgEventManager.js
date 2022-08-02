@@ -195,4 +195,21 @@ module.exports = {
 		console.log(`LFG Event: ${lfgEvent.type} created!:\n ${lfgEvent}`);
 		return lfgEvent;
 	},
+
+	/**
+	 * Get all Points for a specific user on a specific month
+	 */
+	getPointsMonthly: async (lfgProfile, date) => {
+		const points = await LFGEvent.findAll({
+			where: {
+				lfg_profile_id: lfgProfile.id,
+				updatedAt: {
+					[Op.gte]: new Date(date.getFullYear(), date.getMonth(), 1),
+					[Op.lte]: new Date(date.getFullYear(), (date.getMonth() + 1) % 11, 0),
+				},
+			},
+			attributes: ['points'],
+		});
+		return points.reduce((acc, point) => acc + point.points, 0);
+	},
 };
