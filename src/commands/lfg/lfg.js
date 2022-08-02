@@ -732,13 +732,27 @@ module.exports = {
 				else if (rankType === 'monthly') {
 					// current month
 					let month = new Date().getMonth();
+					let year = new Date().getFullYear();
 					if (args.length == 3) {
 						// if number ok, use it
 						if (Number.isInteger(Number(args[2]))) {
 							month = Number(args[2] - 1);
 						}
+						// can be MM/YYYY or M/YYYY
+						else if (args[2].length === 7 || args[2].length === 6) {
+							const monthYear = args[2].split('/').map(Number);
+							const date = new Date(monthYear[1], monthYear[0] - 1);
+							if (date) {
+								month = date.getMonth();
+								year = date.getFullYear();
+							}
+							else {
+								message.reply('Data inválida.');
+								return;
+							}
+						}
 						else {
-							message.reply('Comando inválido. Use `|lfg rank monthly [month] - month must be a number`');
+							message.reply('Data inválida.');
 							return;
 						}
 					}
@@ -746,7 +760,7 @@ module.exports = {
 					const allProfiles = await LfgProfileManager.getAllProfiles();
 					for (let i = 0; i < allProfiles.length; i++) {
 						const profile = allProfiles[i];
-						const points = await LfgEventManager.getPointsMonthly(profile, new Date(new Date().getFullYear(), month, 1));
+						const points = await LfgEventManager.getPointsMonthly(profile, new Date(year, month, 1));
 						profile.points = points;
 					}
 
