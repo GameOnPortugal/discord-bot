@@ -698,6 +698,40 @@ module.exports = {
 
 				return;
 			}
+			case 'rank': {
+				// rank can be lifetime or monthly
+				if (args.length < 2) {
+					message.reply('Comando inválido. Use `|lfg rank <lifetime|monthly [month]>`');
+					return;
+				}
+
+				const rankType = args[1];
+				if (rankType !== 'lifetime' && rankType !== 'monthly') {
+					message.reply('Comando inválido. Use `|lfg rank <lifetime|monthly [month]>`');
+					return;
+				}
+
+				if (rankType === 'lifetime') {
+					const sortedLfgProfiles = await LfgProfileManager.getRankLifetime();
+					let rankMessage = '';
+
+					for (let i = 0; i < sortedLfgProfiles.length; i++) {
+						rankMessage += `\`${i + 1}.\` <@${sortedLfgProfiles[i].user_id}> with **${sortedLfgProfiles[i].points}** points\n`;
+					}
+
+					rankMessage = new Discord.MessageEmbed()
+						.setColor('#0099ff')
+						.setTitle('Top Lifetime LFG Profiles')
+						.setDescription(rankMessage)
+						.setThumbnail('https://i.ibb.co/LzHsvdn/Transparent-2.png')
+						.setTimestamp()
+						.setFooter('|lfg rank lifetime', 'https://i.ibb.co/LzHsvdn/Transparent-2.png');
+
+					message.channel.send(rankMessage);
+				}
+
+				return;
+			}
 		}
 		await message.reply(
 			'Comando inválido. Usa `|lfg help` para saber como usar este comando!',

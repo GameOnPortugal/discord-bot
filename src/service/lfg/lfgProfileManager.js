@@ -40,4 +40,15 @@ module.exports = {
 		}
 		return lfgProfile;
 	},
+
+	getRankLifetime: async function() {
+		// sort by points
+		const lfgProfiles = await LFGProfile.findAll({
+			order: [
+				['points', 'DESC'],
+			],
+		});
+		return lfgProfiles;
+	},
+
 };
