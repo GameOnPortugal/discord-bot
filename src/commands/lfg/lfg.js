@@ -286,9 +286,7 @@ module.exports = {
 						});
 
 					if (createItem) {
-						console.log(
-							'LFG approved. Creating the item on the db and sending it to the channel!',
-						);
+						console.log('LFG approved. Creating the item on the db and sending it to the channel!');
 
 						const lfgGame = await LfgGamesManager.create(data);
 						if (!lfgGame) {
