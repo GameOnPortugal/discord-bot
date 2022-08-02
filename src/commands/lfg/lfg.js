@@ -434,9 +434,9 @@ module.exports = {
 				const details = args.slice(i + 1).join(' ');
 
 				if (!user) {
-					message.reply('Não tens um perfil LFG. Cria um pedido LFG ou entra num já existente!');
-					if (!PermissionsUtil.isAdmin(message.member)) {
-						message.reply('... E não tens permissão para fazer isso!');
+					message.reply('Não tens um perfil LFG!');
+					if (!(await PermissionsUtil.isAdmin(message.member))) {
+						message.reply('... E não tens permissão para fazer isso! Cria um pedido LFG ou entra num já existente!');
 						return;
 					}
 					options.hasLfgProfile = false;
@@ -445,7 +445,7 @@ module.exports = {
 
 				const reportedUser = await LfgProfileManager.getProfile(message.mentions.users.first().id);
 				if (!reportedUser) {
-					message.reply(`Não consegui encontrar o utilizador <@${reportedUser.user_id}>`);
+					message.reply(`O utilizador <@${message.mentions.users.first().id}> não tem perfil LFG.`);
 					return;
 				}
 
@@ -463,7 +463,7 @@ module.exports = {
 				message.reply('Utilizador reportado com sucesso. Obrigado.');
 
 				// enviar mensagem para canal ID: 1003663012256825484
-				const channel = message.client.channels.cache.get(message.channel.id);
+				const channel = message.client.channels.cache.get('1003663012256825484');
 				if (channel) {
 					channel.send(`<@${message.author.id}> reportou <@${reportedUser.user_id}>` +
 					`${game ? ` no jogo **${game.game}**(${game.id})` : ''}` +
