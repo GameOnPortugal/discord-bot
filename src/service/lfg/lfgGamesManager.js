@@ -11,6 +11,14 @@ module.exports = {
 		return LFGGame.create(lfgData);
 	},
 
+	getGameById: async function(gameId) {
+		return LFGGame.findOne({
+			where: {
+				id: gameId,
+			},
+		});
+	},
+
 	/**
 	 * Method to update message id after the message is created
 	 * @param id              id of the row to update
