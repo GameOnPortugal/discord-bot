@@ -22,6 +22,14 @@ module.exports = {
 	},
 
 	/**
+	 * Method to get profile from LFGGame
+	 * @returns {Promise<LFGProfile>}
+	 */
+	getLfgProfile: async function(lfgGame) {
+		return await models.LFGProfile.findOne({ where: { id: lfgGame.lfgProfile } });
+	},
+
+	/**
 	 * Adds participation to the game
 	 */
 	addParticipation: async function(lfgGame, lfgProfile) {

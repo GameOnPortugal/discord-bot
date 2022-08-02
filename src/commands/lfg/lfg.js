@@ -36,13 +36,23 @@ const questions = {
 	},
 };
 
-async function handleReact(message, user, emoji, lfgGame) {
+async function handleReact(message, user, emoji, lfgGame, ownerLfgProfile) {
 	console.log('React from:', user, 'with emoji:', emoji);
 
-	const lfgProfile = await LfgProfileManager.handleGetOrCreateProfile(user.id);
 	const userReactions = message.reactions.cache.filter((reaction) =>
 		reaction.users.cache.has(user.id),
 	);
+
+	if (user.id === ownerLfgProfile.user_id) {
+		console.log('User is author. Cannot join or leave LFG.');
+		for (const reaction of userReactions.values()) {
+			reaction.users.remove(user.id);
+		}
+		return;
+	}
+
+	const lfgProfile = await LfgProfileManager.handleGetOrCreateProfile(user.id);
+
 	if (lfgProfile.is_banned) {
 		// send message to user saying they are banned from LFG
 		return user.createDM().then((dm) => {
@@ -101,7 +111,8 @@ async function updateEmbed(original, lfgProfile, lfgGame) {
 			'Hora/Data Prevista',
 			dayjs(lfgGame.playAt).format('YYYY-MM-DD HH:mm'),
 			true,
-		);
+		)
+		.addField('ID', lfgGame.id, true);
 
 	const playerIds = participating.map(
 		(participant) => `<@${participant.lfgProfile.user_id}>`,
@@ -112,7 +123,6 @@ async function updateEmbed(original, lfgProfile, lfgGame) {
 	}
 
 	editedLfgMessage
-		.addField('ID', lfgGame.id, true)
 		.addField('\u200B', 'Reage com :thumbsup: para te juntares!')
 		.setThumbnail('https://i.ibb.co/LzHsvdn/Transparent-2.png')
 		.setTimestamp()
@@ -297,7 +307,9 @@ module.exports = {
 							return;
 						}
 
-						LfgEventManager.createGameEvent(lfgProfile, lfgGame);
+						await LfgEventManager.createGameEvent(lfgProfile, lfgGame);
+						// if the user creates a LFG, then it is added to the participants list
+						await LfgGamesManager.addParticipation(lfgGame, lfgProfile);
 
 						const newMessage = await MessageCreatorUtil.post(
 							this,
@@ -305,7 +317,7 @@ module.exports = {
 							lfgMessage,
 						);
 						// update embeded message with the new id
-						updateEmbed(newMessage, lfgProfile, lfgGame);
+						await updateEmbed(newMessage, lfgProfile, lfgGame);
 						data['message_id'] = newMessage.id;
 
 						// insert reactions
@@ -329,6 +341,7 @@ module.exports = {
 								_user,
 								reaction.emoji.name,
 								lfgGame,
+								lfgProfile,
 							);
 							await updateEmbed(newMessage, lfgProfile, lfgGame);
 						});

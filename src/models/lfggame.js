@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
 		static associate(models) {
 			LFGGame.belongsTo(models.LFGProfile, {
 				foreignKey: 'lfgProfile',
+				as: 'profile',
 			});
 			LFGGame.hasMany(models.LFGParticipation, {
 				foreignKey: 'lfg_game_id',
