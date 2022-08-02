@@ -112,6 +112,7 @@ async function updateEmbed(original, lfgProfile, lfgGame) {
 	}
 
 	editedLfgMessage
+		.addField('ID', lfgGame.id, true)
 		.addField('\u200B', 'Reage com :thumbsup: para te juntares!')
 		.setThumbnail('https://i.ibb.co/LzHsvdn/Transparent-2.png')
 		.setTimestamp()
@@ -303,6 +304,8 @@ module.exports = {
 							message.channel,
 							lfgMessage,
 						);
+						// update embeded message with the new id
+						updateEmbed(newMessage, lfgProfile, lfgGame);
 						data['message_id'] = newMessage.id;
 
 						// insert reactions

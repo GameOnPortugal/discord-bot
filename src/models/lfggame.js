@@ -14,6 +14,12 @@ module.exports = (sequelize, DataTypes) => {
 		}
 	}
 	LFGGame.init({
+		id: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			primaryKey: true,
+			autoIncrement: true,
+		},
 		game: DataTypes.TEXT,
 		description: DataTypes.TEXT,
 		players: DataTypes.INTEGER,
