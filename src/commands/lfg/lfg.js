@@ -11,6 +11,7 @@ const LfgEventManager = require('./../../service/lfg/lfgEventManager');
 
 const MessageCreatorUtil = require('./../../util/messageCreatorUtil');
 const PermissionsUtil = require('../../util/permissionsUtil');
+const { getMonthFromInput } = require('../../util/dateUtil');
 
 const questions = {
 	game: {
@@ -798,17 +799,7 @@ module.exports = {
 				return;
 			}
 			case 'rank': {
-				// rank can be lifetime or monthly
-				if (args.length < 2) {
-					message.reply('Comando inválido. Use `|lfg rank <lifetime|monthly [month]>`');
-					return;
-				}
-
-				const rankType = args[1];
-				if (rankType !== 'lifetime' && rankType !== 'monthly') {
-					message.reply('Comando inválido. Use `|lfg rank <lifetime|monthly [month]>`');
-					return;
-				}
+				const rankType = args[1] ? args[1].toLowerCase() : 'monthly';
 
 				if (rankType === 'lifetime') {
 					const sortedLfgProfiles = await LfgProfileManager.getRankLifetime();
@@ -827,30 +818,18 @@ module.exports = {
 						.setFooter('|lfg rank lifetime', 'https://i.ibb.co/LzHsvdn/Transparent-2.png');
 
 					message.channel.send(rankMessage);
+					return;
 				}
-				else if (rankType === 'monthly') {
-					// current month
+				if (rankType === 'monthly') {
 					let month = new Date().getMonth();
 					let year = new Date().getFullYear();
 					if (args.length == 3) {
-						// if number ok, use it
-						if (Number.isInteger(Number(args[2]))) {
-							month = Number(args[2] - 1);
+						try {
+							const monthDate = getMonthFromInput(args[2]);
+							month = monthDate.getMonth();
+							year = monthDate.getFullYear();
 						}
-						// can be MM/YYYY or M/YYYY
-						else if (args[2].length === 7 || args[2].length === 6) {
-							const monthYear = args[2].split('/').map(Number);
-							const date = new Date(monthYear[1], monthYear[0] - 1);
-							if (date) {
-								month = date.getMonth();
-								year = date.getFullYear();
-							}
-							else {
-								message.reply('Data inválida.');
-								return;
-							}
-						}
-						else {
+						catch (e) {
 							message.reply('Data inválida.');
 							return;
 						}
@@ -879,8 +858,11 @@ module.exports = {
 						.setFooter('|lfg rank monthly', 'https://i.ibb.co/LzHsvdn/Transparent-2.png');
 
 					message.channel.send(rankMessage);
+
+					return;
 				}
 
+				message.reply('Comando inválido. Use `|lfg rank <lifetime|monthly [month]>`');
 				return;
 			}
 		}

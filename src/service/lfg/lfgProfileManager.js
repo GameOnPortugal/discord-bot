@@ -8,12 +8,11 @@ module.exports = {
      * @returns {Promise<LFGProfile>}
      */
 	getProfile: async function(userId) {
-		const lfg = await LFGProfile.findOne({
+		return await LFGProfile.findOne({
 			where: {
 				user_id: userId,
 			},
 		});
-		return lfg;
 	},
 
 	/**
@@ -26,11 +25,9 @@ module.exports = {
 			throw new Error('User already has a LFG profile');
 		}
 
-		const lfgProfile = await LFGProfile.create({
+		return await LFGProfile.create({
 			user_id: userId,
 		});
-
-		return lfgProfile;
 	},
 
 	handleGetOrCreateProfile: async function(userId) {
@@ -43,17 +40,15 @@ module.exports = {
 
 	getRankLifetime: async function() {
 		// sort by points
-		const lfgProfiles = await LFGProfile.findAll({
+		return await LFGProfile.findAll({
 			order: [
 				['points', 'DESC'],
 			],
 		});
-		return lfgProfiles;
 	},
 
 	getAllProfiles: async function() {
-		const lfgProfiles = await LFGProfile.findAll();
-		return lfgProfiles;
+		return await LFGProfile.findAll();
 	},
 
 	updateLfgPoints: async function() {
