@@ -211,4 +211,18 @@ module.exports = {
 		console.log(`LFG Event: ${lfgEvent.type} created!`);
 		return lfgEvent;
 	},
+
+	/**
+	 * method to verify if a game has been canceled
+	 */
+	isGameCanceled: async (lfgGame) => {
+		const events = await LFGEvent.findAll({
+			where: {
+				lfg_game_id: lfgGame.id,
+				type: LFG_EVENTS.game_cancel.name,
+			},
+		});
+
+		return events.length > 0;
+	},
 };

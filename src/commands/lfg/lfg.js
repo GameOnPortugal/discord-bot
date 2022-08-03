@@ -89,6 +89,15 @@ async function handleReact(message, user, emoji, lfgGame) {
 	const userReactions = message.reactions.cache.filter((reaction) =>
 		reaction.users.cache.has(user.id),
 	);
+
+	if (lfgProfile.id === lfgGame.lfgProfile) {
+		console.log('User is author. Cannot join or leave LFG.');
+		for (const reaction of userReactions.values()) {
+			reaction.users.remove(user.id);
+		}
+		return;
+	}
+
 	if (lfgProfile.is_banned) {
 		// send message to user saying they are banned from LFG
 		return user.createDM().then((dm) => {
@@ -352,7 +361,8 @@ module.exports = {
 							return;
 						}
 
-						LfgEventManager.createGameEvent(lfgProfile, lfgGame);
+						await LfgEventManager.createGameEvent(lfgProfile, lfgGame);
+						await LfgGamesManager.addParticipation(lfgGame, lfgProfile);
 
 						const newMessage = await MessageCreatorUtil.post(
 							this,
@@ -360,6 +370,8 @@ module.exports = {
 							lfgMessage,
 						);
 						data['message_id'] = newMessage.id;
+
+						await updateEmbed(newMessage, lfgProfile, lfgGame);
 
 						// insert reactions
 						await newMessage.react('👍');
@@ -415,6 +427,13 @@ module.exports = {
 
 				if (lfgGame.lfgProfile !== lfgProfile.id) {
 					await message.reply('Não tens permissão para cancelar este pedido.');
+				}
+
+				// check if the game has been canceled already
+				const canceled = await LfgEventManager.isGameCanceled(lfgGame);
+				if (canceled) {
+					await message.reply('Este pedido já foi cancelado.');
+					return;
 				}
 
 				const playAt = dayjs(lfgGame.playAt);
@@ -508,8 +527,8 @@ module.exports = {
 
 				// game has to be at least 5 min in
 				const playAt = dayjs(lfgGame.playAt);
-
-				if (playAt.diff('minutes') < 5) {
+				console.log('playAt:', playAt.toISOString());
+				if (dayjs().isBefore(playAt.add(5, 'minutes'))) {
 					message.reply('Só podes reportar a falta se o jogo tiver começado há pelo menos 5 minutos.');
 					return;
 				}
