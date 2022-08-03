@@ -6,15 +6,22 @@ module.exports = (sequelize, DataTypes) => {
 		static associate(models) {
 			LFGEvent.belongsTo(models.LFGProfile, {
 				foreignKey: 'lfg_profile_id',
+				as: 'lfgProfile',
 			});
 
 			LFGEvent.belongsTo(models.LFGGame, {
 				foreignKey: 'lfg_game_id',
+				as: 'game',
 			});
 		}
 	}
 
 	LFGEvent.init({
+		id: {
+			type: DataTypes.INTEGER,
+			primaryKey: true,
+			autoIncrement: true,
+		},
 		type: DataTypes.STRING,
 		points: DataTypes.INTEGER,
 		detail: DataTypes.TEXT,
