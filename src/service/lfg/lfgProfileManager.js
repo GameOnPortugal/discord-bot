@@ -8,12 +8,11 @@ module.exports = {
      * @returns {Promise<LFGProfile>}
      */
 	getProfile: async function(userId) {
-		const lfg = await LFGProfile.findOne({
+		return await LFGProfile.findOne({
 			where: {
 				user_id: userId,
 			},
 		});
-		return lfg;
 	},
 
 	/**
@@ -26,11 +25,9 @@ module.exports = {
 			throw new Error('User already has a LFG profile');
 		}
 
-		const lfgProfile = await LFGProfile.create({
+		return await LFGProfile.create({
 			user_id: userId,
 		});
-
-		return lfgProfile;
 	},
 
 	handleGetOrCreateProfile: async function(userId) {
@@ -39,5 +36,55 @@ module.exports = {
 			return await this.createProfile(userId);
 		}
 		return lfgProfile;
+	},
+
+	getRankLifetime: async function() {
+		// sort by points
+		return await LFGProfile.findAll({
+			order: [
+				['points', 'DESC'],
+			],
+		});
+	},
+
+	getAllProfiles: async function() {
+		return await LFGProfile.findAll();
+	},
+
+	updateLfgPoints: async function() {
+		const query = `
+			SELECT GROUP_CONCAT(id) AS ids, lfg_profile_id, SUM(points) AS points
+			FROM lfgevents
+			WHERE is_addressed = 1 AND is_parsed = 0
+			GROUP BY lfg_profile_id`;
+		const lfgEvents = await models.sequelize.query(query, {
+			type: models.sequelize.QueryTypes.SELECT,
+		});
+
+		// update points
+		for (const lfgEvent of lfgEvents) {
+			const lfgProfile = await LFGProfile.findOne({
+				where: {
+					id: lfgEvent.lfg_profile_id,
+				},
+			});
+			lfgProfile.points = Number(lfgEvent.points) + Number(lfgProfile.points);
+			await lfgProfile.save();
+		}
+
+		// update is_parsed
+		const lfgEventIds = lfgEvents.map(lfgEvent => lfgEvent.ids);
+		const lfgEventIdsString = lfgEventIds.join(',');
+		if (lfgEventIdsString.length === 0) {
+			return;
+		}
+
+		const query2 = `
+			UPDATE lfgevents
+			SET is_parsed = 1
+			WHERE id IN (${lfgEventIdsString})`;
+		await models.sequelize.query(query2, {
+			type: models.sequelize.QueryTypes.UPDATE,
+		});
 	},
 };
