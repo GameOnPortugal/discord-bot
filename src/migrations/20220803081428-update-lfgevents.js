@@ -10,9 +10,9 @@ module.exports = {
 
 		// update all entries to is_parsed to false
 		await queryInterface.sequelize.query(`
-      UPDATE lfgevents
-      SET is_parsed = false
-    `);
+			UPDATE lfgevents
+			SET is_parsed = false
+		`);
 	},
 
 	down: async (queryInterface) => {
