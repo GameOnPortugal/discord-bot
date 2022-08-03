@@ -7,6 +7,9 @@ module.exports = (sequelize, DataTypes) => {
 			LFGProfile.hasMany(models.LFGGame, {
 				foreignKey: 'lfgProfile',
 			});
+			LFGProfile.hasMany(models.LFGEvent, {
+				foreignKey: 'lfg_profile_id',
+			});
 		}
 	}
 	LFGProfile.init({
