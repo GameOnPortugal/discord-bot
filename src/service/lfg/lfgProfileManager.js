@@ -1,6 +1,5 @@
 const models = require('./../../models');
 const LFGProfile = models.LFGProfile;
-const LfgEventManager = require('./lfgEventManager');
 
 module.exports = {
 	/**
