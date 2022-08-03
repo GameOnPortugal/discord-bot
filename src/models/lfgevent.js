@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
 		admin_note: DataTypes.TEXT,
 		report_user_id: DataTypes.TEXT,
 		admin_user_id: DataTypes.TEXT,
+		is_parsed: DataTypes.BOOLEAN,
 		createdAt: DataTypes.DATE,
 		updatedAt: DataTypes.DATE,
 	}, {

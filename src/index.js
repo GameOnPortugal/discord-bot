@@ -5,6 +5,8 @@ const recursive = require('recursive-readdir');
 const Discord = require('discord.js');
 const fs = require('fs');
 
+const LfgProfileManager = require('./service/lfg/lfgProfileManager');
+
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
 
@@ -25,6 +27,15 @@ const transaction = Sentry.startTransaction({
 	op: 'client.index',
 	name: 'Bot is logged and listening',
 });
+
+// if development 5s, production 10m
+const LFG_UPDATE_INTERVAL = process.env.NODE_ENV === 'development' ? 5000 : 600000;
+
+setInterval(() => {
+	console.log('Updating LFG profiles...');
+	LfgProfileManager.updateLfgPoints();
+}, LFG_UPDATE_INTERVAL);
+
 
 setTimeout(() => {
 	try {

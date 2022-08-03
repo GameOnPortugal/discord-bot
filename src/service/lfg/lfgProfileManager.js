@@ -1,5 +1,6 @@
 const models = require('./../../models');
 const LFGProfile = models.LFGProfile;
+const LfgEventManager = require('./lfgEventManager');
 
 module.exports = {
 	/**
@@ -56,4 +57,40 @@ module.exports = {
 		return lfgProfiles;
 	},
 
+	updateLfgPoints: async function() {
+		const query = `
+			SELECT GROUP_CONCAT(id) AS ids, lfg_profile_id, SUM(points) AS points
+			FROM lfgevents
+			WHERE is_addressed = 1 AND is_parsed = 0
+			GROUP BY lfg_profile_id`;
+		const lfgEvents = await models.sequelize.query(query, {
+			type: models.sequelize.QueryTypes.SELECT,
+		});
+
+		// update points
+		for (const lfgEvent of lfgEvents) {
+			const lfgProfile = await LFGProfile.findOne({
+				where: {
+					id: lfgEvent.lfg_profile_id,
+				},
+			});
+			lfgProfile.points = Number(lfgEvent.points) + Number(lfgProfile.points);
+			await lfgProfile.save();
+		}
+
+		// update is_parsed
+		const lfgEventIds = lfgEvents.map(lfgEvent => lfgEvent.ids);
+		const lfgEventIdsString = lfgEventIds.join(',');
+		if (lfgEventIdsString.length === 0) {
+			return;
+		}
+
+		const query2 = `
+			UPDATE lfgevents
+			SET is_parsed = 1
+			WHERE id IN (${lfgEventIdsString})`;
+		await models.sequelize.query(query2, {
+			type: models.sequelize.QueryTypes.UPDATE,
+		});
+	},
 };
