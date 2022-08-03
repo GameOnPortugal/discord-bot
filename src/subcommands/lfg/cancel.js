@@ -84,7 +84,17 @@ module.exports = async function(message, args) {
 
 	await LfgEventManager.cancelEvent(lfgProfile, lfgGame, true, nearEvent);
 
-	await message.reply('LFG cancelado.');
+	// send dm to participants
+	participants.forEach(async (user) => {
+		const userObject = await message.client.users.fetch(user.lfgProfile.user_id);
+		if (userObject) {
+			await userObject.send(
+				`O LFG **${lfgGame.game}** no qual ias participar foi cancelado.\n` +
+					`Para mais informações, contacta ${message.author.username}.` +
+					`\n Pedido Original: https://discord.com/channels/${message.guild.id}/${message.channel.id}/${lfgGame.message_id}}`,
+			);
+		}
+	});
 
-	return;
+	await message.reply('LFG cancelado.');
 };

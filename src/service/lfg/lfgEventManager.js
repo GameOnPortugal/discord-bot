@@ -219,7 +219,7 @@ module.exports = {
 			lfg_game_id: lfgGame.id,
 			type: LFG_EVENTS.game_cancel.name,
 			points: LFG_EVENTS.game_cancel.points * (host ? nearTime ? 2 : 1 : 1),
-			detail: 'canceled game',
+			detail: `canceled game (${host ? 'host' : 'guest'})`,
 			is_addressed: true,
 			admin_note: null,
 			report_user_id: null,
