@@ -191,13 +191,13 @@ module.exports = {
 	'\n `|lfg reports [<@user>]`' +
 	'\n `|lfg reported [<@user>]`' +
 	'\n `|lfg resolve <report_id> <points> <notes>`' +
-	'\n `|lfg commend [<gane_id>] <@user> <reason>`',
+	'\n `|lfg commend [<gane_id>] <@user> <reason>`' +
+	'\n `|lfg ban <@user> <reason>`' +
+	'\n `|lfg unban <@user> <reason>`',
 	async execute(message, args) {
-		if (process.env.NODE_ENV !== 'development') {
-			// send message to channel to let the user know that the command is not available
-			message.reply('Este comando não está disponível no momento.');
-			return;
-		}
+		// remove message
+		message.delete();
+
 		switch (args[0]) {
 			case 'create': {
 				const userId = message.author.id;
@@ -515,6 +515,10 @@ module.exports = {
 					options.hasLfgProfile = false;
 					options.isAdmin = true;
 				}
+				else if (user.is_banned) {
+					message.reply('Foste banido do LFG. Não podes fazer isto.');
+					return;
+				}
 
 				if (!targetUser) {
 					message.reply(`Não consegui encontrar o utilizador <@${targetUser.user_id}>`);
@@ -727,7 +731,7 @@ module.exports = {
 			}
 			case 'commend': {
 				if (args.length < 3) {
-					message.reply('Comando inválido. Use `|lfg commend [gameId] <@username> [note...]`');
+					message.reply('Comando inválido. Use `|lfg commend [gameId] <@username> <reason>`');
 					return;
 				}
 
@@ -766,6 +770,10 @@ module.exports = {
 					}
 					options.isAdmin = true;
 					options.hasLfgProfile = false;
+				}
+				else if (user.is_banned) {
+					message.reply('Foste banido do LFG. Não podes fazer recomendações.');
+					return;
 				}
 
 				const commendsLeft = await LfgEventManager.getCommendsLeft(user);
@@ -835,7 +843,7 @@ module.exports = {
 						}
 					}
 
-					const allProfiles = await LfgProfileManager.getAllProfiles();
+					const allProfiles = await LfgProfileManager.getAllValidProfiles();
 					for (let i = 0; i < allProfiles.length; i++) {
 						const profile = allProfiles[i];
 						const points = await LfgEventManager.getPointsMonthly(profile, new Date(year, month, 1));
@@ -865,7 +873,99 @@ module.exports = {
 				message.reply('Comando inválido. Use `|lfg rank <lifetime|monthly [month]>`');
 				return;
 			}
+			case 'ban': {
+				if (args.length < 3) {
+					message.reply('Comando inválido. Use `|lfg ban <user> <reason>`');
+					return;
+				}
+
+				if (!PermissionsUtil.isAdmin(message.member) && process.env.NODE_ENV !== 'development') {
+					message.reply('Apenas admins podem banir utilizadores.');
+					return;
+				}
+
+				const user = message.mentions.users.first();
+				const lfgProfile = await LfgProfileManager.getProfile(user.id);
+				if (!lfgProfile) {
+					message.reply('Este utilizador não tem perfil LFG.');
+					return;
+				}
+				if (lfgProfile.is_banned) {
+					message.reply('Este utilizador já está banido.');
+					return;
+				}
+
+				const reason = args.slice(2).join(' ');
+				await LfgEventManager.banUser(message.author.id, lfgProfile, reason);
+				await LfgProfileManager.banUser(lfgProfile);
+
+				message.reply(`Utilizador <@${user.id}> foi banido do sistema LFG.`);
+
+				// also send to channel #lfg-moderation 1003663012256825484
+				const lfgModerationChannel = message.guild.channels.cache.get('1003663012256825484');
+				if (lfgModerationChannel) {
+					const embed = new Discord.MessageEmbed()
+						.setColor('#0099ff')
+						.setTitle('LFG User Banned')
+						.setDescription(`<@${user.id}> foi banido do sistema LFG.`)
+						.addField('Admin', `<@${message.author.id}>`)
+						.addField('Motivo', reason)
+						.setThumbnail('https://i.ibb.co/LzHsvdn/Transparent-2.png')
+						.setTimestamp()
+						.setFooter('|lfg ban', 'https://i.ibb.co/LzHsvdn/Transparent-2.png');
+
+					lfgModerationChannel.send(embed);
+				}
+
+				return;
+			}
+			case 'unban': {
+				if (args.length < 3) {
+					message.reply('Comando inválido. Use `|lfg unban <user> <reason>`');
+					return;
+				}
+
+				if (!PermissionsUtil.isAdmin(message.member) && process.env.NODE_ENV !== 'development') {
+					message.reply('Apenas admins podem readmitir utilizadores.');
+					return;
+				}
+
+				const user = message.mentions.users.first();
+				const lfgProfile = await LfgProfileManager.getProfile(user.id);
+				if (!lfgProfile) {
+					message.reply('Este utilizador não tem perfil LFG.');
+					return;
+				}
+				if (!lfgProfile.is_banned) {
+					message.reply('Este utilizador não está banido.');
+					return;
+				}
+
+				const reason = args.slice(2).join(' ');
+				await LfgEventManager.unbanUser(message.author.id, lfgProfile, reason);
+				await LfgProfileManager.unbanUser(lfgProfile);
+
+				message.reply(`Utilizador <@${user.id}> foi readmitido no sistema LFG.`);
+
+				// also send to channel #lfg-moderation 1003663012256825484
+				const lfgModerationChannel = message.guild.channels.cache.get('1003663012256825484');
+				if (lfgModerationChannel) {
+					const embed = new Discord.MessageEmbed()
+						.setColor('#0099ff')
+						.setTitle('LFG User Unbanned')
+						.setDescription(`<@${user.id}> foi readmitido no sistema LFG.`)
+						.addField('Admin', `<@${message.author.id}>`)
+						.addField('Motivo', reason)
+						.setThumbnail('https://i.ibb.co/LzHsvdn/Transparent-2.png')
+						.setTimestamp()
+						.setFooter('|lfg unban', 'https://i.ibb.co/LzHsvdn/Transparent-2.png');
+
+					lfgModerationChannel.send(embed);
+				}
+				return;
+			}
 		}
+
 		await message.reply(
 			'Comando inválido. Usa `|lfg help` para saber como usar este comando!',
 		);

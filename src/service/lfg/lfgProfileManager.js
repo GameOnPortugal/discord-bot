@@ -41,6 +41,9 @@ module.exports = {
 	getRankLifetime: async function() {
 		// sort by points
 		return await LFGProfile.findAll({
+			where: {
+				is_banned: false,
+			},
 			order: [
 				['points', 'DESC'],
 			],
@@ -49,6 +52,14 @@ module.exports = {
 
 	getAllProfiles: async function() {
 		return await LFGProfile.findAll();
+	},
+
+	getAllValidProfiles: async function() {
+		return await LFGProfile.findAll({
+			where: {
+				is_banned: false,
+			},
+		});
 	},
 
 	updateLfgPoints: async function() {
@@ -86,5 +97,18 @@ module.exports = {
 		await models.sequelize.query(query2, {
 			type: models.sequelize.QueryTypes.UPDATE,
 		});
+	},
+
+	/**
+	 * Method to ban an user from LFG
+	 */
+	banUser: async function(lfgProfile) {
+		lfgProfile.is_banned = true;
+		await lfgProfile.save();
+	},
+
+	unbanUser: async function(lfgProfile) {
+		lfgProfile.is_banned = false;
+		await lfgProfile.save();
 	},
 };
