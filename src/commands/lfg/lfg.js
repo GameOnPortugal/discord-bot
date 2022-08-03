@@ -706,7 +706,7 @@ module.exports = {
 				// get report
 				const report = await LfgEventManager.getEventById(id);
 
-				if (!report) {
+				if (!report || report.type !== 'report') {
 					message.reply('Report inválido.');
 					return;
 				}

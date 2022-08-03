@@ -203,7 +203,7 @@ module.exports = {
 		const points = await LFGEvent.findAll({
 			where: {
 				lfg_profile_id: lfgProfile.id,
-				updatedAt: {
+				createdAt: {
 					[Op.gte]: new Date(date.getFullYear(), date.getMonth(), 1),
 					[Op.lte]: new Date(date.getFullYear(), (date.getMonth() + 1) % 11, 0),
 				},
