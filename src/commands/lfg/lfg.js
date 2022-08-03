@@ -89,6 +89,15 @@ async function handleReact(message, user, emoji, lfgGame) {
 	const userReactions = message.reactions.cache.filter((reaction) =>
 		reaction.users.cache.has(user.id),
 	);
+
+	if (lfgProfile.id === lfgGame.lfgProfile) {
+		console.log('User is author. Cannot join or leave LFG.');
+		for (const reaction of userReactions.values()) {
+			reaction.users.remove(user.id);
+		}
+		return;
+	}
+
 	if (lfgProfile.is_banned) {
 		// send message to user saying they are banned from LFG
 		return user.createDM().then((dm) => {
@@ -147,7 +156,8 @@ async function updateEmbed(original, lfgProfile, lfgGame) {
 			'Hora/Data Prevista',
 			dayjs(lfgGame.playAt).format('YYYY-MM-DD HH:mm'),
 			true,
-		);
+		)
+		.addField('ID', lfgGame.id, true);
 
 	const playerIds = participating.map(
 		(participant) => `<@${participant.lfgProfile.user_id}>`,
@@ -174,14 +184,19 @@ module.exports = {
 	description: 'Find a group of players for a gaming session',
 	usage: 'Inicia um pedido de procura de grupo!' +
 	'\n `|lfg create`' +
-	'\n `|lfg miss <game_id> <@user> <Details>`',
+	'\n `|lfg cancel <id>`' +
+	'\n `|lfg miss <game_id> <@user> <Details>`' +
+	'\n `|lfg report [<game_id>] <@user> <reason>`' +
+	'\n `|lfg reports [<@user>]`' +
+	'\n `|lfg reported [<@user>]`' +
+	'\n `|lfg resolve <report_id> <points> <notes>`' +
+	'\n `|lfg commend [<gane_id>] <@user> <reason>`',
 	async execute(message, args) {
 		if (process.env.NODE_ENV !== 'development') {
 			// send message to channel to let the user know that the command is not available
 			message.reply('Este comando não está disponível no momento.');
 			return;
 		}
-
 		switch (args[0]) {
 			case 'create': {
 				const userId = message.author.id;
@@ -334,9 +349,7 @@ module.exports = {
 						});
 
 					if (createItem) {
-						console.log(
-							'LFG approved. Creating the item on the db and sending it to the channel!',
-						);
+						console.log('LFG approved. Creating the item on the db and sending it to the channel!');
 
 						const lfgGame = await LfgGamesManager.create(data);
 						if (!lfgGame) {
@@ -346,14 +359,19 @@ module.exports = {
 							return;
 						}
 
-						LfgEventManager.createGameEvent(lfgProfile, lfgGame);
+						await LfgEventManager.createGameEvent(lfgProfile, lfgGame);
+						await LfgGamesManager.addParticipation(lfgGame, lfgProfile);
 
 						const newMessage = await MessageCreatorUtil.post(
 							this,
 							message.channel,
 							lfgMessage,
 						);
+						// update embeded message with the new id
+						await updateEmbed(newMessage, lfgProfile, lfgGame);
 						data['message_id'] = newMessage.id;
+
+						await updateEmbed(newMessage, lfgProfile, lfgGame);
 
 						// insert reactions
 						await newMessage.react('👍');
@@ -376,6 +394,7 @@ module.exports = {
 								_user,
 								reaction.emoji.name,
 								lfgGame,
+								lfgProfile,
 							);
 							await updateEmbed(newMessage, lfgProfile, lfgGame);
 						});
@@ -388,6 +407,86 @@ module.exports = {
 						console.log('LFG cancelled. Nothing to see here.');
 					}
 				});
+				return;
+			}
+			case 'cancel': {
+				if (args.length < 2) {
+					await message.reply('Não tens especificado o ID do pedido a cancelar.');
+					return;
+				}
+				const lfgGameId = args[1];
+				const lfgGame = await LfgGamesManager.getGameById(lfgGameId);
+				if (!lfgGame) {
+					await message.reply('O pedido não existe.');
+					return;
+				}
+				const lfgProfile = await LfgProfileManager.getProfile(message.author.id);
+				if (!lfgProfile) {
+					await message.reply('Não tens um perfil LFG.');
+					return;
+				}
+
+				if (lfgGame.lfgProfile !== lfgProfile.id) {
+					await message.reply('Não tens permissão para cancelar este pedido.');
+				}
+
+				// check if the game has been canceled already
+				const canceled = await LfgEventManager.isGameCanceled(lfgGame);
+				if (canceled) {
+					await message.reply('Este pedido já foi cancelado.');
+					return;
+				}
+
+				const playAt = dayjs(lfgGame.playAt);
+
+				if (playAt.isBefore(dayjs())) {
+					await message.reply('Este evento já começou, não podes cancelar.');
+					return;
+				}
+
+				// near event if less than 1 hour to event with dayjs
+				const nearEvent = playAt.diff(dayjs(), 'hour', true) < 1;
+
+				// prompt user to confirm
+				await message.reply(
+					'Tem a certeza que quer cancelar o pedido? [sim/não]' +
+						(nearEvent ? '\nEste evento está prestes a acontecer. Se cancelares perderás mais pontos!' : ''),
+				);
+
+				let cancelItem = false;
+				await message.channel
+					.awaitMessages((m) => m.author.id === message.author.id, {
+						max: 1,
+						time: 30000,
+						errors: ['time'],
+					})
+					.then(async (collected) => {
+						const answer = collected.last().content.toLowerCase().trim();
+						if (answer === 'sim' || answer === 's') {
+							cancelItem = true;
+						}
+						else if (answer === 'não' || answer === 'n' || answer === 'nao') {
+							await message.reply('O pedido não foi cancelado.');
+						}
+					})
+					.catch(async () => {
+						await message.reply('Time up.. O pedido não foi cancelado.');
+					});
+
+				if (!cancelItem) {
+					return;
+				}
+
+				const participants = await LfgGamesManager.getParticipants(lfgGame);
+				participants.forEach(async (participant) => {
+					console.log('Removing participation from:', participant);
+					LfgEventManager.cancelEvent(participant.lfgProfile, lfgGame, false, nearEvent);
+				});
+
+				await LfgEventManager.cancelEvent(lfgProfile, lfgGame, true, nearEvent);
+
+				await message.reply('LFG cancelado.');
+
 				return;
 			}
 			case 'miss': {
@@ -429,8 +528,8 @@ module.exports = {
 
 				// game has to be at least 5 min in
 				const playAt = dayjs(lfgGame.playAt);
-
-				if (playAt.diff('minutes') < 5) {
+				console.log('playAt:', playAt.toISOString());
+				if (dayjs().isBefore(playAt.add(5, 'minutes'))) {
 					message.reply('Só podes reportar a falta se o jogo tiver começado há pelo menos 5 minutos.');
 					return;
 				}
