@@ -85,6 +85,7 @@ function buildCommendationEmbed(commend, userId) {
 async function handleReact(message, user, emoji, lfgGame) {
 	console.log('React from:', user, 'with emoji:', emoji);
 
+	const lfgProfile = await LfgProfileManager.handleGetOrCreateProfile(user.id);
 	const userReactions = message.reactions.cache.filter((reaction) =>
 		reaction.users.cache.has(user.id),
 	);
