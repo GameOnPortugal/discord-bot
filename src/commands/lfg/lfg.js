@@ -85,7 +85,6 @@ function buildCommendationEmbed(commend, userId) {
 async function handleReact(message, user, emoji, lfgGame) {
 	console.log('React from:', user, 'with emoji:', emoji);
 
-	const lfgProfile = await LfgProfileManager.handleGetOrCreateProfile(user.id);
 	const userReactions = message.reactions.cache.filter((reaction) =>
 		reaction.users.cache.has(user.id),
 	);
@@ -349,9 +348,7 @@ module.exports = {
 						});
 
 					if (createItem) {
-						console.log(
-							'LFG approved. Creating the item on the db and sending it to the channel!',
-						);
+						console.log('LFG approved. Creating the item on the db and sending it to the channel!');
 
 						const lfgGame = await LfgGamesManager.create(data);
 						if (!lfgGame) {
@@ -369,6 +366,8 @@ module.exports = {
 							message.channel,
 							lfgMessage,
 						);
+						// update embeded message with the new id
+						await updateEmbed(newMessage, lfgProfile, lfgGame);
 						data['message_id'] = newMessage.id;
 
 						await updateEmbed(newMessage, lfgProfile, lfgGame);
@@ -394,6 +393,7 @@ module.exports = {
 								_user,
 								reaction.emoji.name,
 								lfgGame,
+								lfgProfile,
 							);
 							await updateEmbed(newMessage, lfgProfile, lfgGame);
 						});
