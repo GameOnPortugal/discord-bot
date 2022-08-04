@@ -50,6 +50,12 @@ module.exports = async function(message, args) {
 		message.reply('Não consegui encontrar o LFG Game.');
 		return;
 	}
+	// check if the game has been canceled already
+	const canceled = await LfgEventManager.isGameCanceled(lfgGame);
+	if (canceled) {
+		await message.reply('Este pedido já foi cancelado.');
+		return;
+	}
 
 	// game has to be at least 5 min in
 	const playAt = dayjs(lfgGame.playAt);
