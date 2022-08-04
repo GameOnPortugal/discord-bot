@@ -1,5 +1,6 @@
 const LfgEventManager = require('../../../service/lfg/lfgEventManager');
 const PermissionsUtil = require('../../../util/permissionsUtil');
+const LfgProfileManager = require('../../../service/lfg/lfgProfileManager');
 
 const { buildReportEmbed } = require('./utils');
 
