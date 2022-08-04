@@ -219,7 +219,7 @@ module.exports = {
 			lfg_game_id: lfgGame.id,
 			type: LFG_EVENTS.game_cancel.name,
 			points: LFG_EVENTS.game_cancel.points * (host ? nearTime ? 2 : 1 : 1),
-			detail: 'canceled game',
+			detail: `canceled game (${host ? 'host' : 'guest'})`,
 			is_addressed: true,
 			admin_note: null,
 			report_user_id: null,
@@ -241,5 +241,35 @@ module.exports = {
 		});
 
 		return events.length > 0;
+	},
+
+	banUser: async (adminUserId, lfgProfile, notes) => {
+		const lfgEvent = await LFGEvent.create({
+			lfg_profile_id: lfgProfile.id,
+			type: LFG_EVENTS.ban.name,
+			points: LFG_EVENTS.ban.points,
+			detail: notes,
+			is_addressed: true,
+			admin_note: notes,
+			report_user_id: null,
+			admin_user_id: adminUserId,
+		});
+		console.log(`LFG Event: ${lfgEvent.type} created!`);
+		return lfgEvent;
+	},
+
+	unbanUser: async (adminUserId, lfgProfile, notes) => {
+		const lfgEvent = await LFGEvent.create({
+			lfg_profile_id: lfgProfile.id,
+			type: LFG_EVENTS.unban.name,
+			points: LFG_EVENTS.unban.points,
+			detail: notes,
+			is_addressed: true,
+			admin_note: notes,
+			report_user_id: null,
+			admin_user_id: adminUserId,
+		});
+		console.log(`LFG Event: ${lfgEvent.type} created!`);
+		return lfgEvent;
 	},
 };
