@@ -79,10 +79,13 @@ module.exports = async function(message, args) {
 	const participants = await LfgGamesManager.getParticipants(lfgGame);
 	participants.forEach(async (participant) => {
 		console.log('Removing participation from:', participant);
-		LfgEventManager.cancelEvent(participant.lfgProfile, lfgGame, false, nearEvent);
+		await LfgGamesManager.removeParticipation(
+			lfgGame,
+			participant.lfgProfile,
+		);
 	});
 
-	await LfgEventManager.cancelEvent(lfgProfile, lfgGame, true, nearEvent);
+	await LfgEventManager.cancelEvent(lfgProfile, lfgGame, nearEvent);
 
 	// send dm to participants
 	participants.forEach(async (user) => {
