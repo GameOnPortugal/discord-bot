@@ -1,5 +1,6 @@
 const LfgEventManager = require('../../../service/lfg/lfgEventManager');
 const PermissionsUtil = require('../../../util/permissionsUtil');
+const LfgProfileManager = require('../../../service/lfg/lfgProfileManager');
 
 const { buildReportEmbed } = require('./utils');
 
@@ -42,8 +43,10 @@ module.exports = async function(message, args) {
 		return;
 	}
 
-	await message.reply('Report resolvido com sucesso.');
+	const profile = await LfgProfileManager.getProfile(report.lfg_profile_id);
+	const reporterId = profile ? profile.user_id : report.admin_user_id;
+
 	// send report embed
-	const embed = buildReportEmbed(report);
+	const embed = buildReportEmbed(report, reporterId);
 	await message.channel.send(embed);
 };
