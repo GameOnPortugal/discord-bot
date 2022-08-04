@@ -213,13 +213,13 @@ module.exports = {
 		return points.reduce((acc, point) => acc + point.points, 0);
 	},
 
-	cancelEvent: async (lfgProfile, lfgGame, host, nearTime) => {
+	cancelEvent: async (lfgProfile, lfgGame, nearTime) => {
 		const lfgEvent = await LFGEvent.create({
 			lfg_profile_id: lfgProfile.id,
 			lfg_game_id: lfgGame.id,
 			type: LFG_EVENTS.game_cancel.name,
-			points: LFG_EVENTS.game_cancel.points * (host ? nearTime ? 2 : 1 : 1),
-			detail: `canceled game (${host ? 'host' : 'guest'})`,
+			points: LFG_EVENTS.game_cancel.points * (nearTime ? 2 : 1),
+			detail: 'canceled game',
 			is_addressed: true,
 			admin_note: null,
 			report_user_id: null,
