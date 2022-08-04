@@ -4,6 +4,7 @@ const isSameOrBefore = require('dayjs/plugin/isSameOrBefore');
 dayjs.extend(customParseFormat);
 dayjs.extend(isSameOrBefore);
 
+const channelEnum = require('./../../enum/discord/channelEnum');
 const LfgGamesManager = require('../../service/lfg/lfgGamesManager');
 const LfgProfileManager = require('../../service/lfg/lfgProfileManager');
 const LfgEventManager = require('../../service/lfg/lfgEventManager');
@@ -18,8 +19,8 @@ const questions = {
 		validator: /^.*$/,
 	},
 	platform: {
-		question: 'Qual é a plataforma? Ex: "PC", "PS4", "XBOX"',
-		validator: /^.*$/,
+		question: 'Qual é a plataforma? Opções válidas: "PC", "PS", "PS4", "PS5", "XBOX", "SWITCH"',
+		validator: /^(PC|PS|PS4|PS5|XBOX|SWITCH)$/,
 	},
 	description: {
 		question:
@@ -287,9 +288,8 @@ module.exports = async function(message) {
 
 			const lfgGame = await LfgGamesManager.create(data);
 			if (!lfgGame) {
-				await dmchannel.send(
-					'Ocorreu um erro ao criar o pedido, tenta de novo dentro de momentos',
-				);
+				await dmchannel.send('Ocorreu um erro ao criar o pedido, tenta de novo dentro de momentos');
+
 				return;
 			}
 
@@ -298,9 +298,23 @@ module.exports = async function(message) {
 
 			console.log('this: ', this);
 
+			let targetChannel = message.channel;
+			if (lfgGame.platform === 'pc') {
+				targetChannel = await message.client.channels.cache.get(channelEnum.PC_LOOKING_FOR_GROUP_CHAT);
+			}
+			if (lfgGame.platform === 'xbox') {
+				targetChannel = await message.client.channels.cache.get(channelEnum.XBOX_LOOKING_FOR_GROUP_CHAT);
+			}
+			if (['ps', 'ps4', 'ps5'].includes(lfgGame.platform)) {
+				targetChannel = await message.client.channels.cache.get(channelEnum.PS_LOOKING_FOR_GROUP_CHAT);
+			}
+			if (lfgGame.platform === 'switch') {
+				targetChannel = await message.client.channels.cache.get(channelEnum.SWITCH_LOOKING_FOR_GROUP_CHAT);
+			}
+
 			const newMessage = await MessageCreatorUtil.post(
 				this,
-				message.channel,
+				targetChannel,
 				lfgMessage,
 			);
 				// update embeded message with the new id
