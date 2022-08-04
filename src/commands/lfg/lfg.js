@@ -33,6 +33,9 @@ module.exports = {
 	'\n `|lfg create`' +
 	'\n `|lfg cancel <id>`' +
 	'\n `|lfg miss <game_id> <@user> <Details>`' +
+	'\n `|lfg rank [monthly|lifetime]`:' +
+	'\n\t `|lfg rank monthly [MM | M/YYYY | MM/YYYY]`' +
+	'\n\t `|lfg rank lifetime`' +
 	'\n `|lfg report [<game_id>] <@user> <reason>`' +
 	'\n `|lfg reports [<@user>]`' +
 	'\n `|lfg reported [<@user>]`' +
