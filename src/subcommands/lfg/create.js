@@ -53,6 +53,15 @@ async function handleReact(message, user, emoji, lfgGame) {
 		}
 		return;
 	}
+	// check if the game has been canceled already
+	const canceled = await LfgEventManager.isGameCanceled(lfgGame);
+	if (canceled) {
+		await message.reply('Este pedido já foi cancelado.');
+		for (const reaction of userReactions.values()) {
+			reaction.users.remove(user.id);
+		}
+		return;
+	}
 
 	if (lfgProfile.is_banned) {
 		// send message to user saying they are banned from LFG
