@@ -20,7 +20,7 @@ const questions = {
 	},
 	platform: {
 		question: 'Qual é a plataforma? Opções válidas: "PC", "PS", "PS4", "PS5", "XBOX", "SWITCH"',
-		validator: /^(PC|PS|PS4|PS5|XBOX|SWITCH)$/,
+		validator: /^(PC|PS|PS4|PS5|XBOX|SWITCH)$/gmi,
 	},
 	description: {
 		question:
@@ -237,6 +237,9 @@ module.exports = async function(message) {
 			}
 		}
 
+		// Normalising data
+		data.platform = data.platform.toLowerCase();
+
 		// after information gathering
 		console.log('gathered information: ', data);
 
@@ -295,8 +298,6 @@ module.exports = async function(message) {
 
 			await LfgEventManager.createGameEvent(lfgProfile, lfgGame);
 			await LfgGamesManager.addParticipation(lfgGame, lfgProfile);
-
-			console.log('this: ', this);
 
 			let targetChannel = message.channel;
 			if (lfgGame.platform === 'pc') {
