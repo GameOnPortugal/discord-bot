@@ -42,8 +42,10 @@ module.exports = async function(message, args) {
 		return;
 	}
 
-	await message.reply('Report resolvido com sucesso.');
+	const profile = await LfgProfileManager.getProfile(report.lfg_profile_id);
+	const reporterId = profile ? profile.user_id : report.admin_user_id;
+
 	// send report embed
-	const embed = buildReportEmbed(report);
+	const embed = buildReportEmbed(report, reporterId);
 	await message.channel.send(embed);
 };
