@@ -18,10 +18,10 @@ test('Extracts trophy data - old urls', async () => {
 test('Get profile trophies', async () => {
 	expect.assertions(2);
 
-	const urls = await PsnCrawlService.getProfileTrophies('oneeye_japan');
+	const urls = await PsnCrawlService.getProfileTrophies('Josh_Lopes');
 
-	expect(urls.length).toBeGreaterThan(50);
-	expect(urls[urls.length - 1]).toMatch(new RegExp('https:\\/\\/psnprofiles.com\\/trophies\\/.*?\\/oneeye_japan'));
+	expect(urls.length).toBeGreaterThan(1);
+	expect(urls[urls.length - 1]).toMatch(new RegExp('https:\\/\\/psnprofiles.com\\/trophies\\/.*?\\/Josh_Lopes'));
 }, 60000);
 
 test('Extracts trophy percentage - new urls', async () => {

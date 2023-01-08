@@ -7,7 +7,6 @@ const client = new Discord.Client();
 let guild = null;
 let marketChannel = null;
 const threeHoursInMilliseconds = 10800000;
-const oneHourInMilliseconds = 3600000;
 
 async function askUser(ad, adMessage) {
 	console.log('Asking user ' + ad.author_id + ' if they have already sold the item ' + ad.name);
@@ -149,7 +148,7 @@ async function askUser(ad, adMessage) {
  * If the message doesn't exist attempt to delete it and send null instead
  */
 async function getOriginalAdMessage(ad) {
-	let message = null;
+	let message;
 	try {
 		message = await marketChannel.messages.fetch(ad.message_id);
 	}
@@ -189,22 +188,19 @@ async function getOriginalAdMessage(ad) {
 		return;
 	}
 
-	for (;;) {
-		const ads = await AdManager.findOldestAds();
-		if (ads.length === 0) {
-			console.log('No more ads to refresh... sleep for 1 hour');
-			await new Promise(resolve => setTimeout(resolve, oneHourInMilliseconds));
-			continue;
+	const ads = await AdManager.findOldestAds();
+	if (ads.length === 0) {
+		console.log('No ads to refresh!');
+		return;
+	}
+
+	console.log('Found ' + ads.length + ' old ads. Asking users if they want to refresh them.');
+	await Promise.all(ads.map(async (ad) => {
+		const message = await getOriginalAdMessage(ad);
+		if (!message) {
+			return;
 		}
 
-		console.log('Found ' + ads.length + ' old ads. Asking users whether they are still interested.');
-		await Promise.all(ads.map(async (ad) => {
-			const message = await getOriginalAdMessage(ad);
-			if (!message) {
-				return;
-			}
-
-			await askUser(ad, message);
-		}));
-	}
+		await askUser(ad, message);
+	}));
 })();

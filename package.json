@@ -11,7 +11,7 @@
   "scripts": {
     "lint": "eslint .",
     "start": "node src/index.js",
-    "test": "jest --detectOpenHandles",
+    "test": "jest",
     "has-been-sold": "node scripts/has-been-sold.js",
     "lfg:update-points": "node scripts/lfg-update-points.js"
   },

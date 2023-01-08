@@ -102,7 +102,7 @@ module.exports = {
 	 */
 	getProfileTrophies: async function(psnProfileUsername, page = 1) {
 		const urls = [];
-		const fetchUrl = 'https://psnprofiles.com/' + psnProfileUsername + '?completion=platinum&order=last-trophy&pf=all&page=' + page;
+		const fetchUrl = 'https://psnprofiles.com/' + psnProfileUsername + '?completion=platinum&order=last-trophy&page=' + page;
 
 		return await JSDOM.fromURL(fetchUrl).then(dom => {
 			const $ = require('jquery')(dom.window);
