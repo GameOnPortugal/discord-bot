@@ -36,6 +36,7 @@ jobs:
             scripts/
             src/
             tests/
+            captain-definition
             docker-compose.yml
             package.json
             package-lock.json
