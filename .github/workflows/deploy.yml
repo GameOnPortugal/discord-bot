@@ -2,7 +2,7 @@ name: Build & Deploy
 
 on:
   push:
-    branches: [ "master", "use-rover" ]
+    branches: [ "master" ]
 
 concurrency:
   group: ${{ github.head_ref || github.run_id }}
