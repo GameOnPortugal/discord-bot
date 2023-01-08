@@ -7,7 +7,6 @@ const client = new Discord.Client();
 let guild = null;
 let marketChannel = null;
 const threeHoursInMilliseconds = 10800000;
-const oneHourInMilliseconds = 3600000;
 
 async function askUser(ad, adMessage) {
 	console.log('Asking user ' + ad.author_id + ' if they have already sold the item ' + ad.name);
@@ -149,7 +148,7 @@ async function askUser(ad, adMessage) {
  * If the message doesn't exist attempt to delete it and send null instead
  */
 async function getOriginalAdMessage(ad) {
-	let message = null;
+	let message;
 	try {
 		message = await marketChannel.messages.fetch(ad.message_id);
 	}
