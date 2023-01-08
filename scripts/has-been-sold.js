@@ -189,22 +189,19 @@ async function getOriginalAdMessage(ad) {
 		return;
 	}
 
-	for (;;) {
-		const ads = await AdManager.findOldestAds();
-		if (ads.length === 0) {
-			console.log('No more ads to refresh... sleep for 1 hour');
-			await new Promise(resolve => setTimeout(resolve, oneHourInMilliseconds));
-			continue;
+	const ads = await AdManager.findOldestAds();
+	if (ads.length === 0) {
+		console.log('No ads to refresh!');
+		return;
+	}
+
+	console.log('Found ' + ads.length + ' old ads. Asking users if they want to refresh them.');
+	await Promise.all(ads.map(async (ad) => {
+		const message = await getOriginalAdMessage(ad);
+		if (!message) {
+			return;
 		}
 
-		console.log('Found ' + ads.length + ' old ads. Asking users whether they are still interested.');
-		await Promise.all(ads.map(async (ad) => {
-			const message = await getOriginalAdMessage(ad);
-			if (!message) {
-				return;
-			}
-
-			await askUser(ad, message);
-		}));
-	}
+		await askUser(ad, message);
+	}));
 })();
