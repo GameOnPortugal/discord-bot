@@ -22,6 +22,8 @@ on:
 jobs:
   test:
     name: "Static Analysis & Test"
+    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2

@@ -29,7 +29,7 @@ on:
 jobs:
   shared-build:
     name: "Build Image"
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     defaults:
       run:
