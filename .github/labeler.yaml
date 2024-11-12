@@ -1,0 +1,19 @@
+# General
+
+Documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/docs/**"
+          - "**/*.md"
+
+Workflows:
+  - changed-files:
+      - any-glob-to-any-file: ".github/workflows/**"
+
+# Libraries
+
+APP:
+  - changed-files:
+      - any-glob-to-any-file: "**"
+
+
