@@ -1,0 +1,94 @@
+name: "Build Image"
+
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        description: 'The working directory for the build'
+        required: true
+        type: string
+      image_name:
+        description: 'The Docker image name to use'
+        required: true
+        type: string
+      dockerfile:
+        description: 'The Dockerfile to use for building the image'
+        required: true
+        type: string
+      target:
+        description: 'The target to build the image for'
+        required: false
+        type: string
+        default: 'prod'
+      tag_prefix:
+        description: 'The prefix to use for the tag'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  shared-build:
+    name: "Build Image"
+    runs-on: self-hosted
+
+    defaults:
+      run:
+        working-directory: ${{ inputs.working_directory }}
+
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+
+    steps:
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extract Tag Name or SHA for Main Branch
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, format('refs/tags/{0}-v',inputs.tag_prefix))
+        id: tag
+        run: |
+          FULL_TAG="${{ github.ref }}"
+          # Replace slashes with hyphens and remove 'refs/tags/' prefix
+          SANITIZED_TAG="${FULL_TAG/refs\/heads\//}"
+          SANITIZED_TAG="${SANITIZED_TAG/refs\/tags\/${{inputs.tag_prefix}}-/}"
+          SANITIZED_TAG="${SANITIZED_TAG/\//-}"
+          if [ -z "$SANITIZED_TAG" ] || [ "$SANITIZED_TAG" == "main" ]; then
+            SANITIZED_TAG="latest"
+          fi
+          echo "Sanitized Tag Name: $SANITIZED_TAG"
+          echo "::set-output name=tag::$SANITIZED_TAG"
+
+      - name: Set SHA for Pull Request
+        if: github.event_name == 'pull_request'
+        id: sha
+        run: |
+          echo "SHA: ${{ github.sha }}"
+          echo "::set-output name=sha::${{ github.sha }}"
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ inputs.image_name }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@5e99dacf67635c4f273e532b9266ddb609b3025a
+        with:
+          context: ./${{ inputs.working_directory }}
+          file: ./${{ inputs.dockerfile }}
+          target: ${{ inputs.target }}
+          push: true
+          tags: |
+            ${{ (github.ref == 'refs/heads/main' || startsWith(github.ref, format('refs/tags/{0}-v', inputs.tag_prefix))) && format('{0}:{1}', inputs.image_name, steps.tag.outputs.tag) || '' }}
+            ${{ (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) && format('{0}:{1}', inputs.image_name, steps.tag.outputs.tag) || '' }}
+            ${{ github.event_name == 'pull_request' && format('{0}:pr-{1}', inputs.image_name, steps.sha.outputs.sha) || '' }}
+            ${{ github.event_name == 'pull_request' && format('{0}:pr-{1}', inputs.image_name, github.event.pull_request.number) || '' }}
+          labels: ${{ steps.meta.outputs.labels }}

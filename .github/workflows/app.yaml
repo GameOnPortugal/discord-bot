@@ -44,7 +44,8 @@ jobs:
 
   build:
     name: "Build Image"
-    uses: TedcryptoOrg/github-actions/.github/workflows/shared.build-image.yaml@v0.2.0
+    needs: [test]
+    uses: ./_build_image.yaml
     secrets: inherit
     with:
       working_directory: ''
@@ -58,7 +59,7 @@ jobs:
     if: >
       github.event_name == 'push' &&
       github.ref == 'refs/heads/main'
-    uses: TedcryptoOrg/github-actions/.github/workflows/shared.deploy.yaml@v0.2.0
+    uses: ./_deploy.yaml
     secrets:
       SERVER: ${{ secrets.CAPROVER_SERVER }}
       APP: ${{ secrets.CAPROVER_APP }}
