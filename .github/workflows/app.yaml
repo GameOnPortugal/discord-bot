@@ -45,7 +45,7 @@ jobs:
   build:
     name: "Build Image"
     needs: [test]
-    uses: ./_build_image.yaml
+    uses: "./.github/workflows/_build_image.yaml"
     secrets: inherit
     with:
       working_directory: ''
@@ -59,7 +59,7 @@ jobs:
     if: >
       github.event_name == 'push' &&
       github.ref == 'refs/heads/main'
-    uses: ./_deploy.yaml
+    uses: "./.github/workflows/_deploy.yaml"
     secrets:
       SERVER: ${{ secrets.CAPROVER_SERVER }}
       APP: ${{ secrets.CAPROVER_APP }}
