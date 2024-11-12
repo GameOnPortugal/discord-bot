@@ -1,0 +1,30 @@
+name: 'Send Telegram Message'
+description: 'Send a message to a Telegram chat'
+
+inputs:
+  bot_token:
+    description: 'Telegram bot token'
+    required: true
+  chat_id:
+    description: 'Telegram chat ID'
+    required: true
+  thread_id:
+    description: 'Telegram thread ID'
+    required: false
+  message:
+    description: 'Message text'
+    required: true
+
+runs:
+  using: 'composite'
+
+  steps:
+    - run: |
+        if [ -z "${{ inputs.thread_id }}" ]; then
+          curl -s -X POST "https://api.telegram.org/bot${{ inputs.bot_token }}/sendMessage" \
+            -d "chat_id=${{ inputs.chat_id }}&text=${{ inputs.message }}"
+        else
+          curl -s -X POST "https://api.telegram.org/bot${{ inputs.bot_token }}/sendMessage" \
+          -d "chat_id=${{ inputs.chat_id }}&text=${{ inputs.message }}&reply_to_message_id=${{ inputs.thread_id }}"
+        fi
+      shell: bash

@@ -1,0 +1,67 @@
+name: "App: CI/CD"
+
+concurrency:
+  group: "app-${{ github.ref }}"
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch: ~
+  pull_request:
+    paths:
+      - ".github/workflows/app.yaml"
+      - "src/**"
+  push:
+    paths:
+      - ".github/workflows/app.yaml"
+      - "src/**"
+    tags:
+      - 'v*'
+    branches:
+      - "main"
+
+jobs:
+  test:
+    name: "Static Analysis & Test"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Node v14
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run Jest
+        run: |
+          cp .env.dist .env
+          npm run test
+
+  build:
+    name: "Build Image"
+    uses: TedcryptoOrg/github-actions/.github/workflows/shared.build-image.yaml@v0.2.0
+    secrets: inherit
+    with:
+      working_directory: ''
+      image_name: "joshlopes/game-on-portugal-bot-app"
+      dockerfile: "docker/app/Dockerfile"
+      target: 'app'
+
+  deploy:
+    name: "Deploy"
+    needs: [build]
+    if: >
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main'
+    uses: TedcryptoOrg/github-actions/.github/workflows/shared.deploy.yaml@v0.2.0
+    secrets:
+      SERVER: ${{ secrets.CAPROVER_SERVER }}
+      APP: ${{ secrets.CAPROVER_APP }}
+      APP_TOKEN: ${{ secrets.CAPROVER_TOKEN }}
+    with:
+      image_name: "joshlopes/game-on-portugal-bot-app:latest"
