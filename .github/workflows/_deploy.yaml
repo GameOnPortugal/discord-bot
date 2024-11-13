@@ -1,0 +1,67 @@
+name: "Deploy"
+
+on:
+  workflow_call:
+    secrets:
+      SERVER:
+        description: 'The CapRover server URL'
+        required: true
+      APP:
+        description: 'The CapRover App name'
+        required: true
+      APP_TOKEN:
+        description: 'The CapRover API token'
+        required: true
+      TELEGRAM_BOT_TOKEN:
+        description: 'The Telegram Bot token'
+        required: false
+      TELEGRAM_CHAT_ID:
+        description: 'The Telegram Chat ID'
+        required: false
+      TELEGRAM_THREAD_ID:
+        description: 'The Telegram Thread ID'
+        required: false
+    inputs:
+      image_name:
+        description: 'The Image name'
+        required: true
+        type: string
+      send_telegram_message:
+        description: 'Send Telegram message'
+        required: false
+        type: boolean
+        default: false
+      telegram_app_name:
+        description: 'The Telegram App name'
+        required: false
+        type: string
+        default: 'App'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy Image to CapRrover
+        uses: caprover/deploy-from-github@v1.1.2
+        with:
+          server: ${{ secrets.SERVER }}
+          app: ${{ secrets.APP }}
+          token: ${{ secrets.APP_TOKEN }}
+          image: ${{ inputs.image_name }}
+
+      - name: 'Send message'
+        if: ${{ inputs.send_telegram_message }}
+        uses: ./.github/actions/send-telegram-message
+        with:
+          bot_token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          chat_id: ${{ secrets.TELEGRAM_CHAT_ID }}
+          thread_id: ${{ secrets.TELEGRAM_THREAD_ID }}
+          message: |
+            ${{ inputs.telegram_app_name }} deployed successfully!
+            ${{ github.actor }}: ${{ github.event.commits[0].message }}
+
+            **Changes**: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+            **Deployment**: ${{ inputs.server }}/#/apps/details/${{ inputs.app }}

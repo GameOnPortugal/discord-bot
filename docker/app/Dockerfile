@@ -9,7 +9,7 @@ COPY package-lock.json package-lock.json
 
 RUN npm ci
 
-FROM node:15.11.0-alpine3.13
+FROM node:15.11.0-alpine3.13 AS app
 
 RUN apk add --no-cache chromium
 
