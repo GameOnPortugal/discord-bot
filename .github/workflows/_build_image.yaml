@@ -33,7 +33,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ${{ inputs.working_directory }}
+        working-directory: ${{ inputs.working_directory || '.' }}
 
     outputs:
       tag: ${{ steps.tag.outputs.tag }}
