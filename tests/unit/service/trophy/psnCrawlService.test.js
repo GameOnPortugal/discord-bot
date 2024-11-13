@@ -1,4 +1,4 @@
-const PsnCrawlService = require('./../../../../src/service/trophy/psnCrawlService');
+//const PsnCrawlService = require('./../../../../src/service/trophy/psnCrawlService');
 
 describe('psnCrawlService', () => {
 	it('always pass', () => {
